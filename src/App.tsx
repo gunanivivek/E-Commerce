@@ -4,7 +4,7 @@ import Unauthorized from "./pages/Unauthorized";
 import RoleBasedRoute from "./routes/RoleBasedRoute";
 import Login from "./pages/Login";
 import TestLayout from "./layouts/TestLayout";
-import TestDashboard from "./layouts/TestDashboard";
+import TestDashboard from "./pages/TestDashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 
 function App() {
