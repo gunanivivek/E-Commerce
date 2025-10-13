@@ -11,9 +11,14 @@ function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+   
+      <Route path="/" element={<TestLayout />}>
+        <Route index element={<TestDashboard />} />
+      </Route>
+
       <Route path="/unauthorized" element={<Unauthorized />} />
       <Route element={<ProtectedRoute />}>
-      <Route path="*" element={<NotFound />} />
+        <Route path="*" element={<NotFound />} />
         {/* Admin-only routes */}
         <Route element={<RoleBasedRoute allowedRoles={["admin"]} />}>
           <Route path="/admin" element={<TestLayout />}>
@@ -24,13 +29,6 @@ function App() {
         {/* Seller-only routes */}
         <Route element={<RoleBasedRoute allowedRoles={["seller"]} />}>
           <Route path="/seller" element={<TestLayout />}>
-            <Route index element={<TestDashboard />} />
-          </Route>
-        </Route>
-
-        {/* Customer-only routes */}
-        <Route element={<RoleBasedRoute allowedRoles={["customer"]} />}>
-          <Route path="/" element={<TestLayout />}>
             <Route index element={<TestDashboard />} />
           </Route>
         </Route>
