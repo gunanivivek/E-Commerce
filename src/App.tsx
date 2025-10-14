@@ -6,11 +6,13 @@ import TestLayout from "./layouts/TestLayout";
 import TestDashboard from "./pages/TestDashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import NotFound from "./pages/NotFound";
+import SignUp from "./pages/SignUp";
 
 function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<SignUp />} />
    
       <Route path="/" element={<TestLayout />}>
         <Route index element={<TestDashboard />} />
