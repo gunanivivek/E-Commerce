@@ -3,7 +3,7 @@ import { Facebook, Twitter, Instagram, Mail } from "lucide-react";
 
 const Footer = () => {
   return (
-    <div className="border-t bg-primary-100">
+    <div className="border-t  bg-gradient-to-br from-primary-200 to-primary-300">
       <div className="container pt-12 px-6 md:pt-16">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* Logo & Description */}
@@ -16,7 +16,7 @@ const Footer = () => {
                 ShopEase
               </span>
             </div>
-            <p className="text-sm text-primary-300">
+            <p className="text-base font-semibold text-primary-400">
               Your trusted destination for quality products at unbeatable
               prices.
             </p>
@@ -44,12 +44,12 @@ const Footer = () => {
 
           {/* Shop Links */}
           <div>
-            <h3 className="font-semibold mb-4 text-primary-400">Shop</h3>
-            <ul className="space-y-3 text-sm text-primary-300">
+            <h3 className="font-bold mb-4 text-xl text-primary-400">Shop</h3>
+            <ul className="space-y-3 text-base ">
               <li>
                 <Link
                   to="/products"
-                  className="hover:text-primary-400 transition-colors"
+                  className="text-primary-400 hover:text-primary-300 transition-colors"
                 >
                   All Products
                 </Link>
@@ -57,7 +57,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/categories"
-                  className="hover:text-primary-400 transition-colors"
+                  className="text-primary-400 hover:text-primary-300 transition-colors"
                 >
                   Categories
                 </Link>
@@ -65,7 +65,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/about"
-                  className="hover:text-primary-400 transition-colors"
+                  className="text-primary-400 hover:text-primary-300 transition-colors"
                 >
                   About
                 </Link>
@@ -73,7 +73,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/new-arrivals"
-                  className="hover:text-primary-400 transition-colors"
+                  className="text-primary-400 hover:text-primary-300 transition-colors"
                 >
                   New Arrivals
                 </Link>
@@ -83,12 +83,12 @@ const Footer = () => {
 
           {/* Support Links */}
           <div>
-            <h3 className="font-semibold mb-4 text-primary-400">Support</h3>
-            <ul className="space-y-3 text-sm text-primary-300">
+            <h3 className="font-bold mb-4 text-lg text-primary-400">Support</h3>
+            <ul className="space-y-3 text-base hover:text-primary-400 text-primary-300">
               <li>
                 <Link
                   to="/help-center"
-                  className="hover:text-primary-400 transition-colors"
+                  className="text-primary-400 hover:text-primary-300 transition-colors"
                 >
                   Help Center
                 </Link>
@@ -96,7 +96,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/contact"
-                  className="hover:text-primary-400 transition-colors"
+                  className="text-primary-400 hover:text-primary-300 transition-colors"
                 >
                   Contact Us
                 </Link>
@@ -104,7 +104,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/shipping-info"
-                  className="hover:text-primary-400 transition-colors"
+                  className="text-primary-400 hover:text-primary-300 transition-colors"
                 >
                   Shipping Info
                 </Link>
@@ -112,7 +112,7 @@ const Footer = () => {
               <li>
                 <Link
                   to="/returns-refunds"
-                  className="hover:text-primary-400 transition-colors"
+                  className="text-primary-400 hover:text-primary-300 transition-colors"
                 >
                   Returns & Refunds
                 </Link>
@@ -122,8 +122,8 @@ const Footer = () => {
 
           {/* Newsletter Section */}
           <div>
-            <h3 className="font-semibold mb-4 text-primary-400">Newsletter</h3>
-            <p className="text-sm text-primary-300 mb-4">
+            <h3 className="font-bold mb-4 text-lg text-primary-400">Newsletter</h3>
+            <p className="text-base text-primary-400 mb-4 ">
               Subscribe to get special offers and updates.
             </p>
             <div className="flex gap-2">
@@ -134,29 +134,29 @@ const Footer = () => {
                 className="flex-1 p-2 border-2 border-primary-300 rounded-md text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-400"
               />
               {/* Manually creating the button with icon */}
-              <button className="p-2 text-primary-400 bg-primary-100 hover:bg-primary-200 rounded-md">
-                <Mail className="h-4 w-4" />
+              <button className="p-3 text-primary-400 bg-primary-100 hover:bg-primary-200 rounded-md">
+                <Mail className="h-5 w-5" />
               </button>
             </div>
           </div>
         </div>
 
         {/* Footer Bottom */}
-        <div className="m-6 pt-6 border-t text-center text-sm text-primary-300">
+        <div className="m-6 pt-6 border-t text-center text-lg text-primary-400">
           <p>
             &copy; {new Date().getFullYear()} ShopEase. All rights reserved.
           </p>
           <div className="flex justify-center gap-4 mt-2">
             <Link
               to="/privacy-policy"
-              className="hover:text-primary-400 transition-colors"
+              className="text-primary-400 transition-colors"
             >
               Privacy Policy
             </Link>
             <span>|</span>
             <Link
               to="/terms-conditions"
-              className="hover:text-primary-400 transition-colors"
+              className="text-primary-400 transition-colors"
             >
               Terms of Service
             </Link>

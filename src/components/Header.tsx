@@ -36,30 +36,30 @@ const Header = () => {
   }, [setIsLoggedIn]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-primary-100 backdrop-blur supports-[backdrop-filter]:bg-primary-100">
+    <header className="sticky top-0 z-50 w-full border-b bg-primary-300 backdrop-blur supports-[backdrop-filter]:bg-primary-200">
       <div className="container flex h-16 items-center justify-between">
         <div className="flex items-center gap-6">
           <button className="md:hidden p-2 text-primary-400 hover:text-primary-600">
             <Menu className="h-5 w-5" />
           </button>
-          <a href="/" className="flex items-center space-x-2">
+          <a href="/" className="flex items-center space-x-4">
             <div className="ml-3 h-8 w-8 rounded-lg bg-gradient-to-br from-primary-200 to-primary-400 flex items-center justify-center">
               <span className="text-primary-100 font-bold text-lg">S</span>
             </div>
-            <span className="hidden font-bold text-xl md:inline-block text-primary-400">
+            <span className="hidden font-bold text-2xl md:inline-block text-primary-400">
               ShopEase
             </span>
           </a>
           <nav className="hidden md:flex gap-6">
             <a
               href="/products"
-              className="text-sm font-medium transition-colors hover:text-primary-400"
+              className="text-lg font-semibold transition-colors hover:text-primary-400"
             >
               Products
             </a>
             <a
               href="/categories"
-              className="text-sm font-medium transition-colors hover:text-primary-400"
+              className="text-lg font-semibold transition-colors hover:text-primary-400"
             >
               Categories
             </a>
@@ -76,7 +76,7 @@ const Header = () => {
             <input
               type="search"
               placeholder="Search products..."
-              className="pl-10 border rounded-md py-2 px-4 w-full border-primary-300 focus:outline-none focus:ring-2 focus:ring-primary-400"
+              className="pl-10 border rounded-md py-2 px-4 w-full border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-400"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -117,7 +117,7 @@ const Header = () => {
           {/* Login/Logout Button */}
           <button
             onClick={() => navigate(isLoggedIn ? "/logout" : "/login")}
-            className="p-2 cursor-pointer text-primary-400 hover:text-primary-600"
+            className="p-2 cursor-pointer text-black font-bold hover:text-primary-600"
           >
             {isLoggedIn ? (
               <LogOut className="h-5 w-5" />
