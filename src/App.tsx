@@ -1,8 +1,8 @@
 import { Routes, Route } from "react-router";
 import Unauthorized from "./pages/Unauthorized";
 import RoleBasedRoute from "./routes/RoleBasedRoute";
-import Header from "./layouts/header";
-import Footer from "./layouts/Footer";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 import Login from "./pages/Login";
 import TestLayout from "./layouts/TestLayout";
 import TestDashboard from "./pages/TestDashboard";
