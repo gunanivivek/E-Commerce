@@ -1,6 +1,8 @@
 import { Routes, Route } from "react-router";
 import Unauthorized from "./pages/Unauthorized";
 import RoleBasedRoute from "./routes/RoleBasedRoute";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
 import Login from "./pages/Login";
 import TestLayout from "./layouts/TestLayout";
 import TestDashboard from "./pages/TestDashboard";
@@ -16,40 +18,44 @@ import SignUp from "./pages/SignUp";
 
 function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<SignUp />} />
-   
-      <Route path="/" element={<TestLayout />}>
-        <Route index element={<TestDashboard />} />
-      </Route>
+    <div className="flex flex-col">
+      <Header />
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
 
-      <Route path="/unauthorized" element={<Unauthorized />} />
-      <Route element={<ProtectedRoute />}>
-        <Route path="*" element={<NotFound />} />
-        {/* Admin-only routes */}
-        <Route element={<RoleBasedRoute allowedRoles={["admin"]} />}>
-          <Route path="/admin" element={<AdminLayouts />}>
-            <Route index element={<TestDashboard />} />
-            <Route path="sellers" element={<Test />} />
-            <Route path="products" element={<Test />} />
-            <Route path="coupons" element={<Test />} />
-            <Route path="profile" element={<AdminProfile />} />
-          </Route>
+        <Route path="/" element={<TestLayout />}>
+          <Route index element={<TestDashboard />} />
         </Route>
 
-        {/* Seller-only routes */}
-        <Route element={<RoleBasedRoute allowedRoles={["seller"]} />}>
-          <Route path="/seller" element={<SellerLayouts />}>
-            <Route index element={<TestDashboard />} />
-            <Route path="sellers" element={<Test />} />
-            <Route path="products" element={<Test />} />
-            <Route path="coupons" element={<Test />} />
-            <Route path="profile" element={<SellerProfile />} />
+        <Route path="/unauthorized" element={<Unauthorized />} />
+        <Route element={<ProtectedRoute />}>
+          <Route path="*" element={<NotFound />} />
+          {/* Admin-only routes */}
+          <Route element={<RoleBasedRoute allowedRoles={["admin"]} />}>
+            <Route path="/admin" element={<AdminLayouts />}>
+              <Route index element={<TestDashboard />} />
+              <Route path="sellers" element={<Test />} />
+              <Route path="products" element={<Test />} />
+              <Route path="coupons" element={<Test />} />
+              <Route path="profile" element={<AdminProfile />} />
+            </Route>
+          </Route>
+
+          {/* Seller-only routes */}
+          <Route element={<RoleBasedRoute allowedRoles={["seller"]} />}>
+            <Route path="/seller" element={<SellerLayouts />}>
+              <Route index element={<TestDashboard />} />
+              <Route path="sellers" element={<Test />} />
+              <Route path="products" element={<Test />} />
+              <Route path="coupons" element={<Test />} />
+              <Route path="profile" element={<SellerProfile />} />
+            </Route>
           </Route>
         </Route>
-      </Route>
-    </Routes>
+      </Routes>
+      <Footer />
+    </div>
   );
 }
 
