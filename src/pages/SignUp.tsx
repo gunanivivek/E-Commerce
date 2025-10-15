@@ -104,7 +104,7 @@ export default function Signup() {
               {...register("phone", { required: userType === "seller" })}
               className="w-full border border-gray-200 bg-gray-100 text-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a7bfa5]"
             />
-            {errors.phone && <p className="text-red-400 text-sm mt-1">Phone number is required for sellers</p>}
+            {errors.phone && <p className="text-red-400 text-sm mt-1">Phone number is required</p>}
           </div>
 
           {/* Email */}
