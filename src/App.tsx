@@ -6,13 +6,18 @@ import TestLayout from "./layouts/TestLayout";
 import TestDashboard from "./pages/TestDashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import NotFound from "./pages/NotFound";
+import AdminLayouts from "./layouts/AdminLayouts";
+import Test from "./pages/Test";
+import SellerLayouts from "./layouts/SellerLayouts";
+import SellerProfile from "./pages/Seller/SellerProfile";
+import AdminProfile from "./pages/Admin/AdminProfile";
+
 import SignUp from "./pages/SignUp";
 
 function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<SignUp />} />
    
       <Route path="/" element={<TestLayout />}>
         <Route index element={<TestDashboard />} />
@@ -23,15 +28,23 @@ function App() {
         <Route path="*" element={<NotFound />} />
         {/* Admin-only routes */}
         <Route element={<RoleBasedRoute allowedRoles={["admin"]} />}>
-          <Route path="/admin" element={<TestLayout />}>
+          <Route path="/admin" element={<AdminLayouts />}>
             <Route index element={<TestDashboard />} />
+            <Route path="sellers" element={<Test />} />
+            <Route path="products" element={<Test />} />
+            <Route path="coupons" element={<Test />} />
+            <Route path="profile" element={<AdminProfile />} />
           </Route>
         </Route>
 
         {/* Seller-only routes */}
         <Route element={<RoleBasedRoute allowedRoles={["seller"]} />}>
-          <Route path="/seller" element={<TestLayout />}>
+          <Route path="/seller" element={<SellerLayouts />}>
             <Route index element={<TestDashboard />} />
+            <Route path="sellers" element={<Test />} />
+            <Route path="products" element={<Test />} />
+            <Route path="coupons" element={<Test />} />
+            <Route path="profile" element={<SellerProfile />} />
           </Route>
         </Route>
       </Route>
