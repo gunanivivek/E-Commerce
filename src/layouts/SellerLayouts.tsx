@@ -6,7 +6,7 @@ const SellerLayouts = () => {
   return (
     <div className="flex flex-row min-h-screen">
       <SellerSidebar />
-      <div className="w-full bg-primary-400/10 pt-10 md:pt-0">
+      <div className="w-full bg-primary-400/10 pt-10 lg:pt-0">
         <Outlet />
       </div>
     </div>

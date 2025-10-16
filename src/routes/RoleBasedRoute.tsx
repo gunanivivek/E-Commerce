@@ -10,7 +10,7 @@ interface User {
 
 const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({ allowedRoles }) => {
 
-  const user: User | null = { role: "admin" }; 
+  const user: User | null = { role: "seller" }; 
 
   if (!user) {
     return <Navigate to="/login" replace />;
