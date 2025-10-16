@@ -1,8 +1,14 @@
+import Footer from "../components/Footer"
+import Header from "../components/Header"
 
 
 const TestLayout = () => {
   return (
-    <div>TestLayout</div>
+    <div className="flex flex-col">
+      <Header />
+      Test Layout
+      <Footer />
+    </div>
   )
 }
 

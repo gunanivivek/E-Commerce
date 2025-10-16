@@ -1,8 +1,6 @@
 import { Routes, Route } from "react-router";
 import Unauthorized from "./pages/Unauthorized";
-import RoleBasedRoute from "./routes/RoleBasedRoute";
-// import Header from "./layouts/header";
-// import Footer from "./layouts/Footer";
+import RoleBasedRoute from "./routes/RoleBasedRoute"; 
 import Login from "./pages/Login";
 import TestLayout from "./layouts/TestLayout";
 import TestDashboard from "./pages/TestDashboard";
@@ -19,8 +17,6 @@ import AdminProductList from "./pages/Admin/AdminProductList";
 
 function App() {
   return (
-    <div className="flex flex-col">
-    
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
@@ -55,8 +51,6 @@ function App() {
           </Route>
         </Route>
       </Routes>
-      
-    </div>
   );
 }
 
