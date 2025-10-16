@@ -14,12 +14,15 @@ import AdminProfile from "./pages/Admin/AdminProfile";
 
 import SignUp from "./pages/SignUp";
 import AdminProductList from "./pages/Admin/AdminProductList";
+import ForgotPassword from "./pages/ForgotPassword";
 
 function App() {
   return (
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
+
+        <Route path="/forgotPassword" element={<ForgotPassword />} />
 
         <Route path="/" element={<TestLayout />}>
           <Route index element={<TestDashboard />} />

@@ -10,21 +10,21 @@ import type {
 } from "../types/auth";
 
 export const signupUser = async (data: BuyerSignupRequest): Promise<SignupResponse> => {
-  const res = await API.post("/signup", data);
+  const res = await API.post("users/register", data);
   return res.data;
 };
 
 export const signupSeller = async (data: SellerSignupRequest): Promise<SignupResponse> => {
-  const res = await API.post("/signupSeller", data);
+  const res = await API.post("sellers/register", data);
   return res.data;
 };
 
 export const loginUser = async (credentials: LoginRequest): Promise<LoginResponse> => {
-  const res = await API.post("/login", credentials);
+  const res = await API.post("auth/login", credentials);
   return res.data;
 };
 
 export const forgotPassword = async (data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> => {
-  const res = await API.post("/forgot-password", data);
+  const res = await API.post("auth/forgot-password", data);
   return res.data;
 };

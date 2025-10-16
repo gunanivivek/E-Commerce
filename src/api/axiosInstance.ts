@@ -2,7 +2,7 @@ import axios from "axios";
 import { useAuthStore } from "../store/authStore";
 
 const API = axios.create({
-  baseURL: `${import.meta.env.VITE_API_URL}/api/v1/auth`,
+  baseURL: `${import.meta.env.VITE_API_URL}`,
 });
 
 // Attach token automatically
