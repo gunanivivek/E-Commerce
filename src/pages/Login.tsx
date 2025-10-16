@@ -81,12 +81,12 @@ export default function Login() {
 
         <p className="text-base sm:text-lg text-gray-600 mt-4">
           New here?{" "}
-          <a
-            href="/signup"
+          <button
+            onClick={()=> navigate("/signup")}
             className="text-primary-300 hover:underline font-medium"
           >
             Sign up
-          </a>
+          </button>
         </p>
       </div>
     </div>
