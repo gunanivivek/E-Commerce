@@ -8,9 +8,8 @@ export const useLogin = () => {
 
   return useMutation<LoginResponse, Error, LoginRequest>({
     mutationFn: loginUser,
-    onSuccess: (data, variables: LoginRequest) => {
-      // Save token & role (from variables) in Zustand
-      setAuth(data.access_token, variables.email, variables.role as "buyer" | "seller");
+    onSuccess: (data) => {
+      setAuth(data.access_token, data.user.email );
     },
   });
 };
