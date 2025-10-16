@@ -27,6 +27,8 @@ const AdminProfile = () => {
     handleSubmit,
     formState: { errors },
     trigger,
+    clearErrors,
+    reset,
   } = useForm<AdminProfileForm>({
     defaultValues: {
       fullName: "",
@@ -66,8 +68,17 @@ const AdminProfile = () => {
     fileInputRef.current?.click();
   };
 
+  const handleToggleEdit = () => {
+    if (isEditing) {
+      // when cancelling edit, clear validation errors and reset form
+      clearErrors();
+      reset();
+    }
+    setIsEditing(!isEditing);
+  };
+
   return (
-    <div className="min-h-screen py-6">
+    <div className="min-h-screen py-6 px-4 lg:px-0">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-primary-400">Admin Profile</h1>
@@ -119,7 +130,7 @@ const AdminProfile = () => {
             </div>
 
             <button
-              onClick={() => setIsEditing(!isEditing)}
+              onClick={handleToggleEdit}
               className="px-4 py-2 bg-primary-400/10 text-sm hover:bg-primary-400/20 text-primary-400 rounded-lg transition-colors font-medium"
             >
               {isEditing ? "Close" : "Edit Profile"}
@@ -129,33 +140,45 @@ const AdminProfile = () => {
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
             {/* Personal Info */}
-            <h2 className="text-primary-400 font-semibold mt-2 mb-2">Personal Info</h2>
+            <h2 className="text-primary-400 font-semibold mt-2 mb-2">
+              Personal Info
+            </h2>
 
             <div>
-              <label className="block text-primary-400 text-sm font-medium mb-1">Full Name</label>
+              <label className="block text-primary-400 text-sm font-medium mb-1">
+                Full Name
+              </label>
               <input
                 type="text"
                 {...register("fullName", {
                   required: "Full name is required",
-                  pattern: { value: /^[A-Za-z\s]+$/, message: "Only letters and spaces allowed" },
+                  pattern: {
+                    value: /^[A-Za-z\s]+$/,
+                    message: "Only letters and spaces allowed",
+                  },
                   minLength: { value: 3, message: "Minimum 3 characters" },
                 })}
                 disabled={!isEditing}
                 className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
               />
               {errors.fullName && (
-                <p className="text-red-500 text-xs mt-1">{errors.fullName.message}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.fullName.message}
+                </p>
               )}
             </div>
 
             <div>
-              <label className="block text-primary-400 text-sm font-medium mb-1">Email</label>
+              <label className="block text-primary-400 text-sm font-medium mb-1">
+                Email
+              </label>
               <input
                 type="email"
                 {...register("email", {
                   required: "Email is required",
                   pattern: {
-                    value: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
+                    value:
+                      /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
                     message: "Invalid email address",
                   },
                 })}
@@ -163,28 +186,39 @@ const AdminProfile = () => {
                 className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
               />
               {errors.email && (
-                <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
             <div>
-              <label className="block text-primary-400 text-sm font-medium mb-1">Phone Number</label>
+              <label className="block text-primary-400 text-sm font-medium mb-1">
+                Phone Number
+              </label>
               <input
                 type="tel"
                 {...register("phoneNumber", {
                   required: "Phone number is required",
-                  pattern: { value: /^\d{10}$/, message: "Must be 10 digits" },
+                  pattern: {
+                    value: /^\d{10}$/,
+                    message: "Must be 10 digits",
+                  },
                 })}
                 disabled={!isEditing}
                 className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
               />
               {errors.phoneNumber && (
-                <p className="text-red-500 text-xs mt-1">{errors.phoneNumber.message}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.phoneNumber.message}
+                </p>
               )}
             </div>
 
             <div>
-              <label className="block text-primary-400 text-sm font-medium mb-1">Address</label>
+              <label className="block text-primary-400 text-sm font-medium mb-1">
+                Address
+              </label>
               <input
                 type="text"
                 {...register("address", {
@@ -195,7 +229,9 @@ const AdminProfile = () => {
                 className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
               />
               {errors.address && (
-                <p className="text-red-500 text-xs mt-1">{errors.address.message}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.address.message}
+                </p>
               )}
             </div>
 

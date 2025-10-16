@@ -13,6 +13,7 @@ import SellerProfile from "./pages/Seller/SellerProfile";
 import AdminProfile from "./pages/Admin/AdminProfile";
 
 import SignUp from "./pages/SignUp";
+import AdminProductList from "./pages/Admin/AdminProductList";
 
 function App() {
   return (
@@ -32,7 +33,7 @@ function App() {
             <Route path="/admin" element={<AdminLayouts />}>
               <Route index element={<TestDashboard />} />
               <Route path="sellers" element={<Test />} />
-              <Route path="products" element={<Test />} />
+              <Route path="products" element={<AdminProductList />} />
               <Route path="coupons" element={<Test />} />
               <Route path="profile" element={<AdminProfile />} />
             </Route>

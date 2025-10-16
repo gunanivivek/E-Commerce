@@ -28,8 +28,9 @@ const SellerProfile = () => {
     register,
     handleSubmit,
     formState: { errors },
-   
     trigger,
+    clearErrors,
+    reset,
   } = useForm<AdminProfileForm>({
     defaultValues: {
       fullName: "",
@@ -48,9 +49,8 @@ const SellerProfile = () => {
   } = useForm<PasswordForm>();
 
   const onSubmit = async (data: AdminProfileForm) => {
-    // Trigger validation manually in case some inputs were disabled
     const isValid = await trigger();
-    if (!isValid) return; // Stop submission if validation fails
+    if (!isValid) return;
     console.log("Profile Data:", data);
     setIsEditing(false);
   };
@@ -72,8 +72,17 @@ const SellerProfile = () => {
     fileInputRef.current?.click();
   };
 
+  const handleToggleEdit = () => {
+    if (isEditing) {
+      // When cancelling edit, clear validation errors and reset form
+      clearErrors();
+      reset();
+    }
+    setIsEditing(!isEditing);
+  };
+
   return (
-    <div className="min-h-screen py-6">
+    <div className="min-h-screen py-6 px-4 lg:px-0">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-primary-400">Profile</h1>
@@ -110,9 +119,7 @@ const SellerProfile = () => {
                   <input
                     type="file"
                     accept="image/*"
-                    {...register("profileImage", {
-                     
-                    })}
+                    {...register("profileImage")}
                     ref={fileInputRef}
                     onChange={handleProfileImageChange}
                     className="hidden"
@@ -127,7 +134,7 @@ const SellerProfile = () => {
             </div>
 
             <button
-              onClick={() => setIsEditing(!isEditing)}
+              onClick={handleToggleEdit}
               className="px-4 py-2 bg-primary-400/10 text-sm hover:bg-primary-400/20 text-primary-400 rounded-lg transition-colors font-medium"
             >
               {isEditing ? "Close" : "Edit Profile"}
@@ -137,7 +144,9 @@ const SellerProfile = () => {
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
             {/* Store Details */}
-            <h2 className="text-primary-400 font-semibold mt-2 mb-2">Store Details</h2>
+            <h2 className="text-primary-400 font-semibold mt-2 mb-2">
+              Store Details
+            </h2>
 
             <div>
               <label className="block text-primary-400 text-sm font-medium mb-1">
@@ -145,12 +154,16 @@ const SellerProfile = () => {
               </label>
               <input
                 type="text"
-                {...register("storeName", { required: "Store name is required" })}
+                {...register("storeName", {
+                  required: "Store name is required",
+                })}
                 disabled={!isEditing}
                 className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
               />
               {errors.storeName && (
-                <p className="text-red-500 text-xs mt-1">{errors.storeName.message}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.storeName.message}
+                </p>
               )}
             </div>
 
@@ -189,15 +202,21 @@ const SellerProfile = () => {
                 className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
               />
               {errors.storeAddress && (
-                <p className="text-red-500 text-xs mt-1">{errors.storeAddress.message}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.storeAddress.message}
+                </p>
               )}
             </div>
 
             {/* Personal Info */}
-            <h2 className="text-primary-400 font-semibold mt-4 mb-2">Personal Info</h2>
+            <h2 className="text-primary-400 font-semibold mt-4 mb-2">
+              Personal Info
+            </h2>
 
             <div>
-              <label className="block text-primary-400 text-sm font-medium mb-1">Full Name</label>
+              <label className="block text-primary-400 text-sm font-medium mb-1">
+                Full Name
+              </label>
               <input
                 type="text"
                 {...register("fullName", {
@@ -212,18 +231,23 @@ const SellerProfile = () => {
                 className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
               />
               {errors.fullName && (
-                <p className="text-red-500 text-xs mt-1">{errors.fullName.message}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.fullName.message}
+                </p>
               )}
             </div>
 
             <div>
-              <label className="block text-primary-400 text-sm font-medium mb-1">Email</label>
+              <label className="block text-primary-400 text-sm font-medium mb-1">
+                Email
+              </label>
               <input
                 type="email"
                 {...register("email", {
                   required: "Email is required",
                   pattern: {
-                    value: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
+                    value:
+                      /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
                     message: "Invalid email address",
                   },
                 })}
@@ -231,23 +255,32 @@ const SellerProfile = () => {
                 className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
               />
               {errors.email && (
-                <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.email.message}
+                </p>
               )}
             </div>
 
             <div>
-              <label className="block text-primary-400 text-sm font-medium mb-1">Phone Number</label>
+              <label className="block text-primary-400 text-sm font-medium mb-1">
+                Phone Number
+              </label>
               <input
                 type="tel"
                 {...register("phoneNumber", {
                   required: "Phone number is required",
-                  pattern: { value: /^\d{10}$/, message: "Must be 10 digits" },
+                  pattern: {
+                    value: /^\d{10}$/,
+                    message: "Must be 10 digits",
+                  },
                 })}
                 disabled={!isEditing}
                 className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
               />
               {errors.phoneNumber && (
-                <p className="text-red-500 text-xs mt-1">{errors.phoneNumber.message}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {errors.phoneNumber.message}
+                </p>
               )}
             </div>
 
@@ -265,7 +298,7 @@ const SellerProfile = () => {
           <div className="mt-4">
             <button
               onClick={() => setShowChangePassword(!showChangePassword)}
-              className="px-4 py-2  bg-primary-400/10 text-sm hover:bg-primary-400/20 text-primary-400 rounded-lg transition-colors font-medium"
+              className="px-4 py-2 bg-primary-400/10 text-sm hover:bg-primary-400/20 text-primary-400 rounded-lg transition-colors font-medium"
             >
               {showChangePassword ? "Cancel" : "Change Password"}
             </button>

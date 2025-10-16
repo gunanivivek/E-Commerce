@@ -2,6 +2,8 @@ import { useForm } from "react-hook-form";
 import { useLogin } from "../hooks/useLogin";
 import { useNavigate } from "react-router";
 
+type UserType = "buyer" | "seller";
+
 interface LoginForm {
   email: string;
   password: string;
