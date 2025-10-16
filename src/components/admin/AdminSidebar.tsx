@@ -71,7 +71,7 @@ const AdminSidebar = () => {
                 <Package className="w-5 h-5 text-white" />
               </div>
               <div className="text-primary-400 min-w-0">
-                <h1 className="font-bold text-sidebar-foreground truncate">
+                <h1 className="font-bold text-lg text-sidebar-foreground truncate">
                   Merchant Hub
                 </h1>
                 <p className="text-xs font-semibold text-muted-foreground truncate">
@@ -95,7 +95,7 @@ const AdminSidebar = () => {
 
         {/* Navigation */}
         <div className="flex flex-col flex-1 p-4 space-y-1 overflow-y-auto">
-          <h3 className="text-xs text-primary-400 px-3 font-semibold">
+          <h3 className="text-sm text-primary-400 px-3 pb-1 font-semibold">
             Navigation
           </h3>
           <nav className="flex flex-col space-y-1">

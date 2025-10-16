@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSignUp } from "../hooks/useSignUp";
 import type { SignupRequest, BuyerSignupRequest, SellerSignupRequest } from "../types/auth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 type UserType = "buyer" | "seller";
 
@@ -101,6 +101,7 @@ export default function Signup() {
             <label className="block text-gray-700 text-base mb-1">Phone Number</label>
             <input
               type="tel"
+              placeholder="+91XXXXXXXXXX"
               {...register("phone", { required: userType === "seller" })}
               className="w-full border border-gray-200 bg-gray-100 text-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a7bfa5]"
             />
@@ -112,6 +113,7 @@ export default function Signup() {
             <label className="block text-gray-700 text-base mb-1">Email</label>
             <input
               type="email"
+              placeholder="Enter your email"
               {...register("email", { required: "Email is required" })}
               className="w-full border border-gray-200 bg-gray-100 text-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a7bfa5]"
             />

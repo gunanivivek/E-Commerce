@@ -5,9 +5,9 @@
   --color-primary-200: #b6ceb4;
   --color-primary-300: #96a78d;
   --color-primary-400: #4e5c46;
+  --color-light: #74a45a;
   --color-background: #f0f0f0;
   --radius: 0.5rem;
 
   --color-primary-border: hsl(100 25% 85%);
-  
 }

@@ -4,36 +4,48 @@ export type UserRole = "buyer" | "seller";
 export interface LoginRequest {
     email: string;
     password: string;
-    role: string;
 }
 
 export interface LoginResponse {
   access_token: string;
   token_type: string;
+  user: {
+    id: string;
+    name: string;
+    email: string;
+    role: UserRole; 
+  };
+  store?: {
+    id: string;
+    name: string;
+    status: "pending" | "active";
+  };
 }
 
 //SIGNUP
-export interface SignupRequestBase {
+export interface BuyerSignupRequest {
   name: string;
   email: string;
   password: string;
   confirmPassword: string;
   role: UserRole;
-}
-
-
-export interface BuyerSignupRequest extends SignupRequestBase {
   phone?: string;
 }
 
 
-export interface SellerSignupRequest extends SignupRequestBase {
+export interface SellerSignupRequest {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  role: UserRole;
   phone: string;
   storeName: string;
   businessAddress: string;
 }
 
 export type SignupRequest = BuyerSignupRequest | SellerSignupRequest;
+
 
 export interface SignupResponse {
   id: string;
