@@ -1,22 +1,19 @@
 import { Navigate, Outlet } from "react-router";
+import { useAuthStore } from "../store/authStore";
 
 interface RoleBasedRouteProps {
   allowedRoles: string[];
 }
 
-interface User {
-  role: string;
-}
-
 const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({ allowedRoles }) => {
-
-  const user: User | null = { role: "seller" }; 
-
+  const { user } = useAuthStore();
+  const role = useAuthStore((state) => state.role);
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  if (!allowedRoles.includes(user.role)) {
+  // If role not allowed
+  if (!role || !allowedRoles.includes(role)) {
     return <Navigate to="/unauthorized" replace />;
   }
 
