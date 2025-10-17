@@ -4,16 +4,16 @@ import { useSignUp } from "../hooks/useSignUp";
 import type { SignupRequest, BuyerSignupRequest, SellerSignupRequest } from "../types/auth";
 import { useNavigate } from "react-router";
 
-type UserType = "buyer" | "seller";
+type UserType = "customer" | "seller";
 
 export default function Signup() {
-  const [userType, setUserType] = useState<UserType>("buyer");
-  const navigate = useNavigate();
+  const [userType, setUserType] = useState<UserType>("customer");
+  const navigate =  useNavigate();
 
   const signupMutation = useSignUp();
 
   const { register, handleSubmit, watch, formState: { errors } } =
-    useForm<BuyerSignupRequest & SellerSignupRequest>();
+    useForm<(BuyerSignupRequest & SellerSignupRequest) & { confirmPassword: string }>();
 
   const password = watch("password");
 
@@ -21,7 +21,7 @@ export default function Signup() {
     const payload = { ...data, role: userType };
     signupMutation.mutate(payload, {
       onSuccess: () => {
-        navigate(userType === "buyer" ? "/buyer/dashboard" : "/seller/dashboard");
+        navigate(userType === "customer" ? "/" : "/seller");
       },
     });
   };
@@ -33,16 +33,16 @@ export default function Signup() {
           Create Account
         </h2>
         <p className="text-primary-400 mb-6 text-base sm:text-lg mt-1">
-          Join as a {userType === "buyer" ? "Buyer" : "Seller"}
+          Join as a {userType === "customer" ? "Customer" : "Seller"}
         </p>
 
         {/* Role Tabs */}
         <div className="flex bg-primary-200 rounded-3xl mb-6 p-1.5 overflow-hidden">
           <button
             type="button"
-            onClick={() => setUserType("buyer")}
+            onClick={() => setUserType("customer")}
             className={`w-1/2 py-1 text-sm sm:text-base font-medium rounded-2xl transition hover:cursor-pointer ${
-              userType === "buyer" ? "bg-background text-primary-400" : "text-gray-500"
+              userType === "customer" ? "bg-background text-primary-400" : "text-gray-500"
             }`}
           >
             Buyer
@@ -66,10 +66,10 @@ export default function Signup() {
             <input
               type="text"
               placeholder="Enter your full name"
-              {...register("name", { required: "Full name is required" })}
+              {...register("full_name", { required: "Full name is required" })}
               className="w-full border border-gray-200 bg-gray-100 text-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a7bfa5]"
             />
-            {errors.name && <p className="text-red-400 text-sm mt-1">{errors.name.message}</p>}
+            {errors.full_name && <p className="text-red-400 text-sm mt-1">{errors.full_name.message}</p>}
           </div>
 
           {/* Seller-only fields */}
@@ -80,10 +80,10 @@ export default function Signup() {
                 <input
                   type="text"
                   placeholder="Your Store Name"
-                  {...register("storeName", { required: "Store name is required" })}
+                  {...register("store_name", { required: "Store name is required" })}
                   className="w-full border border-gray-200 bg-gray-100 text-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a7bfa5]"
                 />
-                {errors.storeName && <p className="text-red-400 text-sm mt-1">{errors.storeName.message}</p>}
+                {errors.store_name && <p className="text-red-400 text-sm mt-1">{errors.store_name.message}</p>}
               </div>
 
               <div>
@@ -91,10 +91,10 @@ export default function Signup() {
                 <input
                   type="text"
                   placeholder="Enter your store's address"
-                  {...register("businessAddress", { required: "Store address is required" })}
+                  {...register("store_address", { required: "Store address is required" })}
                   className="w-full border border-gray-200 bg-gray-100 text-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a7bfa5]"
                 />
-                {errors.businessAddress && <p className="text-red-400 text-sm mt-1">{errors.businessAddress.message}</p>}
+                {errors.store_address && <p className="text-red-400 text-sm mt-1">{errors.store_address.message}</p>}
               </div>
             </>
           )}
