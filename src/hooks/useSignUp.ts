@@ -5,18 +5,18 @@ import { useAuthStore } from "../store/authStore";
 
 
 export const useSignUp = () => {
-  const setSignupAuth = useAuthStore((state) => state.setSignupAuth);
-
+  const setUser = useAuthStore((state) => state.setUser);
+ 
   return useMutation<SignupResponse, Error, SignupRequest>({
     mutationFn: (data) => {
-      if (data.role === "buyer") {
+      if (data.role === "customer") {
         return signupUser(data);
       } else {
         return signupSeller(data as SellerSignupRequest);
       }
     },
     onSuccess: (data) => {
-      setSignupAuth(data.access_token, data.email, data.role);
+      setUser({ email: data.email, role: data.role });
     },
   });
 };

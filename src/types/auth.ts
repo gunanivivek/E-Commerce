@@ -1,4 +1,4 @@
-export type UserRole = "buyer" | "seller";
+export type UserRole = "customer" | "seller";
 
 //LOGIN
 export interface LoginRequest {
@@ -24,24 +24,22 @@ export interface LoginResponse {
 
 //SIGNUP
 export interface BuyerSignupRequest {
-  name: string;
+  full_name: string;
   email: string;
   password: string;
-  confirmPassword: string;
-  role: UserRole;
+  role?: UserRole;
   phone?: string;
 }
 
 
 export interface SellerSignupRequest {
-  name: string;
+  full_name: string;
   email: string;
   password: string;
-  confirmPassword: string;
   role: UserRole;
   phone: string;
-  storeName: string;
-  businessAddress: string;
+  store_name: string;
+  store_address: string;
 }
 
 export type SignupRequest = BuyerSignupRequest | SellerSignupRequest;
