@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { NavLink } from "react-router";
 import { useAuthStore } from "../store/authStore";
+import { toast } from "react-toastify";
 
 interface NavItem {
   name: string;
@@ -36,7 +37,16 @@ const navConfig: Record<string, NavItem[]> = {
 const DashboardSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
-const logout = useAuthStore((state) => state.logout);
+  const logout = useAuthStore((state) => state.logout);
+  const handleLogout = async () => {
+    try {
+      logout();
+      toast.success("Logged out successfully!");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      toast.error(err?.response?.data?.detail || "Logout failed");
+    }
+  };
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) setIsOpen(false);
@@ -92,7 +102,8 @@ const logout = useAuthStore((state) => state.logout);
                   Merchant Hub
                 </h1>
                 <p className="text-xs font-semibold text-muted-foreground truncate">
-                  {user.role.charAt(0).toUpperCase() + user.role.slice(1)} Dashboard
+                  {user.role.charAt(0).toUpperCase() + user.role.slice(1)}{" "}
+                  Dashboard
                 </p>
               </div>
             </div>
@@ -101,7 +112,11 @@ const logout = useAuthStore((state) => state.logout);
               className="p-2 md:hidden rounded-full bg-primary-300 text-white hover:bg-primary-400 transition-colors"
               aria-label="Toggle menu"
             >
-              {isOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              {isOpen ? (
+                <X className="w-4 h-4" />
+              ) : (
+                <Menu className="w-4 h-4" />
+              )}
             </button>
           </div>
         </div>
@@ -157,7 +172,7 @@ const logout = useAuthStore((state) => state.logout);
               </p>
             </div>
           </NavLink>
-          <button onClick={logout} className="w-full mt-2 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-primary-400 hover:bg-sidebar-accent/50 transition-colors">
+          <button onClick={handleLogout} className="w-full mt-2 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-primary-400 hover:bg-sidebar-accent/50 transition-colors">
             <LogOut className="w-4 h-4" />
             Sign Out
           </button>
