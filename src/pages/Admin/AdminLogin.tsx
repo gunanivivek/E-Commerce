@@ -11,7 +11,7 @@ export default function AdminLogin() {
   const navigate = useNavigate();
 
   const onSubmit = (data: LoginForm) => {
-    // Temporary mock logic
+
     if (data.email === "admin@example.com" && data.password === "admin123") {
       alert("Login Successful!");
       navigate("/admin/dashboard"); 
@@ -24,7 +24,7 @@ export default function AdminLogin() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 sm:px-6 md:px-8">
       <div className="bg-white rounded-xl shadow-md p-6 sm:p-8 w-full max-w-md sm:max-w-lg text-center">
-        {/* Heading */}
+       
         <h2 className="text-2xl sm:text-3xl font-semibold text-primary-400">
           Merchant Hub
         </h2>
@@ -32,7 +32,7 @@ export default function AdminLogin() {
             Welcome back admin! Login to manage your site
         </p>
 
-        {/* Form */}
+     
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-left">
           <div>
             <label className="block text-gray-700 text-sm mb-1">Email</label>

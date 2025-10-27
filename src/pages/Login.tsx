@@ -12,17 +12,32 @@ export default function Login() {
   const loginMutation = useLogin();
   const navigate = useNavigate();
 
-  const onSubmit = (data: LoginForm) => {
-    loginMutation.mutate(
-      { ...data},
-      {
-        onSuccess: () => {
-          reset();
-          navigate("/"); //Will be adding role based navigation to this.
-        },
+const onSubmit = (data: LoginForm) => {
+  loginMutation.mutate(data, {
+    onSuccess: (res) => {
+      reset(); // reset form
+
+      // Get role from response
+      const role = res.user.role;
+
+      // Navigate based on role
+      switch (role) {
+        case "admin":
+          navigate("/admin");
+          break;
+        case "seller":
+          navigate("/seller");
+          break;
+        case "customer":
+          navigate("/home"); // or your customer dashboard
+          break;
+        default:
+          navigate("/"); // fallback
       }
-    );
-  };
+    },
+  });
+};
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 sm:px-6 md:px-8">

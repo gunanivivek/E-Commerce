@@ -1,10 +1,11 @@
 import { Outlet } from "react-router";
-import AdminSidebar from "../components/admin/AdminSidebar";
+import DashboardSidebar from "../components/DashboardSidebar";
+
 
 const AdminLayouts = () => {
   return (
     <div className="flex flex-row min-h-screen">
-      <AdminSidebar />
+      <DashboardSidebar />
       <div className="w-full bg-primary-400/10 pt-10 lg:pt-0">
         <Outlet />
       </div>
