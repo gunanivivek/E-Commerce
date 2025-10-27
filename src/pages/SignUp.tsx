@@ -12,19 +12,19 @@ export default function Signup() {
 
   const signupMutation = useSignUp();
 
-  const { register, handleSubmit, watch, formState: { errors } } =
-    useForm<(BuyerSignupRequest & SellerSignupRequest) & { confirmPassword: string }>();
+    const { register, handleSubmit, watch, formState: { errors } } =
+      useForm<(BuyerSignupRequest & SellerSignupRequest) & { confirmPassword: string }>();
 
-  const password = watch("password");
+    const password = watch("password");
 
-  const handleSignup = (data: SignupRequest) => {
-    const payload = { ...data, role: userType };
-    signupMutation.mutate(payload, {
-      onSuccess: () => {
-        navigate(userType === "customer" ? "/" : "/seller");
-      },
-    });
-  };
+    const handleSignup = (data: SignupRequest) => {
+      const payload = { ...data, role: userType };
+      signupMutation.mutate(payload, {
+        onSuccess: () => {
+          navigate(userType === "customer" ? "/" : "/seller");
+        },
+      });
+    };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 sm:px-6 md:px-8">
