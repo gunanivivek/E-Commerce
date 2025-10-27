@@ -38,6 +38,7 @@ const DashboardSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
+<<<<<<< HEAD
   const handleLogout = async () => {
     try {
       logout();
@@ -47,6 +48,8 @@ const DashboardSidebar = () => {
       toast.error(err?.response?.data?.detail || "Logout failed");
     }
   };
+=======
+>>>>>>> 87ac087 (chnage password)
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) setIsOpen(false);
@@ -172,7 +175,14 @@ const DashboardSidebar = () => {
               </p>
             </div>
           </NavLink>
+<<<<<<< HEAD
           <button onClick={handleLogout} className="w-full mt-2 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-primary-400 hover:bg-sidebar-accent/50 transition-colors">
+=======
+          <button
+            onClick={logout}
+            className="w-full mt-2 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-primary-400 hover:bg-sidebar-accent/50 transition-colors"
+          >
+>>>>>>> 87ac087 (chnage password)
             <LogOut className="w-4 h-4" />
             Sign Out
           </button>

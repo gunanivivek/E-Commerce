@@ -1,6 +1,8 @@
 import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { User } from "lucide-react";
+import { useChangePassword } from "../../hooks/useChangePassword";
+import { toast } from "react-toastify";
 
 interface AdminProfileForm {
   fullName: string;
@@ -22,6 +24,9 @@ const AdminProfile = () => {
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  const changePasswordMutation = useChangePassword();
+
+  // Profile form
   const {
     register,
     handleSubmit,
@@ -38,6 +43,7 @@ const AdminProfile = () => {
     },
   });
 
+  // Password form
   const {
     register: registerPassword,
     handleSubmit: handlePasswordSubmit,
@@ -52,16 +58,29 @@ const AdminProfile = () => {
   };
 
   const onPasswordSubmit = (data: PasswordForm) => {
-    console.log("Password Data:", data);
-    resetPassword();
-    setShowChangePassword(false);
+    if (data.newPassword !== data.confirmNewPassword) {
+      toast.error("New password and confirm password do not match");
+      return;
+    }
+
+    changePasswordMutation.mutate(
+      { old_password: data.oldPassword, new_password: data.newPassword },
+      {
+        onSuccess: (res) => {
+          toast.success(res.message || "Password changed successfully");
+          resetPassword();
+          setShowChangePassword(false);
+        },
+        onError: (error) => {
+          toast.error(error.message);
+        },
+      }
+    );
   };
 
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setProfilePreview(URL.createObjectURL(file));
-    }
+    if (file) setProfilePreview(URL.createObjectURL(file));
   };
 
   const handleAddProfileClick = () => {
@@ -70,7 +89,6 @@ const AdminProfile = () => {
 
   const handleToggleEdit = () => {
     if (isEditing) {
-      // when cancelling edit, clear validation errors and reset form
       clearErrors();
       reset();
     }
@@ -120,11 +138,6 @@ const AdminProfile = () => {
                     onChange={handleProfileImageChange}
                     className="hidden"
                   />
-                  {errors.profileImage && (
-                    <p className="text-red-500 text-xs mt-1">
-                      {errors.profileImage.message}
-                    </p>
-                  )}
                 </>
               )}
             </div>
@@ -137,9 +150,8 @@ const AdminProfile = () => {
             </button>
           </div>
 
-          {/* Form */}
+          {/* Profile Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-            {/* Personal Info */}
             <h2 className="text-primary-400 font-semibold mt-2 mb-2">
               Personal Info
             </h2>
@@ -177,8 +189,7 @@ const AdminProfile = () => {
                 {...register("email", {
                   required: "Email is required",
                   pattern: {
-                    value:
-                      /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
+                    value: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
                     message: "Invalid email address",
                   },
                 })}
@@ -200,10 +211,7 @@ const AdminProfile = () => {
                 type="tel"
                 {...register("phoneNumber", {
                   required: "Phone number is required",
-                  pattern: {
-                    value: /^\d{10}$/,
-                    message: "Must be 10 digits",
-                  },
+                  pattern: { value: /^\d{10}$/, message: "Must be 10 digits" },
                 })}
                 disabled={!isEditing}
                 className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
@@ -269,6 +277,7 @@ const AdminProfile = () => {
                     className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
                   />
                 </div>
+
                 <div>
                   <label className="block text-primary-400 text-sm font-medium mb-1">
                     New Password
@@ -279,6 +288,7 @@ const AdminProfile = () => {
                     className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
                   />
                 </div>
+
                 <div>
                   <label className="block text-primary-400 text-sm font-medium mb-1">
                     Confirm New Password
@@ -292,10 +302,23 @@ const AdminProfile = () => {
 
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-primary-300 font-semibold text-white rounded-lg text-sm hover:bg-primary-500 transition-colors mt-2"
+                  disabled={changePasswordMutation.isPending}
+                  className={`px-4 py-2 bg-primary-300 font-semibold text-white rounded-lg text-sm transition-colors mt-2 ${
+                    changePasswordMutation.isPending
+                      ? "cursor-not-allowed opacity-70"
+                      : "hover:bg-primary-500"
+                  }`}
                 >
-                  Save Password
+                  {changePasswordMutation.isPending
+                    ? "Saving..."
+                    : "Save Password"}
                 </button>
+
+                {changePasswordMutation.isError && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {(changePasswordMutation.error as Error).message}
+                  </p>
+                )}
               </form>
             )}
           </div>
