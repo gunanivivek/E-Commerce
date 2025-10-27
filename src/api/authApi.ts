@@ -25,6 +25,6 @@ export const loginUser = async (credentials: LoginRequest): Promise<LoginRespons
 };
 
 export const forgotPassword = async (data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> => {
-  const res = await API.post("auth/forgot-password", data);
+  const res = await API.post("auth/forget-password", data);
   return res.data;
 };
