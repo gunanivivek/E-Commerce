@@ -1,8 +1,11 @@
 import { useNavigate } from "react-router";
 import { ShieldAlert } from "lucide-react";
+import { useAuthStore } from "../store/authStore";
 
 const Unauthorized = () => {
   const navigate = useNavigate();
+  const user = useAuthStore((state) => state);
+console.log(user);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background">
