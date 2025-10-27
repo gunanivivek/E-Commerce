@@ -150,12 +150,25 @@ export default function Signup() {
             {errors.confirmPassword && <p className="text-red-400 text-sm mt-1">{errors.confirmPassword.message}</p>}
           </div>
 
-          <button
+        <button
             type="submit"
-            className="w-full bg-primary-300 hover:bg-[#95b494] text-white font-medium py-2 rounded-lg transition disabled:opacity-50"
+            disabled={signupMutation.isPending}
+            className={`w-full py-2 rounded-lg font-medium text-white transition bg-primary-300 ${
+              signupMutation.isPending
+                ? " cursor-not-allowed"
+                : " hover:bg-[#95b494]"
+            }`}
           >
-            Sign Up
+            {signupMutation.isPending ? "Signing up..." : "Sign Up"}
           </button>
+
+          {/* Error message */}
+          {signupMutation.isError && (
+            <p className="text-red-500 mt-2">
+              {(signupMutation.error as Error).message}
+            </p>
+          )}
+          
         </form>
 
         <p className="text-base sm:text-lg text-gray-600 mt-4">
