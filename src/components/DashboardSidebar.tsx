@@ -36,7 +36,7 @@ const navConfig: Record<string, NavItem[]> = {
 const DashboardSidebar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
-
+const logout = useAuthStore((state) => state.logout);
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth >= 1024) setIsOpen(false);
@@ -157,7 +157,7 @@ const DashboardSidebar = () => {
               </p>
             </div>
           </NavLink>
-          <button className="w-full mt-2 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-primary-400 hover:bg-sidebar-accent/50 transition-colors">
+          <button onClick={logout} className="w-full mt-2 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-primary-400 hover:bg-sidebar-accent/50 transition-colors">
             <LogOut className="w-4 h-4" />
             Sign Out
           </button>

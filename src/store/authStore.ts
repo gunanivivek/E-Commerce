@@ -14,9 +14,10 @@ interface User {
 interface AuthState {
   user: User | null;
   message: string | null;
-  setUser: (data: { user: User; message: string }) => void;
+  setUser: (data: { user: User | null; message: string | null }) => void;
   logout: () => void;
 }
+
 
 // ✅ Load initial state from localStorage
 const storedAuth = localStorage.getItem("authData");
