@@ -36,7 +36,7 @@ const Header = () => {
   }, [setIsLoggedIn]);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-primary-300 backdrop-blur supports-[backdrop-filter]:bg-primary-200">
+    <header className="sticky top-0 z-50 w-full  bg-primary-300 backdrop-blur supports-[backdrop-filter]:bg-primary-200">
       <div className=" flex h-16 items-center justify-between">
         <div className="flex items-center gap-6">
           <button className="md:hidden p-2 text-primary-400 hover:text-primary-600">
