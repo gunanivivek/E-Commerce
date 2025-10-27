@@ -9,11 +9,11 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { useStore } from "../store/headerStore"; // Zustand store
+import { useStore } from "../store/headerStore"; 
 
 const Header = () => {
   const navigate = useNavigate();
-  const { cartCount, isLoggedIn, setIsLoggedIn } = useStore(); // Zustand store
+  const { cartCount, isLoggedIn, setIsLoggedIn } = useStore(); 
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = (e: React.FormEvent) => {
@@ -23,7 +23,7 @@ const Header = () => {
     }
   };
 
-  // Sync login state across tabs/windows
+  
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === "authToken") {
@@ -66,7 +66,7 @@ const Header = () => {
           </nav>
         </div>
 
-        {/* Search Input */}
+     
         <form
           onSubmit={handleSearch}
           className="hidden md:flex flex-1 max-w-md mx-4"
@@ -83,7 +83,7 @@ const Header = () => {
           </div>
         </form>
 
-        {/* Cart, Wishlist, Profile, and Login Buttons */}
+      
         <div className="flex items-center gap-2">
           {/* Wishlist - Only visible if logged in */}
           {isLoggedIn && (

@@ -1,28 +1,30 @@
-export type UserRole = "customer" | "seller";
 
-//LOGIN
+
+
 export interface LoginRequest {
     email: string;
     password: string;
 }
 
-export interface LoginResponse {
-  access_token: string;
-  token_type: string;
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    role: UserRole; 
-  };
-  store?: {
-    id: string;
-    name: string;
-    status: "pending" | "active";
-  };
+export type UserRole = "admin" | "seller" | "customer";
+
+export interface User {
+  id: number;
+  full_name: string;
+  email: string;
+  phone: string | null;
+  role: UserRole;
+  profile_picture: string | null;
+  is_active: boolean;
+  is_blocked: boolean;
 }
 
-//SIGNUP
+export interface LoginResponse {
+  user: User;
+  message: string;
+}
+
+
 export interface BuyerSignupRequest {
   full_name: string;
   email: string;
@@ -46,18 +48,25 @@ export type SignupRequest = BuyerSignupRequest | SellerSignupRequest;
 
 
 export interface SignupResponse {
-  id: string;
-  email: string;
-  role: UserRole;
-  access_token: string;
-  token_type: string;
+  user: {
+    id: number;
+    full_name: string;
+    email: string;
+    phone: string | null;
+    role: "customer" | "seller" | "admin";
+    profile_picture: string | null;
+    is_active: boolean;
+    is_blocked: boolean;
+  };
+  message: string;
 }
 
-// FORGOT PASSWORD
+
+
 export interface ForgotPasswordRequest {
   email: string;
 }
 
 export interface ForgotPasswordResponse {
-  message: string; //Password reset email sent
+  message: string; 
 }
