@@ -3,8 +3,8 @@ import { Facebook, Twitter, Instagram, Mail } from "lucide-react";
 
 const Footer = () => {
   return (
-    <div className="border-t  bg-gradient-to-br from-primary-200 to-primary-300">
-      <div className="container pt-12 px-6 md:pt-16">
+    <div className=" bg-gradient-to-br from-primary-200 to-primary-300">
+      <div className=" pt-12 px-6 md:pt-16">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* Logo & Description */}
           <div className="space-y-4">
