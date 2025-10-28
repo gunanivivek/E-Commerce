@@ -10,7 +10,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useStore } from "../store/headerStore"; 
-import { useAuthStore } from "../store/authStore";
+
 
 const Header = () => {
   const navigate = useNavigate();
