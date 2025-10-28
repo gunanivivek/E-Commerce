@@ -2,11 +2,11 @@ import axios from "axios";
 import { useAuthStore } from "../store/authStore";
 
 const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL, // Your backend URL from .env
-  withCredentials: true, // ✅ Send and receive cookies
+  baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true, 
 });
 
-// ------------------- Auto Refresh Token Handling -------------------
+
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (value: unknown) => void;

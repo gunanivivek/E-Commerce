@@ -11,7 +11,7 @@ import type {
   ChangePasswordRequest,
 } from "../types/auth";
 
-// ------------------- Signup (Buyer) -------------------
+
 export const signupUser = async (
   data: BuyerSignupRequest
 ): Promise<SignupResponse> => {
@@ -19,7 +19,7 @@ export const signupUser = async (
   return res.data;
 };
 
-// ------------------- Signup (Seller) -------------------
+
 export const signupSeller = async (
   data: SellerSignupRequest
 ): Promise<SignupResponse> => {
@@ -27,17 +27,17 @@ export const signupSeller = async (
   return res.data;
 };
 
-// ------------------- Login -------------------
+
 export const loginUser = async (
   credentials: LoginRequest
 ): Promise<LoginResponse> => {
   const res = await API.post("auth/login", credentials, {
-    withCredentials: true, // ✅ backend sets cookies
+    withCredentials: true, 
   });
   return res.data;
 };
 
-// ------------------- Forgot Password -------------------
+
 export const forgotPassword = async (
   data: ForgotPasswordRequest
 ): Promise<ForgotPasswordResponse> => {
@@ -45,7 +45,7 @@ export const forgotPassword = async (
   return res.data;
 };
 
-// ------------------- Change Password -------------------
+
 export const changePassword = async (
   data: ChangePasswordRequest
 ): Promise<ChangePasswordResponse> => {
@@ -55,12 +55,12 @@ export const changePassword = async (
   return res.data;
 };
 
-// ------------------- Refresh Session (optional) -------------------
+
 export const refreshSession = async (): Promise<void> => {
   await API.post("auth/refresh");
 };
 
-// ------------------- Logout -------------------
+
 export const logoutUser = async (): Promise<void> => {
   await API.post("auth/logout");
 };
