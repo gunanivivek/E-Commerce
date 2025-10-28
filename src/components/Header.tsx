@@ -9,11 +9,13 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { useStore } from "../store/headerStore"; 
+import { useStore } from "../store/headerStore";
+import { useAuthStore } from "../store/authStore";
+import { toast } from "react-toastify";
 
 const Header = () => {
   const navigate = useNavigate();
-  const { cartCount, isLoggedIn, setIsLoggedIn } = useStore(); 
+  const { cartCount, isLoggedIn, setIsLoggedIn } = useStore();
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = (e: React.FormEvent) => {
@@ -23,7 +25,17 @@ const Header = () => {
     }
   };
 
-  
+  const logout = useAuthStore((state) => state.logout);
+  const handleLogout = async () => {
+    try {
+      logout();
+      toast.success("Logged out successfully!");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      toast.error(err?.response?.data?.detail || "Logout failed");
+    }
+  };
+
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
       if (e.key === "authToken") {
@@ -66,7 +78,6 @@ const Header = () => {
           </nav>
         </div>
 
-     
         <form
           onSubmit={handleSearch}
           className="hidden md:flex flex-1 max-w-md mx-4"
@@ -83,48 +94,55 @@ const Header = () => {
           </div>
         </form>
 
-      
         <div className="flex items-center gap-2">
-          {/* Wishlist - Only visible if logged in */}
-          {isLoggedIn && (
-            <button onClick={() => navigate("/wishlist")} className="p-2 text-primary-400 hover:text-primary-600">
-              <Heart className="h-5 w-5 cursor-pointer" />
-            </button>
-          )}
+          {isLoggedIn ? (
+            <>
+              <button
+                onClick={() => navigate("/wishlist")}
+                className="p-2 text-primary-400 hover:text-primary-600"
+                aria-label="Wishlist"
+              >
+                <Heart className="h-5 w-5 cursor-pointer" />
+              </button>
 
-          {/* Profile - Only visible if logged in */}
-          {isLoggedIn && (
-            <button onClick={() => navigate("/profile")} className="p-2 text-primary-400 hover:text-primary-600">
-              <User className="h-5 w-5 cursor-pointer" />
-            </button>
-          )}
+              <button
+                onClick={() => navigate("/profile")}
+                className="p-2 text-primary-400 hover:text-primary-600"
+                aria-label="Profile"
+              >
+                <User className="h-5 w-5 cursor-pointer" />
+              </button>
 
-          {/* Cart - Always visible but conditionally show cart count */}
-          {isLoggedIn && (
+              <button
+                onClick={() => navigate("/cart")}
+                className="relative p-2 cursor-pointer text-primary-400 hover:text-primary-600"
+                aria-label="Cart"
+              >
+                <ShoppingCart className="h-5 w-5" />
+                {cartCount > 0 && (
+                  <div className="cursor-pointer absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-accent text-white text-xs rounded-full">
+                    {cartCount}
+                  </div>
+                )}
+              </button>
+
+              <button
+                onClick={handleLogout}
+                className="p-2 cursor-pointer text-black font-bold hover:text-primary-600"
+                aria-label="Logout"
+              >
+                <LogOut className="h-5 w-5" />
+              </button>
+            </>
+          ) : (
             <button
-              onClick={() => navigate("/cart")}
-              className="relative p-2 cursor-pointer text-primary-400 hover:text-primary-600"
+              onClick={() => navigate("/login")}
+              className="p-2 cursor-pointer text-black font-bold hover:text-primary-600"
+              aria-label="Login"
             >
-              <ShoppingCart className="h-5 w-5" />
-              {cartCount > 0 && (
-                <div className="cursor-pointer absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-accent text-white text-xs rounded-full">
-                  {cartCount}
-                </div>
-              )}
+              <LogIn className="h-5 w-5" />
             </button>
           )}
-
-          {/* Login/Logout Button */}
-          <button
-            onClick={() => navigate(isLoggedIn ? "/logout" : "/login")}
-            className="p-2 cursor-pointer text-black font-bold hover:text-primary-600"
-          >
-            {isLoggedIn ? (
-              <LogOut className="h-5 w-5" />
-            ) : (
-              <LogIn className="h-5 w-5" />
-            )}
-          </button>
         </div>
       </div>
     </header>
