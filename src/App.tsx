@@ -17,6 +17,7 @@ import SignUp from "./pages/SignUp";
 import AdminProductList from "./pages/Admin/AdminProductList";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import SellerProductList from "./pages/Seller/SellerProductList";
 
 function App() {
   return (
@@ -61,7 +62,7 @@ function App() {
           <Route path="/seller" element={<SellerLayouts />}>
             <Route index element={<TestDashboard />} />
             <Route path="sellers" element={<Test />} />
-            <Route path="products" element={<Test />} />
+            <Route path="products" element={<SellerProductList />} />
             <Route path="coupons" element={<Test />} />
             <Route path="profile" element={<SellerProfile />} />
           </Route>
