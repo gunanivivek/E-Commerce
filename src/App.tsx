@@ -15,6 +15,7 @@ import PublicRoute from "./routes/PublicRoute";
 import SignUp from "./pages/SignUp";
 import AdminProductList from "./pages/Admin/AdminProductList";
 import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
       </Route>
 
       <Route path="/forgotPassword" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       <Route path="/" element={<TestLayout />}>
         <Route index element={<TestDashboard />} />

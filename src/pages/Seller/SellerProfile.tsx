@@ -1,6 +1,8 @@
 import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { User } from "lucide-react";
+import { useChangePassword } from "../../hooks/useChangePassword";
+import { toast } from "react-toastify";
 
 interface AdminProfileForm {
   fullName: string;
@@ -55,19 +57,33 @@ const SellerProfile = () => {
     setIsEditing(false);
   };
 
-  const onPasswordSubmit = (data: PasswordForm) => {
-    console.log("Password Data:", data);
-    resetPassword();
-    setShowChangePassword(false);
-  };
-
+  const changePasswordMutation = useChangePassword();
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setProfilePreview(URL.createObjectURL(file));
     }
   };
+  const onPasswordSubmit = (data: PasswordForm) => {
+    if (data.newPassword !== data.confirmNewPassword) {
+      toast.error("New password and confirm password do not match");
+      return;
+    }
 
+    changePasswordMutation.mutate(
+      { old_password: data.oldPassword, new_password: data.newPassword },
+      {
+        onSuccess: (res) => {
+          toast.success(res.message || "Password changed successfully");
+          resetPassword();
+          setShowChangePassword(false);
+        },
+        onError: (error) => {
+          toast.error(error.message);
+        },
+      }
+    );
+  };
   const handleAddProfileClick = () => {
     fileInputRef.current?.click();
   };
@@ -246,8 +262,7 @@ const SellerProfile = () => {
                 {...register("email", {
                   required: "Email is required",
                   pattern: {
-                    value:
-                      /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
+                    value: /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/,
                     message: "Invalid email address",
                   },
                 })}
@@ -318,6 +333,7 @@ const SellerProfile = () => {
                     className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
                   />
                 </div>
+
                 <div>
                   <label className="block text-primary-400 text-sm font-medium mb-1">
                     New Password
@@ -328,23 +344,39 @@ const SellerProfile = () => {
                     className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
                   />
                 </div>
+
                 <div>
                   <label className="block text-primary-400 text-sm font-medium mb-1">
                     Confirm New Password
                   </label>
                   <input
                     type="password"
-                    {...registerPassword("confirmNewPassword", { required: true })}
+                    {...registerPassword("confirmNewPassword", {
+                      required: true,
+                    })}
                     className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-primary-300 font-semibold text-white rounded-lg text-sm hover:bg-primary-500 transition-colors mt-2"
+                  disabled={changePasswordMutation.isPending}
+                  className={`px-4 py-2 bg-primary-300 font-semibold text-white rounded-lg text-sm transition-colors mt-2 ${
+                    changePasswordMutation.isPending
+                      ? "cursor-not-allowed opacity-70"
+                      : "hover:bg-primary-500"
+                  }`}
                 >
-                  Save Password
+                  {changePasswordMutation.isPending
+                    ? "Saving..."
+                    : "Save Password"}
                 </button>
+
+                {changePasswordMutation.isError && (
+                  <p className="text-red-500 text-xs mt-1">
+                    {(changePasswordMutation.error as Error).message}
+                  </p>
+                )}
               </form>
             )}
           </div>
