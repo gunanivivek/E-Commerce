@@ -16,8 +16,8 @@ interface AuthState {
   message: string | null;
   setUser: (data: { user: User | null; message: string | null }) => void;
   logout: () => void;
+   clearAuth: () => void;
 }
-
 
 // ✅ Load initial state from localStorage
 const storedAuth = localStorage.getItem("authData");
@@ -40,6 +40,10 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   // ✅ When user logs out
   logout: () => {
+    set({ user: null, message: null });
+    localStorage.removeItem("authData");
+  },
+  clearAuth: () => {
     set({ user: null, message: null });
     localStorage.removeItem("authData");
   },

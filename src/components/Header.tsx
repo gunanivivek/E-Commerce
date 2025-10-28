@@ -23,7 +23,7 @@ const Header = () => {
       navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
     }
   };
-  const logout = useAuthStore((state) => state.logout);
+
   
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
@@ -126,10 +126,7 @@ const Header = () => {
               <LogIn className="h-5 w-5" />
             )}
           </button>
-          <button onClick={logout} className="w-full mt-2 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-primary-400 hover:bg-sidebar-accent/50 transition-colors">
-            <LogOut className="w-4 h-4" />
-            Sign Out
-          </button>
+       
         </div>
       </div>
     </header>

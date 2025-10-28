@@ -2,7 +2,6 @@ import { useMutation } from "@tanstack/react-query";
 import type { LoginRequest, LoginResponse } from "../types/auth";
 import { loginUser } from "../api/authApi";
 import { useAuthStore } from "../store/authStore";
-// eslint-disable-next-line @typescript-eslint/no-unused-vars -- Temporarily disable if ESLint doesn't detect usage in catch clause
 import type { AxiosError } from "axios";
 
 export const useLogin = () => {
@@ -16,7 +15,10 @@ export const useLogin = () => {
         let errorMessage = "Something went wrong. Please try again.";
 
         if (error instanceof Error) {
-          const axiosError = error as AxiosError<{ detail?: string; message?: string }>;
+          const axiosError = error as AxiosError<{
+            detail?: string;
+            message?: string;
+          }>;
           if (axiosError.response?.data?.detail) {
             errorMessage = axiosError.response.data.detail;
           } else if (axiosError.response?.data?.message) {
