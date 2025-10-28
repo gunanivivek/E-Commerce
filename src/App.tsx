@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router";
 import Unauthorized from "./pages/Unauthorized";
 import RoleBasedRoute from "./routes/RoleBasedRoute";
 import Login from "./pages/Login";
-import TestLayout from "./layouts/TestLayout";
+import CustomerLayouts from "./layouts/CustomerLayouts";
 import TestDashboard from "./pages/TestDashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import NotFound from "./pages/NotFound";
@@ -11,6 +11,7 @@ import Test from "./pages/Test";
 import SellerLayouts from "./layouts/SellerLayouts";
 import SellerProfile from "./pages/Seller/SellerProfile";
 import AdminProfile from "./pages/Admin/AdminProfile";
+import About from "./pages/Customer/About";
 import PublicRoute from "./routes/PublicRoute";
 import SignUp from "./pages/SignUp";
 import AdminProductList from "./pages/Admin/AdminProductList";
@@ -20,6 +21,15 @@ import ResetPassword from "./pages/ResetPassword";
 function App() {
   return (
     <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<SignUp />} />
+      <Route path="/forgotPassword" element={<ForgotPassword />} />
+
+      {/* Customer-only routes */}
+      <Route path="/" element={<CustomerLayouts />}>
+        <Route index element={<TestDashboard />} />
+      </Route>
+      <Route path="/about" element={<About />} />
       <Route element={<PublicRoute />}>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
@@ -28,7 +38,7 @@ function App() {
       <Route path="/forgotPassword" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
 
-      <Route path="/" element={<TestLayout />}>
+      <Route path="/" element={<CustomerLayouts />}>
         <Route index element={<TestDashboard />} />
       </Route>
 
