@@ -12,9 +12,11 @@ import SellerLayouts from "./layouts/SellerLayouts";
 import SellerProfile from "./pages/Seller/SellerProfile";
 import AdminProfile from "./pages/Admin/AdminProfile";
 import About from "./pages/Customer/About";
+import PublicRoute from "./routes/PublicRoute";
 import SignUp from "./pages/SignUp";
 import AdminProductList from "./pages/Admin/AdminProductList";
 import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 function App() {
   return (
@@ -28,6 +30,17 @@ function App() {
         <Route index element={<TestDashboard />} />
       </Route>
       <Route path="/about" element={<About />} />
+      <Route element={<PublicRoute />}>
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<SignUp />} />
+      </Route>
+
+      <Route path="/forgotPassword" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+
+      <Route path="/" element={<TestLayout />}>
+        <Route index element={<TestDashboard />} />
+      </Route>
 
       <Route path="/unauthorized" element={<Unauthorized />} />
       <Route element={<ProtectedRoute />}>

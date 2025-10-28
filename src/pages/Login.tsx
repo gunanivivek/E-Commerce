@@ -17,10 +17,10 @@ const onSubmit = (data: LoginForm) => {
     onSuccess: (res) => {
       reset(); // reset form
 
-      // Get role from response
+
       const role = res.user.role;
 
-      // Navigate based on role
+
       switch (role) {
         case "admin":
           navigate("/admin");
@@ -29,10 +29,10 @@ const onSubmit = (data: LoginForm) => {
           navigate("/seller");
           break;
         case "customer":
-          navigate("/home"); // or your customer dashboard
+          navigate("/");
           break;
         default:
-          navigate("/"); // fallback
+          navigate("/"); 
       }
     },
   });
@@ -81,11 +81,16 @@ const onSubmit = (data: LoginForm) => {
             </a>
           </p>
 
-          <button
+            <button
             type="submit"
-            className="w-full bg-primary-300 hover:bg-[#95b494] text-white font-medium py-2 rounded-lg transition"
+            disabled={loginMutation.isPending}
+            className={`w-full py-2 rounded-lg font-medium bg-primary-300 text-white transition ${
+              loginMutation.isPending
+                ? "cursor-not-allowed"
+                : " hover:bg-[#95b494]"
+            }`}
           >
-            Sign In 
+            {loginMutation.isPending ? "Logging in..." : "Sign In"}
           </button>
 
           {loginMutation.isError && (

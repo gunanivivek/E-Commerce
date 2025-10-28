@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
+import { forgotPassword } from "../api/authApi";
 
 interface FormData {
   email: string;
@@ -21,9 +22,16 @@ export default function ForgotPassword() {
 
   // Dummy async function for now. Will change it to the real one
   const sendEmail = async (email: string) => {
-    console.log("Sending email to:", email);
-    return new Promise((resolve) => setTimeout(resolve, 1000));
-  };
+  try {
+    const res = await forgotPassword({ email });
+    return res;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (error: any) {
+    throw new Error(
+      error?.response?.data?.detail || "Failed to send reset email"
+    );
+  }
+};
 
   const onSubmit = async (data: FormData) => {
     setLoading(true);

@@ -70,3 +70,13 @@ export interface ForgotPasswordRequest {
 export interface ForgotPasswordResponse {
   message: string; 
 }
+
+export interface ChangePasswordRequest {
+  old_password: string;
+  new_password: string;
+}
+
+export interface ChangePasswordResponse {
+  message?: string; 
+  detail?: string;  
+}
