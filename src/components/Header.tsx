@@ -8,7 +8,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useStore } from "../store/headerStore";
 import { useAuthStore } from "../store/authStore";
 import { toast } from "react-toastify";
@@ -16,7 +16,8 @@ import { toast } from "react-toastify";
 
 const Header = () => {
   const navigate = useNavigate();
-  const { cartCount, isLoggedIn, setIsLoggedIn } = useStore();
+  const user = useAuthStore((state) => state.user);
+  const { cartCount } = useStore();
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleSearch = (e: React.FormEvent) => {
@@ -37,16 +38,16 @@ const Header = () => {
     }
   };
 
-  useEffect(() => {
-    const onStorage = (e: StorageEvent) => {
-      if (e.key === "authToken") {
-        const isAuthenticated = Boolean(e.newValue);
-        setIsLoggedIn(isAuthenticated);
-      }
-    };
-    window.addEventListener("storage", onStorage);
-    return () => window.removeEventListener("storage", onStorage);
-  }, [setIsLoggedIn]);
+  // useEffect(() => {
+  //   const onStorage = (e: StorageEvent) => {
+  //     if (e.key === "access_token") {
+  //       const isAuthenticated = Boolean(e.newValue);
+  //       setIsLoggedIn(isAuthenticated);
+  //     }
+  //   };
+  //   window.addEventListener("storage", onStorage);
+  //   return () => window.removeEventListener("storage", onStorage);
+  // }, [setIsLoggedIn]);
 
   return (
     <header className="sticky top-0 z-50 w-full  bg-primary-300 backdrop-blur supports-[backdrop-filter]:bg-primary-200">
@@ -96,7 +97,7 @@ const Header = () => {
         </form>
 
         <div className="flex items-center gap-2">
-          {isLoggedIn ? (
+          {user ? (
             <>
               <button
                 onClick={() => navigate("/wishlist")}
@@ -145,17 +146,7 @@ const Header = () => {
             </button>
           )}
 
-          {/* Login/Logout Button */}
-          <button
-            onClick={() => navigate(isLoggedIn ? "/logout" : "/login")}
-            className="p-2 cursor-pointer text-black font-bold hover:text-primary-600"
-          >
-            {isLoggedIn ? (
-              <LogOut className="h-5 w-5" />
-            ) : (
-              <LogIn className="h-5 w-5" />
-            )}
-          </button>
+          
          
         </div>
       </div>
