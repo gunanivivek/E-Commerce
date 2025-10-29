@@ -7,6 +7,7 @@ import {
   LogOut,
   Menu,
   X,
+  User,
 } from "lucide-react";
 import { NavLink } from "react-router";
 import { useAuthStore } from "../store/authStore";
@@ -23,6 +24,7 @@ const navConfig: Record<string, NavItem[]> = {
   admin: [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { name: "Sellers", href: "/admin/sellers", icon: Users },
+    { name: "Customers", href: "/admin/customers", icon: User },
     { name: "Products", href: "/admin/products", icon: Package },
     { name: "Coupons", href: "/admin/coupons", icon: Ticket },
   ],

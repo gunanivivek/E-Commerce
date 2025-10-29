@@ -17,6 +17,8 @@ import SignUp from "./pages/SignUp";
 import AdminProductList from "./pages/Admin/AdminProductList";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
+import CustomerList from "./pages/Admin/CustomerList";
+import SellerList from "./pages/Admin/SellerList";
 import SellerProductList from "./pages/Seller/SellerProductList";
 
 function App() {
@@ -50,8 +52,10 @@ function App() {
         <Route element={<RoleBasedRoute allowedRoles={["admin"]} />}>
           <Route path="/admin" element={<AdminLayouts />}>
             <Route index element={<TestDashboard />} />
-            <Route path="sellers" element={<Test />} />
+            <Route path="sellers" element={<SellerList />} />
             <Route path="products" element={<AdminProductList />} />
+            
+                 <Route path="customers" element={<CustomerList />} />
             <Route path="coupons" element={<Test />} />
             <Route path="profile" element={<AdminProfile />} />
           </Route>
