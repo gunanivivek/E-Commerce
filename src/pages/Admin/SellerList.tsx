@@ -23,6 +23,7 @@ import type { Row } from "@tanstack/react-table";
 import { useAdminStore } from "../../store/adminStore";
 import { useFetchSellers } from "../../hooks/useFetchSellers";
 import type { Seller } from "../../types/admin";
+import LoadingState from "../../components/LoadingState";
 
 const columnHelper = createColumnHelper<Seller>();
 
@@ -269,7 +270,7 @@ const SellerList: React.FC = () => {
     initialState: { pagination: { pageSize: 8 } },
   });
 
-  if (loading) return <p className="p-4 text-primary-400">Loading sellers...</p>;
+ if (loading) return<LoadingState  message="Loading Sellers..."/>;
   if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
 
   return (

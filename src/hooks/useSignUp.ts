@@ -19,13 +19,24 @@ export const useSignUp = () => {
       } catch (err: unknown) {
         let errorMessage = "Something went wrong. Please try again.";
 
-        // Check if the error is an AxiosError
-        const axiosError = err as AxiosError<{ status?: string; message?: string; detail?: string }>;
+        const axiosError = err as AxiosError<{
+          status?: string;
+          message?: string;
+          detail?: string | { msg?: string }[];
+        }>;
+
         if (axiosError.response?.data) {
           const { message, detail } = axiosError.response.data;
+
           if (message) {
-            errorMessage = message; // like "Email already exists"
-          } else if (detail) {
+            // Case: custom backend message
+            errorMessage = message;
+          } else if (Array.isArray(detail)) {
+            // Case: FastAPI validation error (detail is an array)
+            // Example: [{ msg: "value is not a valid phone number", loc: ["body","phone"] }]
+            errorMessage = detail[0]?.msg || errorMessage;
+          } else if (typeof detail === "string") {
+            // Case: simple string detail
             errorMessage = detail;
           }
         } else if (err instanceof Error) {
