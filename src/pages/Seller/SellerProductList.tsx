@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import React, { useState, useMemo, useCallback } from "react";
 import { Search, Eye, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import {
@@ -202,7 +202,7 @@ const getStatusColor = (status: Product["status"]) => {
 const SellerProductList: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [data, setData] = useState<Product[]>(initialProducts);
+  const [data] = useState<Product[]>(initialProducts);
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
