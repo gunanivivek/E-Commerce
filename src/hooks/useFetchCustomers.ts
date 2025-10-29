@@ -2,12 +2,12 @@ import { useQuery } from "@tanstack/react-query";
 import { getAllCustomers } from "../api/adminApi";
 import { useAdminStore } from "../store/adminStore";
 import type { AxiosError } from "axios";
-import type { Customer, ErrorResponse } from "../types/admin";
+import type { Customer } from "../types/admin";
 
 export const useFetchCustomers = () => {
   const { setCustomers, setError, setLoading } = useAdminStore();
 
-  return useQuery<Customer[], AxiosError<ErrorResponse>>({
+  return useQuery<Customer[], AxiosError>({
     queryKey: ["customers"],
     queryFn: async () => {
       try {
@@ -16,16 +16,25 @@ export const useFetchCustomers = () => {
         setCustomers(customers);
         setError(null);
         return customers;
-      } catch (error: unknown) {
+      } catch (err: unknown) {
         let errorMessage = "Failed to fetch customers";
 
-        if (error instanceof Error) {
-          const axiosError = error as AxiosError<{ detail?: string }>;
-          if (axiosError.response?.data?.detail) {
-            errorMessage = axiosError.response.data.detail;
-          } else {
-            errorMessage = error.message;
+        const axiosError = err as AxiosError<{
+          detail?: string | { msg?: string }[];
+        }>;
+
+        if (axiosError.response?.data?.detail) {
+          const { detail } = axiosError.response.data;
+
+          if (Array.isArray(detail)) {
+            // FastAPI validation error → extract readable message
+            errorMessage = detail[0]?.msg || errorMessage;
+          } else if (typeof detail === "string") {
+            // Simple string message
+            errorMessage = detail;
           }
+        } else if (err instanceof Error) {
+          errorMessage = err.message;
         }
 
         setError(errorMessage);

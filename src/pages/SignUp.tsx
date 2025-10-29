@@ -1,30 +1,40 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useSignUp } from "../hooks/useSignUp";
-import type { SignupRequest, BuyerSignupRequest, SellerSignupRequest } from "../types/auth";
+import type {
+  SignupRequest,
+  BuyerSignupRequest,
+  SellerSignupRequest,
+} from "../types/auth";
 import { useNavigate } from "react-router";
 
 type UserType = "customer" | "seller";
 
 export default function Signup() {
   const [userType, setUserType] = useState<UserType>("customer");
-  const navigate =  useNavigate();
+  const navigate = useNavigate();
 
   const signupMutation = useSignUp();
 
-    const { register, handleSubmit, watch, formState: { errors } } =
-      useForm<(BuyerSignupRequest & SellerSignupRequest) & { confirmPassword: string }>();
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<
+    (BuyerSignupRequest & SellerSignupRequest) & { confirmPassword: string }
+  >();
 
-    const password = watch("password");
+  const password = watch("password");
 
-    const handleSignup = (data: SignupRequest) => {
-      const payload = { ...data, role: userType };
-      signupMutation.mutate(payload, {
-        onSuccess: () => {
-          navigate(userType === "customer" ? "/" : "/seller");
-        },
-      });
-    };
+  const handleSignup = (data: SignupRequest) => {
+    const payload = { ...data, role: userType };
+    signupMutation.mutate(payload, {
+      onSuccess: () => {
+        navigate(userType === "customer" ? "/" : "/seller");
+      },
+    });
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 sm:px-6 md:px-8">
@@ -42,7 +52,9 @@ export default function Signup() {
             type="button"
             onClick={() => setUserType("customer")}
             className={`w-1/2 py-1 text-sm sm:text-base font-medium rounded-2xl transition hover:cursor-pointer ${
-              userType === "customer" ? "bg-background text-primary-400" : "text-gray-500"
+              userType === "customer"
+                ? "bg-background text-primary-400"
+                : "text-gray-500"
             }`}
           >
             Buyer
@@ -51,7 +63,9 @@ export default function Signup() {
             type="button"
             onClick={() => setUserType("seller")}
             className={`w-1/2 py-1 text-sm sm:text-base font-medium rounded-2xl transition hover:cursor-pointer ${
-              userType === "seller" ? "bg-background text-primary-400" : "text-gray-500"
+              userType === "seller"
+                ? "bg-background text-primary-400"
+                : "text-gray-500"
             }`}
           >
             Seller
@@ -59,56 +73,97 @@ export default function Signup() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit(handleSignup)} className="space-y-4 text-left">
+        <form
+          onSubmit={handleSubmit(handleSignup)}
+          className="space-y-4 text-left"
+        >
           {/* Full Name */}
           <div>
-            <label className="block text-gray-700 text-base mb-1">Full Name</label>
+            <label className="block text-gray-700 text-base mb-1">
+              Full Name
+            </label>
             <input
               type="text"
               placeholder="Enter your full name"
               {...register("full_name", { required: "Full name is required" })}
               className="w-full border border-gray-200 bg-gray-100 text-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a7bfa5]"
             />
-            {errors.full_name && <p className="text-red-400 text-sm mt-1">{errors.full_name.message}</p>}
+            {errors.full_name && (
+              <p className="text-red-400 text-sm mt-1">
+                {errors.full_name.message}
+              </p>
+            )}
           </div>
 
           {/* Seller-only fields */}
           {userType === "seller" && (
             <>
               <div>
-                <label className="block text-gray-700 text-base mb-1">Store Name</label>
+                <label className="block text-gray-700 text-base mb-1">
+                  Store Name
+                </label>
                 <input
                   type="text"
                   placeholder="Your Store Name"
-                  {...register("store_name", { required: "Store name is required" })}
+                  {...register("store_name", {
+                    required: "Store name is required",
+                  })}
                   className="w-full border border-gray-200 bg-gray-100 text-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a7bfa5]"
                 />
-                {errors.store_name && <p className="text-red-400 text-sm mt-1">{errors.store_name.message}</p>}
+                {errors.store_name && (
+                  <p className="text-red-400 text-sm mt-1">
+                    {errors.store_name.message}
+                  </p>
+                )}
               </div>
 
               <div>
-                <label className="block text-gray-700 text-base mb-1">Store Address</label>
+                <label className="block text-gray-700 text-base mb-1">
+                  Store Address
+                </label>
                 <input
                   type="text"
                   placeholder="Enter your store's address"
-                  {...register("store_address", { required: "Store address is required" })}
+                  {...register("store_address", {
+                    required: "Store address is required",
+                  })}
                   className="w-full border border-gray-200 bg-gray-100 text-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a7bfa5]"
                 />
-                {errors.store_address && <p className="text-red-400 text-sm mt-1">{errors.store_address.message}</p>}
+                {errors.store_address && (
+                  <p className="text-red-400 text-sm mt-1">
+                    {errors.store_address.message}
+                  </p>
+                )}
               </div>
             </>
           )}
 
           {/* Phone */}
           <div>
-            <label className="block text-gray-700 text-base mb-1">Phone Number</label>
+            <label className="block text-gray-700 text-base mb-1">
+              Phone Number <span className="text-red-500">*</span>
+            </label>
             <input
               type="tel"
               placeholder="+91XXXXXXXXXX"
-              {...register("phone", { required: userType === "seller" })}
-              className="w-full border border-gray-200 bg-gray-100 text-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a7bfa5]"
+              {...register("phone", {
+                required:
+                  userType === "seller" ? "Phone number is required" : false,
+                pattern: {
+                  value: /^\+91\d{10}$/, // must start with +91 and followed by 10 digits
+                  message:
+                    "Phone number must start with +91 and contain 10 digits",
+                },
+              })}
+              className={`w-full border ${
+                errors.phone ? "border-red-400" : "border-gray-200"
+              } bg-gray-100 text-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a7bfa5]`}
             />
-            {errors.phone && <p className="text-red-400 text-sm mt-1">Phone number is required</p>}
+            {errors.phone && (
+              <p className="text-red-400 text-sm mt-1">
+                {errors.phone.message}
+              </p>
+            )}
           </div>
 
           {/* Email */}
@@ -120,37 +175,58 @@ export default function Signup() {
               {...register("email", { required: "Email is required" })}
               className="w-full border border-gray-200 bg-gray-100 text-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a7bfa5]"
             />
-            {errors.email && <p className="text-red-400 text-sm mt-1">{errors.email.message}</p>}
+            {errors.email && (
+              <p className="text-red-400 text-sm mt-1">
+                {errors.email.message}
+              </p>
+            )}
           </div>
 
           {/* Password */}
           <div>
-            <label className="block text-gray-700 text-base mb-1">Password</label>
+            <label className="block text-gray-700 text-base mb-1">
+              Password
+            </label>
             <input
               type="password"
               placeholder="Enter your password"
-              {...register("password", { required: "Password is required", minLength: 6 })}
+              {...register("password", {
+                required: "Password is required",
+                minLength: 6,
+              })}
               className="w-full border border-gray-200 bg-gray-100 text-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a7bfa5]"
             />
-            {errors.password && <p className="text-red-400 text-sm mt-1">{errors.password.message || "Password must be at least 6 characters"}</p>}
+            {errors.password && (
+              <p className="text-red-400 text-sm mt-1">
+                {errors.password.message ||
+                  "Password must be at least 6 characters"}
+              </p>
+            )}
           </div>
 
           {/* Confirm Password */}
           <div>
-            <label className="block text-gray-700 text-base mb-1">Confirm Password</label>
+            <label className="block text-gray-700 text-base mb-1">
+              Confirm Password
+            </label>
             <input
               type="password"
               placeholder="Confirm your password"
               {...register("confirmPassword", {
                 required: "Confirm password is required",
-                validate: (value) => value === password || "Passwords do not match",
+                validate: (value) =>
+                  value === password || "Passwords do not match",
               })}
               className="w-full border border-gray-200 bg-gray-100 text-gray-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#a7bfa5]"
             />
-            {errors.confirmPassword && <p className="text-red-400 text-sm mt-1">{errors.confirmPassword.message}</p>}
+            {errors.confirmPassword && (
+              <p className="text-red-400 text-sm mt-1">
+                {errors.confirmPassword.message}
+              </p>
+            )}
           </div>
 
-        <button
+          <button
             type="submit"
             disabled={signupMutation.isPending}
             className={`w-full py-2 rounded-lg font-medium text-white transition bg-primary-300 ${
@@ -168,12 +244,14 @@ export default function Signup() {
               {(signupMutation.error as Error).message}
             </p>
           )}
-          
         </form>
 
         <p className="text-base sm:text-lg text-gray-600 mt-4">
           Already have an account?{" "}
-          <a href="/login" className="text-primary-300 hover:underline font-medium">
+          <a
+            href="/login"
+            className="text-primary-300 hover:underline font-medium"
+          >
             Sign in
           </a>
         </p>
