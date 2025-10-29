@@ -16,7 +16,7 @@ export interface Seller {
 export interface Customer {
   id: number;
   full_name: string;
-  email: string;
+  email: string ;
   phone: string;
   is_active: boolean;
   is_blocked: boolean;
