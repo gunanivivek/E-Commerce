@@ -8,6 +8,7 @@ import {
   Menu,
   X,
   User,
+  ChartColumnStacked,
 } from "lucide-react";
 import { NavLink } from "react-router";
 import { useAuthStore } from "../store/authStore";
@@ -26,6 +27,7 @@ const navConfig: Record<string, NavItem[]> = {
     { name: "Sellers", href: "/admin/sellers", icon: Users },
     { name: "Customers", href: "/admin/customers", icon: User },
     { name: "Products", href: "/admin/products", icon: Package },
+     { name: "Categories", href: "/admin/category", icon: ChartColumnStacked  },
     { name: "Coupons", href: "/admin/coupons", icon: Ticket },
   ],
   seller: [

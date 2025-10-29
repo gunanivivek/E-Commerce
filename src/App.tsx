@@ -20,6 +20,7 @@ import ResetPassword from "./pages/ResetPassword";
 import CustomerList from "./pages/Admin/CustomerList";
 import SellerList from "./pages/Admin/SellerList";
 import SellerProductList from "./pages/Seller/SellerProductList";
+import CategoryList from "./pages/Admin/CategoryList";
 
 function App() {
   return (
@@ -37,14 +38,11 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
       </Route>
-
       <Route path="/forgotPassword" element={<ForgotPassword />} />
       <Route path="/reset-password" element={<ResetPassword />} />
-
       <Route path="/" element={<CustomerLayouts />}>
         <Route index element={<TestDashboard />} />
       </Route>
-
       <Route path="/unauthorized" element={<Unauthorized />} />
       <Route element={<ProtectedRoute />}>
         <Route path="*" element={<NotFound />} />
@@ -54,8 +52,8 @@ function App() {
             <Route index element={<TestDashboard />} />
             <Route path="sellers" element={<SellerList />} />
             <Route path="products" element={<AdminProductList />} />
-            
-                 <Route path="customers" element={<CustomerList />} />
+            <Route path="category" element={<CategoryList />} />
+            <Route path="customers" element={<CustomerList />} />
             <Route path="coupons" element={<Test />} />
             <Route path="profile" element={<AdminProfile />} />
           </Route>
