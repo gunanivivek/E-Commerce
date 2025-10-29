@@ -11,6 +11,7 @@ import {
 } from "@tanstack/react-table";
 import type { Row } from "@tanstack/react-table";
 import BulkUploadModal from "../../components/Seller/BulkUploadModal";
+import AddProductModal from "../../components/Seller/AddProductModal";
 
 interface Product {
   id: number;
@@ -201,6 +202,7 @@ const getStatusColor = (status: Product["status"]) => {
 
 const SellerProductList: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddModelOpen, setIsAddModelOpen] = useState(false);
 
   const [data] = useState<Product[]>(initialProducts);
   const [searchTerm, setSearchTerm] = useState("");
@@ -382,7 +384,10 @@ const SellerProductList: React.FC = () => {
               Bulk Upload
             </button>
 
-            <button className="flex items-center gap-1 text-sm sm:text-base bg-primary-300 text-white rounded-lg px-3 py-1.5 hover:cursor-pointer hover:bg-primary-400 transition">
+            <button
+              className="flex items-center gap-1 text-sm sm:text-base bg-primary-300 text-white rounded-lg px-3 py-1.5 hover:cursor-pointer hover:bg-primary-400 transition"
+              onClick={() => setIsAddModelOpen(true)}
+            >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
@@ -607,6 +612,10 @@ const SellerProductList: React.FC = () => {
       <BulkUploadModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+      />
+      <AddProductModal
+        isOpen={isAddModelOpen}
+        onClose={() => setIsAddModelOpen(false)}
       />
     </div>
   );
