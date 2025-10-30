@@ -1,5 +1,12 @@
 import React, { useState, useMemo, useCallback } from "react";
-import { Ban, Unlock, ArrowUpDown, ArrowUp, ArrowDown, Search } from "lucide-react";
+import {
+  Ban,
+  Unlock,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Search,
+} from "lucide-react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -10,9 +17,10 @@ import {
 } from "@tanstack/react-table";
 import type { Row } from "@tanstack/react-table";
 import { useAdminStore } from "../../store/adminStore";
-import { useFetchCustomers } from "../../hooks/useFetchCustomers";
+import { useFetchCustomers } from "../../hooks/Admin/useFetchCustomers"
 import type { Customer } from "../../types/admin";
-import LoadingState from "../../components/LoadingState";
+import TableRowSkeleton from "../../components/TableRowSkeleton"
+
 
 const columnHelper = createColumnHelper<Customer>();
 
@@ -25,19 +33,17 @@ const CustomerList: React.FC = () => {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
-  // --- ACTION HANDLER ---
+  // --- Block/Unblock Handler ---
   const handleBlockToggle = useCallback(
     (id: number) => {
       setCustomers((prev) =>
-        prev.map((c) =>
-          c.id === id ? { ...c, is_blocked: !c.is_blocked } : c
-        )
+        prev.map((c) => (c.id === id ? { ...c, is_blocked: !c.is_blocked } : c))
       );
     },
     [setCustomers]
   );
 
-  // --- FILTER + SEARCH LOGIC ---
+  // --- Filter & Search Logic ---
   const filteredData = useMemo(() => {
     let filtered = customers.filter(
       (c) =>
@@ -57,7 +63,7 @@ const CustomerList: React.FC = () => {
     return filtered;
   }, [customers, searchTerm, statusFilter, dateFrom, dateTo]);
 
-  // --- TABLE COLUMNS ---
+  // --- Table Columns ---
   const columns = useMemo(
     () => [
       columnHelper.display({
@@ -160,7 +166,7 @@ const CustomerList: React.FC = () => {
     initialState: { pagination: { pageSize: 9 } },
   });
 
-  if (loading) return <LoadingState message="Loading Customers..." />;
+
   if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
 
   return (
@@ -270,21 +276,37 @@ const CustomerList: React.FC = () => {
                 ))}
               </thead>
               <tbody>
-                {table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="border-b border-primary-400/5 hover:bg-primary-400/5"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td
-                        key={cell.id}
-                        className="py-2 px-3 text-xs sm:text-sm text-primary-400"
-                      >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
+                {loading ? (
+                  <TableRowSkeleton rows={8} columns={7} />
+                ) : table.getRowModel().rows.length > 0 ? (
+                  table.getRowModel().rows.map((row) => (
+                    <tr
+                      key={row.id}
+                      className="border-b border-primary-400/5 hover:bg-primary-400/5"
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <td
+                          key={cell.id}
+                          className="py-2 px-3 text-xs sm:text-sm text-primary-400"
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="text-center py-4 text-primary-400/60 text-sm"
+                    >
+                      No customers found
+                    </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

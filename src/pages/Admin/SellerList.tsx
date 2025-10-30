@@ -23,8 +23,8 @@ import type { Row } from "@tanstack/react-table";
 import { useAdminStore } from "../../store/adminStore";
 import { useFetchSellers } from "../../hooks/useFetchSellers";
 import type { Seller } from "../../types/admin";
-import LoadingState from "../../components/LoadingState";
-
+import { useSellerActions } from "../../hooks/Admin/useSellerAction";
+import TableRowSkeleton from "../../components/TableRowSkeleton";
 const columnHelper = createColumnHelper<Seller>();
 
 const SellerList: React.FC = () => {
@@ -36,32 +36,26 @@ const SellerList: React.FC = () => {
   const [blockFilter, setBlockFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-
+  const { approveSeller, rejectSeller } = useSellerActions();
   // --- ACTION HANDLERS ---
   const handleApprove = useCallback(
     (id: number) => {
-      setSellers((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, is_active: true } : s))
-      );
+      approveSeller.mutate(id); // ✅ Call API
     },
-    [setSellers]
+    [approveSeller]
   );
 
   const handleReject = useCallback(
     (id: number) => {
-      setSellers((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, is_active: false } : s))
-      );
+      rejectSeller.mutate(id); // ✅ Call API
     },
-    [setSellers]
+    [rejectSeller]
   );
 
   const handleBlockToggle = useCallback(
     (id: number) => {
       setSellers((prev) =>
-        prev.map((s) =>
-          s.id === id ? { ...s, is_blocked: !s.is_blocked } : s
-        )
+        prev.map((s) => (s.id === id ? { ...s, is_blocked: !s.is_blocked } : s))
       );
     },
     [setSellers]
@@ -83,7 +77,9 @@ const SellerList: React.FC = () => {
     let filtered = sellers.filter(
       (s) =>
         s.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (s.store_name ?? "—").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (s.store_name ?? "—")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
         s.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         s.phone?.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -98,11 +94,9 @@ const SellerList: React.FC = () => {
         blockFilter === "blocked" ? s.is_blocked : !s.is_blocked
       );
 
-    if (dateFrom)
-      filtered = filtered.filter((s) => s.created_at >= dateFrom);
+    if (dateFrom) filtered = filtered.filter((s) => s.created_at >= dateFrom);
 
-    if (dateTo)
-      filtered = filtered.filter((s) => s.created_at <= dateTo);
+    if (dateTo) filtered = filtered.filter((s) => s.created_at <= dateTo);
 
     return filtered;
   }, [sellers, searchTerm, statusFilter, blockFilter, dateFrom, dateTo]);
@@ -270,7 +264,7 @@ const SellerList: React.FC = () => {
     initialState: { pagination: { pageSize: 8 } },
   });
 
- if (loading) return<LoadingState  message="Loading Sellers..."/>;
+
   if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
 
   return (
@@ -317,7 +311,9 @@ const SellerList: React.FC = () => {
             </div>
 
             <div className="flex flex-col min-w-[120px]">
-              <label className="text-xs text-primary-400 mb-1">Block Status</label>
+              <label className="text-xs text-primary-400 mb-1">
+                Block Status
+              </label>
               <select
                 value={blockFilter}
                 onChange={(e) => setBlockFilter(e.target.value)}
@@ -392,22 +388,39 @@ const SellerList: React.FC = () => {
                   </tr>
                 ))}
               </thead>
+
               <tbody>
-                {table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="border-b border-primary-400/5 hover:bg-primary-400/5"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td
-                        key={cell.id}
-                        className="py-2 px-3 text-xs sm:text-sm text-primary-400"
-                      >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
+                {loading ? (
+                  <TableRowSkeleton rows={8} columns={9} />
+                ) : table.getRowModel().rows.length > 0 ? (
+                  table.getRowModel().rows.map((row) => (
+                    <tr
+                      key={row.id}
+                      className="border-b border-primary-400/5 hover:bg-primary-400/5"
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <td
+                          key={cell.id}
+                          className="py-2 px-3 text-xs sm:text-sm text-primary-400"
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="text-center py-4 text-primary-400/60 text-sm"
+                    >
+                      No sellers found
+                    </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>

@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { getAllCustomers } from "../api/adminApi";
-import { useAdminStore } from "../store/adminStore";
+import { getAllCustomers } from "../../api/adminApi";
+import { useAdminStore } from "../../store/adminStore";
 import type { AxiosError } from "axios";
-import type { Customer } from "../types/admin";
+import type { Customer } from "../../types/admin";
 
 export const useFetchCustomers = () => {
   const { setCustomers, setError, setLoading } = useAdminStore();

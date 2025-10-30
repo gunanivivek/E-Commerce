@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getAllSellers } from "../api/adminApi";
 import { useAdminStore } from "../store/adminStore";
@@ -7,14 +8,11 @@ import type { Seller } from "../types/admin";
 export const useFetchSellers = () => {
   const { setSellers, setError, setLoading } = useAdminStore();
 
-  return useQuery<Seller[], AxiosError>({
+  const query = useQuery<Seller[], AxiosError>({
     queryKey: ["sellers"],
     queryFn: async () => {
       try {
-        setLoading(true);
         const sellers = await getAllSellers();
-        setSellers(sellers);
-        setError(null);
         return sellers;
       } catch (err: unknown) {
         let errorMessage = "Failed to fetch sellers";
@@ -25,21 +23,60 @@ export const useFetchSellers = () => {
 
         if (axiosError.response?.data?.detail) {
           const { detail } = axiosError.response.data;
+
           if (Array.isArray(detail)) {
-            // Extract message from validation array
+            // FastAPI validation error → extract readable message
             errorMessage = detail[0]?.msg || errorMessage;
           } else if (typeof detail === "string") {
+            // Simple string message
             errorMessage = detail;
           }
         } else if (err instanceof Error) {
           errorMessage = err.message;
         }
 
-        setError(errorMessage);
         throw new Error(errorMessage);
-      } finally {
-        setLoading(false);
       }
     },
+    retry: false,
   });
+
+
+  useEffect(() => {
+    setLoading(query.isFetching);
+
+    if (query.isSuccess && query.data) {
+      setSellers(query.data);
+      setError(null);
+    } else if (query.isError && query.error) {
+      const axiosError = query.error as AxiosError<{
+        detail?: string | { msg?: string }[];
+      }>;
+
+      let errorMessage = "Failed to fetch sellers";
+      if (axiosError.response?.data?.detail) {
+        const { detail } = axiosError.response.data;
+        if (Array.isArray(detail)) {
+          errorMessage = detail[0]?.msg || errorMessage;
+        } else if (typeof detail === "string") {
+          errorMessage = detail;
+        }
+      } else if (axiosError.message) {
+        errorMessage = axiosError.message;
+      }
+
+      setError(errorMessage);
+    }
+  }, [
+    query.isFetching,
+    query.isSuccess,
+    query.isError,
+    query.data,
+    query.error,
+    setSellers,
+    setError,
+    setLoading,
+  ]);
+
+  return query;
 };
