@@ -1,15 +1,15 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import {
   Check,
   X,
-  Edit,
-  Trash2,
+ 
   Ban,
   Unlock,
   Search,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
+  Eye,
 } from "lucide-react";
 import {
   useReactTable,
@@ -25,6 +25,8 @@ import { useFetchSellers } from "../../hooks/useFetchSellers";
 import type { Seller } from "../../types/admin";
 import { useSellerActions } from "../../hooks/Admin/useSellerAction";
 import TableRowSkeleton from "../../components/TableRowSkeleton";
+import ViewSellerModal from "../../components/Admin/ViewSellerModal";
+
 const columnHelper = createColumnHelper<Seller>();
 
 const SellerList: React.FC = () => {
@@ -37,6 +39,17 @@ const SellerList: React.FC = () => {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const { approveSeller, rejectSeller } = useSellerActions();
+  const [selectedSeller, setSelectedSeller] = useState<Seller | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+   useEffect(() => {
+    if (approveSeller.isSuccess || rejectSeller.isSuccess) {
+      setIsModalOpen(false);
+      setSelectedSeller(null);
+      approveSeller.reset();
+      rejectSeller.reset();
+    }
+  }, [approveSeller.isSuccess, rejectSeller.isSuccess]);
   // --- ACTION HANDLERS ---
   const handleApprove = useCallback(
     (id: number) => {
@@ -65,13 +78,19 @@ const SellerList: React.FC = () => {
     console.log("Edit seller:", id);
   }, []);
 
-  const handleDelete = useCallback(
-    (id: number) => {
-      setSellers((prev) => prev.filter((s) => s.id !== id));
-    },
-    [setSellers]
-  );
+  // const handleDelete = useCallback(
+  //   (id: number) => {
+  //     setSellers((prev) => prev.filter((s) => s.id !== id));
+  //   },
+  //   [setSellers]
+  // );
+  const handleView = (seller: Seller) => {
+    setSelectedSeller(seller);
+    setIsModalOpen(true);
+  };
 
+ 
+ console.log(sellers);
   // --- FILTER + SEARCH LOGIC ---
   const filteredData = useMemo(() => {
     let filtered = sellers.filter(
@@ -213,23 +232,24 @@ const SellerList: React.FC = () => {
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
+                   <button
+                    onClick={() => handleView(seller)}
+                    className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded"
+                    title="View"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                  </button>
                 </>
               ) : (
                 <>
-                  <button
-                    onClick={() => handleEdit(seller.id)}
-                    className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded"
-                    title="Edit"
-                  >
-                    <Edit className="w-3.5 h-3.5" />
-                  </button>
-                  <button
+                 
+                  {/* <button
                     onClick={() => handleDelete(seller.id)}
                     className="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded"
                     title="Delete"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  </button> */}
                   <button
                     onClick={() => handleBlockToggle(seller.id)}
                     className={`p-1.5 ${
@@ -252,7 +272,7 @@ const SellerList: React.FC = () => {
         },
       }),
     ],
-    [handleApprove, handleReject, handleEdit, handleDelete, handleBlockToggle]
+    [handleApprove, handleReject, handleEdit, handleBlockToggle]
   );
 
   const table = useReactTable({
@@ -263,7 +283,6 @@ const SellerList: React.FC = () => {
     getSortedRowModel: getSortedRowModel(),
     initialState: { pagination: { pageSize: 8 } },
   });
-
 
   if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
 
@@ -450,6 +469,16 @@ const SellerList: React.FC = () => {
           </div>
         </div>
       </div>
+      {selectedSeller && (
+        <ViewSellerModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          seller={selectedSeller}
+          onApprove={handleApprove}
+          onReject={handleReject}
+          onToggleBlock={handleBlockToggle}
+        />
+      )}
     </div>
   );
 };

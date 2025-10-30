@@ -10,6 +10,7 @@ export interface Seller {
   is_blocked: boolean;
   profile_picture: string | null;
   created_at: string;
+  store_description: string | null;
 }
 
 // ------------------- Customer Type -------------------
