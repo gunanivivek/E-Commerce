@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { User as UserIcon } from "lucide-react";
 import { useAuthStore } from "../../store/authStore";
+import { useUploadProfilePicture } from "../../hooks/useUploadProfilePicture";
 
 interface AdminProfileForm {
   fullName: string;
@@ -10,19 +11,15 @@ interface AdminProfileForm {
 }
 
 const AdminProfile = () => {
-  const [isEditingDetails, setIsEditingDetails] = useState(false);
   const [isEditingImage, setIsEditingImage] = useState(false);
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
+  const [previousProfileImage, setPreviousProfileImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { user } = useAuthStore();
 
   const {
     register,
-    handleSubmit,
     formState: { errors },
-    trigger,
-    clearErrors,
-    reset,
     setValue,
   } = useForm<AdminProfileForm>({
     defaultValues: {
@@ -42,29 +39,35 @@ const AdminProfile = () => {
       setValue("email", user.email || "");
       setValue("phoneNumber", formattedPhone);
       setProfilePreview(user.profile_picture || null);
+      setPreviousProfileImage(user.profile_picture || null);
     }
   }, [user, setValue]);
 
- 
-  const onSubmit = async (data: AdminProfileForm) => {
-    const isValid = await trigger();
-    if (!isValid) return;
+  const { mutate: uploadImage, isPending } = useUploadProfilePicture();
 
-    console.log("Updated Admin Details:", data);
-    // Call API here for details update
-
-    setIsEditingDetails(false);
-  };
-
-  // ✅ Handle profile image change
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setProfilePreview(URL.createObjectURL(file));
-      // Here call API to upload image
-      console.log("Selected image:", file);
-      setIsEditingImage(false);
-    }
+    if (!file) return;
+
+    // Immediate local preview
+    const localPreview = URL.createObjectURL(file);
+    setProfilePreview(localPreview);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    uploadImage(formData, {
+      onSuccess: (data) => {
+        setProfilePreview(data.image_url);
+        setPreviousProfileImage(data.image_url); // update backup on success
+        // Optionally: you could also optimistically update the user object's profile image if needed.
+      },
+      onError: () => {
+        setProfilePreview(previousProfileImage); // revert if upload fails
+      },
+    });
+
+    setIsEditingImage(false);
   };
 
   const handleAddProfileClick = () => {
@@ -74,7 +77,7 @@ const AdminProfile = () => {
   return (
     <div className="min-h-screen py-6 px-4 lg:px-0">
       <div className="max-w-4xl mx-auto space-y-6">
-        {/* ----------- Header ----------- */}
+        {/* Header */}
         <div>
           <h1 className="text-2xl font-bold text-primary-400">Admin Profile</h1>
           <p className="text-primary-400 text-sm">
@@ -82,10 +85,9 @@ const AdminProfile = () => {
           </p>
         </div>
 
-        {/* ----------- Profile Image Section ----------- */}
+        {/* Profile Image Section */}
         <div className="bg-white rounded-lg p-4 shadow-sm">
           <h2 className="text-primary-400 font-semibold mb-3">Profile Image</h2>
-
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 rounded-full bg-primary-100 flex items-center justify-center overflow-hidden">
               {profilePreview ? (
@@ -98,7 +100,6 @@ const AdminProfile = () => {
                 <UserIcon className="w-8 h-8 text-primary-400" />
               )}
             </div>
-
             {!isEditingImage ? (
               <button
                 type="button"
@@ -132,35 +133,16 @@ const AdminProfile = () => {
                 </button>
               </>
             )}
+            {isPending && <p>Uploading...</p>}
           </div>
         </div>
 
-        {/* ----------- Profile Details Section ----------- */}
+        {/* Profile Details Section */}
         <div className="bg-white rounded-lg p-4 shadow-sm">
           <div className="flex justify-between items-center mb-3">
             <h2 className="text-primary-400 font-semibold">Personal Info</h2>
-
-            <button
-              onClick={() => {
-                if (isEditingDetails) {
-                  clearErrors();
-                  if (user) {
-                    reset({
-                      fullName: user.full_name || "",
-                      email: user.email || "",
-                      phoneNumber: user.phone || "",
-                    });
-                  }
-                }
-                setIsEditingDetails(!isEditingDetails);
-              }}
-              className="px-4 py-1.5 bg-primary-400/10 text-sm hover:bg-primary-400/20 text-primary-400 rounded-lg transition-colors font-medium"
-            >
-              {isEditingDetails ? "Close" : "Edit Details"}
-            </button>
           </div>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+          <form className="space-y-3">
             <div>
               <label className="block text-primary-400 text-sm font-medium mb-1">
                 Full Name
@@ -175,7 +157,6 @@ const AdminProfile = () => {
                   },
                   minLength: { value: 3, message: "Minimum 3 characters" },
                 })}
-                disabled={!isEditingDetails}
                 className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
               />
               {errors.fullName && (
@@ -207,7 +188,6 @@ const AdminProfile = () => {
                   required: "Phone number is required",
                   pattern: { value: /^\d{10}$/, message: "Must be 10 digits" },
                 })}
-                disabled={!isEditingDetails}
                 className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
               />
               {errors.phoneNumber && (
@@ -216,15 +196,6 @@ const AdminProfile = () => {
                 </p>
               )}
             </div>
-
-            {isEditingDetails && (
-              <button
-                type="submit"
-                className="px-4 py-2 bg-primary-400/80 font-semibold text-white rounded-lg text-sm hover:bg-primary-500 transition-colors mt-2"
-              >
-                Save Changes
-              </button>
-            )}
           </form>
         </div>
       </div>
