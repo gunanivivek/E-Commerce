@@ -32,7 +32,9 @@ export const loginUser = async (
   return res.data;
 };
 
-export const forgotPassword = async (data: ForgotPasswordRequest): Promise<ForgotPasswordResponse> => {
+export const forgotPassword = async (
+  data: ForgotPasswordRequest
+): Promise<ForgotPasswordResponse> => {
   const res = await API.post("auth/forget-password", data);
   return res.data;
 };
@@ -43,4 +45,3 @@ export const changePassword = async (
   const res = await API.patch("auth/change-password", data);
   return res.data;
 };
-  
