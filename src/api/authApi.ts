@@ -33,7 +33,6 @@ export const loginUser = async (credentials: LoginRequest): Promise<LoginRespons
   return res.data;
 };
 
-// ------------------- Forgot Password -------------------
 export const forgotPassword = async (
   data: ForgotPasswordRequest
 ): Promise<ForgotPasswordResponse> => {
@@ -50,13 +49,4 @@ export const changePassword = async (
   });
   return res.data;
 };
-
-
-export const refreshSession = async (): Promise<void> => {
-  await API.post("auth/refresh");
-};
-
-// ------------------- Logout -------------------
-export const logoutUser = async (): Promise<void> => {
-  await API.post("auth/logout");
-};
+  

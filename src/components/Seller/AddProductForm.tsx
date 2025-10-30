@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
+import { createProduct } from "../../api/sellerApi";
 
 interface ProductFormValues {
   productName: string;
@@ -22,26 +23,41 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose }) => {
     watch,
   } = useForm<ProductFormValues>();
 
-  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string[]>([]);
   const imageFile = watch("image");
 
   React.useEffect(() => {
     if (imageFile && imageFile.length > 0) {
-      const file = imageFile[0];
-      const url = URL.createObjectURL(file);
-      setPreviewImage(url);
-      return () => URL.revokeObjectURL(url);
+      const filesArray = Array.from(imageFile);
+      const urls = filesArray.map((file) => URL.createObjectURL(file));
+
+      setPreviewImage(urls); // set all URLs
+
+      // cleanup — revoke all object URLs when component unmounts or files change
+      return () => urls.forEach((url) => URL.revokeObjectURL(url));
     }
   }, [imageFile]);
 
-  const onSubmit = (data: ProductFormValues) => {
-    const productData = {
-      ...data,
-      image: data.image[0],
-    };
-    console.log("🛒 Product Submitted:", productData);
-    alert(`✅ Product "${data.productName}" submitted successfully!`);
-    onClose();
+  const onSubmit = async (data: ProductFormValues) => {
+    try {
+      const productData = {
+        name: data.productName,
+        description: data.description,
+        price: Number(data.price),
+        stock: Number(data.stock),
+        category: data.category,
+        images: Array.from(data.image), // take the actual File
+      };
+
+      const response = await createProduct(productData);
+
+      console.log("🛒 Product created successfully:", response);
+      alert(`✅ Product "${data.productName}" uploaded successfully!`);
+      onClose();
+    } catch (error) {
+      console.error("❌ Error creating product:", error);
+      alert("Failed to upload product. Please try again.");
+    }
   };
 
   return (
@@ -49,9 +65,6 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose }) => {
       onSubmit={handleSubmit(onSubmit)}
       className="bg-white border border-primary-border rounded-2xl shadow-lg p-8 max-w-lg mx-auto space-y-6 transition-all duration-300"
     >
-      {/* Heading */}
-      
-
       {/* Product Name */}
       <div>
         <label className="block text-sm font-medium text-primary-400 mb-1">
@@ -107,9 +120,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose }) => {
             className="w-full border border-primary-border rounded-xl p-3 bg-primary-100/40 focus:ring-2 focus:ring-primary-300 outline-none transition"
           />
           {errors.price && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.price.message}
-            </p>
+            <p className="text-red-500 text-sm mt-1">{errors.price.message}</p>
           )}
         </div>
 
@@ -128,9 +139,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose }) => {
             className="w-full border border-primary-border rounded-xl p-3 bg-primary-100/40 focus:ring-2 focus:ring-primary-300 outline-none transition"
           />
           {errors.stock && (
-            <p className="text-red-500 text-sm mt-1">
-              {errors.stock.message}
-            </p>
+            <p className="text-red-500 text-sm mt-1">{errors.stock.message}</p>
           )}
         </div>
       </div>
@@ -152,9 +161,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose }) => {
           <option value="other">Other</option>
         </select>
         {errors.category && (
-          <p className="text-red-500 text-sm mt-1">
-            {errors.category.message}
-          </p>
+          <p className="text-red-500 text-sm mt-1">{errors.category.message}</p>
         )}
       </div>
 
@@ -167,6 +174,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose }) => {
           <input
             type="file"
             accept="image/*"
+            multiple
             {...register("image", { required: "Image is required" })}
             className="w-full text-sm text-gray-700 cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-primary-400 file:text-white hover:file:bg-primary-300 transition"
           />
@@ -175,13 +183,16 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose }) => {
           <p className="text-red-500 text-sm mt-1">{errors.image.message}</p>
         )}
 
-        {previewImage && (
-          <div className="mt-4 flex justify-center">
-            <img
-              src={previewImage}
-              alt="Preview"
-              className="h-28 w-28 object-cover rounded-xl border border-primary-200 shadow-sm"
-            />
+        {previewImage.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2 justify-center">
+            {previewImage.map((url, index) => (
+              <img
+                key={index}
+                src={url}
+                alt={`Preview ${index + 1}`}
+                className="h-24 w-24 object-cover rounded-lg border"
+              />
+            ))}
           </div>
         )}
       </div>

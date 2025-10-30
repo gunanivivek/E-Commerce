@@ -1,10 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Upload } from "lucide-react";
-import * as XLSX from "exceljs";
-import Papa from "papaparse";
-
+import { bulkUploadProducts } from "../../api/sellerApi";
+import { toast } from "react-toastify";
 
 interface BulkUploadFormProps {
   onClose: () => void;
@@ -15,12 +13,12 @@ interface FormValues {
 }
 
 const BulkUploadForm: React.FC<BulkUploadFormProps> = ({ onClose }) => {
- const {
+  const {
     register,
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<FormValues>();  
+  } = useForm<FormValues>();
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -28,21 +26,17 @@ const BulkUploadForm: React.FC<BulkUploadFormProps> = ({ onClose }) => {
 
   const onSubmit = async (data: FormValues) => {
     const uploadedFile = data.file[0];
-    const fileExtension = uploadedFile.name.split(".").pop()?.toLowerCase();
+    if (!uploadedFile) return;
+    try {
+      const response = await bulkUploadProducts({ file: uploadedFile });
 
-    console.log("📁 File uploaded:", uploadedFile);
-
-    if (fileExtension === "csv") {
-      parseCSV(uploadedFile);
-    } else if (fileExtension === "xlsx" || fileExtension === "xls") {
-      await parseExcel(uploadedFile);
-    } else {
-      alert("Unsupported file type!");
-      return;
+      console.log("✅ Upload successful:", response);
+      toast.success(`✅ File "${uploadedFile.name}" uploaded successfully!`);
+      onClose();
+    } catch (error) {
+      console.error("❌ Upload failed:", error);
+      toast.error("Upload failed. Please try again.");
     }
-
-    alert(`✅ File "${uploadedFile.name}" uploaded successfully!`);
-    onClose(); // Close modal after upload
   };
 
   React.useEffect(() => {
@@ -50,49 +44,6 @@ const BulkUploadForm: React.FC<BulkUploadFormProps> = ({ onClose }) => {
       setSelectedFile(fileWatch[0]);
     }
   }, [fileWatch]);
-
-  const parseCSV = (file: File) => {
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: (results) => {
-        console.log("📄 Parsed CSV Data:", results.data);
-        alert("✅ CSV file parsed successfully! Check console for output.");
-      },
-      error: (err) => {
-        console.error("❌ CSV parsing error:", err);
-        alert("Failed to parse CSV file!");
-      },
-    });
-  };
-
-  const parseExcel = async (file: File) => {
-    try {
-      const workbook = new XLSX.Workbook();
-      const arrayBuffer = await file.arrayBuffer();
-      await workbook.xlsx.load(arrayBuffer);
-
-      const worksheet = workbook.worksheets[0];
-      const jsonData: any[] = [];
-
-      worksheet.eachRow((row, rowNumber) => {
-        if (rowNumber === 1) return; // Skip header row
-        const rowData: any = {};
-        row.eachCell((cell, colNumber) => {
-          const header =
-            worksheet.getRow(1).getCell(colNumber).value?.toString() || "";
-          rowData[header] = cell.value;
-        });
-        jsonData.push(rowData);
-      });
-
-      console.log("📘 Parsed Excel Data:", jsonData);
-      alert("✅ Excel file parsed successfully! Check console for output.");
-    } catch (err) {
-      console.error("❌ Excel parsing error:", err);
-      alert("Failed to parse Excel file!");
-    }
-  };
 
   return (
     <form

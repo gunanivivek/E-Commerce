@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo, useCallback } from "react";
-import { Search, Eye, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
+import { Search, Eye, ArrowUpDown, ArrowUp, ArrowDown, Trash2 } from "lucide-react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -12,6 +12,8 @@ import {
 import type { Row } from "@tanstack/react-table";
 import BulkUploadModal from "../../components/Seller/BulkUploadModal";
 import AddProductModal from "../../components/Seller/AddProductModal";
+import UpdateProductForm from "../../components/Seller/UpdateProductForm";
+import DeleteProductModal from "../../components/Seller/DeleteProductModal";
 
 interface Product {
   id: number;
@@ -203,6 +205,8 @@ const getStatusColor = (status: Product["status"]) => {
 const SellerProductList: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isAddModelOpen, setIsAddModelOpen] = useState(false);
+  const [isViewProdOpen, setIsViewProdOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   const [data] = useState<Product[]>(initialProducts);
   const [searchTerm, setSearchTerm] = useState("");
@@ -220,8 +224,17 @@ const SellerProductList: React.FC = () => {
 
   const handleView = useCallback((id: number) => {
     console.log("View product:", id);
+    setIsViewProdOpen(true);
     // Add your view logic here, e.g., navigate to product details
   }, []);
+
+   const handleDeleteModal = () => {
+    setIsDeleteOpen(true);
+  } ;
+
+  const handleDelete = useCallback((id: number) => {
+    console.log("🗑️ Product deleted: ", id);
+  }, []) ;
 
   const filteredData = useMemo(() => {
     let filtered = data.filter(
@@ -324,6 +337,13 @@ const SellerProductList: React.FC = () => {
                 title="View Product"
               >
                 <Eye className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => handleDeleteModal()}
+                className="p-1.5 bg-blue-50 text-red-600 hover:bg-blue-100 rounded transition-colors"
+                title="View Product"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
               </button>
             </div>
           );
@@ -616,6 +636,23 @@ const SellerProductList: React.FC = () => {
       <AddProductModal
         isOpen={isAddModelOpen}
         onClose={() => setIsAddModelOpen(false)}
+      />
+      <UpdateProductForm  isOpen={isViewProdOpen}
+        onClose={() => setIsViewProdOpen(false)}
+        existingData={{
+          name: "Green Tea",
+          description: "Organic premium tea leaves",
+          price: 250,
+          stock: 80,
+          category: "Beverages",
+        }} />
+
+        <DeleteProductModal
+        isOpen={isDeleteOpen}
+        onClose={() => setIsDeleteOpen(false)}
+        onConfirm={handleDelete}
+        productId={1}
+        productName="Wireless Headphones"
       />
     </div>
   );
