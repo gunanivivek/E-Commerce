@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import Slider from "react-slick";
 import Header from "../components/ui/Header";
 import Footer from "../components/ui/Footer";
-import ProductsCard from "../components/ui/ProductsCard";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import Hero1 from "../assets/Hero1.jpg";
@@ -238,87 +237,29 @@ const CustomerPage: React.FC = () => {
           ))}
         </section>
 
-        {/* Product List */}
-        <section className="py-14 px-6 md:px-20 bg-[var(--color-primary-300)] relative overflow-hidden">
-          {/* Decorative background elements */}
-          <div className="absolute top-10 -left-10 w-64 h-64 bg-[var(--color-primary-100)] rounded-full blur-3xl opacity-40 animate-pulse"></div>
-          <div className="absolute bottom-0 right-0 w-80 h-80 bg-[var(--color-primary-200)] rounded-full blur-3xl opacity-40 animate-bounce"></div>
-
-          {/* Section Header */}
-          <div className="text-center mb-12 relative z-10">
-            <h2 className="text-4xl font-bold text-[var(--color-primary-400)] mb-3">
-              Featured Products
-            </h2>
-            <p className="text-[var(--color-primary-400)] max-w-2xl mx-auto">
-              Explore our curated collection of the season’s best-selling items,
-              designed to bring quality, comfort, and style straight to your
-              door.
-            </p>
-          </div>
-
-          <ProductsCard />
-
-          {/* Explore More CTA */}
-          <div className="text-center mt-10 relative z-10">
-            <a
-              href="/products"
-              className="inline-block px-8 py-3 bg-[var(--color-background)] text-[var(--color-light)] font-semibold rounded-lg shadow-md hover:bg-[var(--color-light)] hover:text-[var(--color-background)] hover:shadow-xl hover:scale-105 transition-all duration-300"
+        {/* <div className="flex justify-center flex-wrap gap-4 mb-8">
+          {["all", "retail", "corporate", "international"].map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setCategory(cat)}
+              className={`px-6 py-2 font-medium border transition-all duration-300 rounded-full`}
+              style={{
+                background:
+                  selectedCategory === cat
+                    ? "var(--color-light)"
+                    : "var(--color-primary-100)",
+                color:
+                  selectedCategory === cat
+                    ? "#fff"
+                    : "var(--color-primary-400)",
+                borderColor: "var(--color-primary-border)",
+              }}
             >
-              View All Products
-            </a>
-          </div>
-        </section>
+              {cat.charAt(0).toUpperCase() + cat.slice(1)}
+            </button>
+          ))}
+        </div> */}
 
-        {/* Category Filter */}
-        {/* <section className="py-10 px-6 md:px-20">
-          <h2 className="text-3xl font-bold text-center mb-8 text-[var(--color-primary-400)]">
-            Browse Products by Category
-          </h2>
-          <div className="flex justify-center flex-wrap gap-4 mb-8">
-            {["all", "retail", "corporate", "international"].map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setCategory(cat)}
-                className={`px-6 py-2 font-medium border transition-all duration-300 rounded-full`}
-                style={{
-                  background:
-                    selectedCategory === cat
-                      ? "var(--color-light)"
-                      : "var(--color-primary-100)",
-                  color:
-                    selectedCategory === cat
-                      ? "#fff"
-                      : "var(--color-primary-400)",
-                  borderColor: "var(--color-primary-border)",
-                }}
-              >
-                {cat.charAt(0).toUpperCase() + cat.slice(1)}
-              </button>
-            ))}
-          </div>
-
-          Category Cards
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8">
-            {categories.map((cat) => (
-              <a
-                key={cat.id}
-                href={cat.link}
-                className="block bg-[var(--color-primary-100)] shadow-lg rounded-lg overflow-hidden hover:scale-105 transition transform hover:shadow-xl"
-              >
-                <img
-                  src={cat.image}
-                  alt={cat.name}
-                  className="w-full h-40 object-cover"
-                />
-                <div className="p-4 bg-[var(--color-primary-100)]">
-                  <h3 className="text-[var(--color-primary-400)] font-semibold">
-                    {cat.name}
-                  </h3>
-                </div>
-              </a>
-            ))}
-          </div>
-        </section> */}
         <section className="py-14 px-6 md:px-20 bg-[var(--color-background)]">
           <h2 className="text-3xl font-bold text-center mb-10 text-[var(--color-primary-400)]">
             Browse by Category
@@ -429,39 +370,61 @@ const CustomerPage: React.FC = () => {
                           </div>
                         )}
 
-                        <p className="text-[var(--color-primary-300)] italic mb-4">“{t.message}”</p>
-                        <h4 className="text-[var(--color-primary-400)] font-semibold">{t.name}</h4>
-                        <p className="text-sm text-[var(--color-primary-300)]">{t.location}</p>
-                        <p className="mt-2 text-[var(--color-light)]">{"★".repeat(t.rating)}</p>
+                        <p className="text-[var(--color-primary-300)] italic mb-4">
+                          “{t.message}”
+                        </p>
+                        <h4 className="text-[var(--color-primary-400)] font-semibold">
+                          {t.name}
+                        </h4>
+                        <p className="text-sm text-[var(--color-primary-300)]">
+                          {t.location}
+                        </p>
+                        <p className="mt-2 text-[var(--color-light)]">
+                          {"★".repeat(t.rating)}
+                        </p>
                       </motion.div>
                     );
                   })
                 : [
                     {
                       name: "Priya Mehta",
-                      message: "Loved the shopping experience! Super smooth checkout.",
+                      message:
+                        "Loved the shopping experience! Super smooth checkout.",
                       avatar: User2Icon,
                       location: "Mumbai, IN",
                       rating: 5,
                     },
                     {
                       name: "Rahul Verma",
-                      message: "Great customer service and fast delivery. Highly recommend!",
+                      message:
+                        "Great customer service and fast delivery. Highly recommend!",
                       avatar: User2,
                       location: "Delhi, IN",
                       rating: 4,
                     },
                   ].map((demo, i) => {
-                    const Avatar = demo.avatar as React.ComponentType<LucideProps>;
+                    const Avatar =
+                      demo.avatar as React.ComponentType<LucideProps>;
                     return (
-                      <motion.div key={i} className="bg-white p-6 rounded-xl shadow-lg mx-3 text-center hover:shadow-2xl transition">
+                      <motion.div
+                        key={i}
+                        className="bg-white p-6 rounded-xl shadow-lg mx-3 text-center hover:shadow-2xl transition"
+                      >
                         <div className="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-[var(--color-light)] flex items-center justify-center bg-white">
                           <Avatar className="w-10 h-10 text-[var(--color-primary-400)]" />
                         </div>
-                        <p className="text-[var(--color-primary-300)] italic mb-4">“{demo.message}”</p>
-                        <h4 className="text-[var(--color-primary-400)] font-semibold">{demo.name}</h4>
-                        <p className="text-sm text-[var(--color-primary-300)]">{demo.location}</p>
-                        <p className="mt-2 text-[var(--color-light)]">{"★".repeat(demo.rating)}</p>
+                        <p className="text-[var(--color-primary-300)] italic mb-4">
+                          “{demo.message}”
+                        </p>
+                        <h4 className="text-[var(--color-primary-400)] font-semibold">
+                          {demo.name}
+                        </h4>
+                        <p className="text-sm text-[var(--color-primary-300)]">
+                          {demo.location}
+                        </p>
+                        <p className="mt-2 text-[var(--color-light)]">
+                          {"★".repeat(demo.rating)}
+                        </p>
                       </motion.div>
                     );
                   })}

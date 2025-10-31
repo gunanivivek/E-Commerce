@@ -1,4 +1,12 @@
-import React from "react";
+import React, { useMemo, useState } from "react";
+import {
+  useReactTable,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  getPaginationRowModel,
+} from "@tanstack/react-table";
+import type { ColumnDef } from "@tanstack/react-table";
 
 interface Product {
   id: number;
@@ -12,7 +20,6 @@ interface Product {
   created_at: string;
 }
 
-// Static demo products used by the UI (no API calls)
 const DEMO_PRODUCTS: Product[] = [
   {
     id: 1,
@@ -58,35 +65,94 @@ const DEMO_PRODUCTS: Product[] = [
     is_active: true,
     created_at: new Date().toISOString(),
   },
+  {
+    id: 5,
+    name: "Demo Product E",
+    description: "Fifth product goes to next row correctly.",
+    price: 250,
+    discount_price: 200,
+    stock: 15,
+    slug: "demo-product-e",
+    is_active: true,
+    created_at: new Date().toISOString(),
+  },
 ];
 
 const ProductsCard: React.FC = () => {
-  const products = DEMO_PRODUCTS;
+  const [globalFilter, setGlobalFilter] = useState("");
+  const data = useMemo(() => DEMO_PRODUCTS, []);
 
-  if (!products.length) return <p>No products available right now.</p>;
+  const columns = useMemo<ColumnDef<Product>[]>(
+    () => [
+      { accessorKey: "name", header: "Name" },
+      { accessorKey: "price", header: "Price" },
+      { accessorKey: "stock", header: "Stock" },
+      { accessorKey: "description", header: "Description" },
+    ],
+    []
+  );
+
+  const table = useReactTable({
+    data,
+    columns,
+    state: {
+      globalFilter,
+    },
+    onGlobalFilterChange: setGlobalFilter,
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
+
+  const filteredProducts = table.getFilteredRowModel().rows.map((row) => row.original);
+
+  if (!filteredProducts.length) return <p>No products available right now.</p>;
 
   return (
-    <div className="grid grid-cols-4 overflow-x-auto gap-4 py-6 px-4 bg-[var(--color-background)]">
-      {products.map((product) => (
-        <div
-          key={product.id}
-          className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-transform transform hover:scale-105"
-        >
-          <div className="h-40 bg-[var(--color-primary-100)] rounded-md flex items-center justify-center mb-3">
-            <span className="text-[var(--color-primary-400)] font-semibold text-lg text-center px-2">
-              {product.name.length > 20
-                ? product.name.slice(0, 20) + "..."
-                : product.name}
-            </span>
+    <section className="bg-[var(--color-background)] py-10 px-6 md:px-20">
+      
+      {/* Product Grid (4 columns max, wraps to new row for 5th product) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+        {filteredProducts.map((product) => (
+          <div
+            key={product.id}
+            className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-transform transform hover:scale-105"
+          >
+            <div className="h-40 bg-[var(--color-primary-100)] rounded-md flex items-center justify-center mb-3">
+              <span className="text-[var(--color-primary-400)] font-semibold text-lg text-center px-2">
+                {product.name.length > 20
+                  ? product.name.slice(0, 20) + "..."
+                  : product.name}
+              </span>
+            </div>
+            <p className="text-sm text-gray-600 mb-1">{product.description}</p>
+            <p className="text-[var(--color-primary-400)] font-bold text-lg">
+              ₹{product.discount_price ?? product.price}
+            </p>
+            <p className="text-xs text-gray-500">Stock: {product.stock}</p>
           </div>
-          <p className="text-sm text-gray-600 mb-1">{product.description}</p>
-          <p className="text-[var(--color-primary-400)] font-bold text-lg">
-            ₹{product.discount_price ?? product.price}
-          </p>
-          <p className="text-xs text-gray-500">Stock: {product.stock}</p>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center mt-8 space-x-2">
+        <button
+          onClick={() => table.previousPage()}
+          disabled={!table.getCanPreviousPage()}
+          className="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+        >
+          Prev
+        </button>
+        <button
+          onClick={() => table.nextPage()}
+          disabled={!table.getCanNextPage()}
+          className="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+        >
+          Next
+        </button>
+      </div>
+    </section>
   );
 };
 
