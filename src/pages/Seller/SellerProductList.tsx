@@ -26,6 +26,7 @@ import type { Product } from "../../types/seller";
 import { deleteProduct, getSellerProducts } from "../../api/sellerApi";
 import { useAuthStore } from "../../store/authStore";
 import { toast } from "react-toastify";
+import TableRowSkeleton from "../../components/TableRowSkeleton";
 
 const columnHelper = createColumnHelper<Product>();
 
@@ -95,7 +96,6 @@ const SellerProductList: React.FC = () => {
   const handleView = useCallback((id: number) => {
     console.log("View product:", id);
     setIsViewProdOpen(true);
-
   }, []);
 
   const handleDelete = useCallback(
@@ -272,7 +272,6 @@ const SellerProductList: React.FC = () => {
     },
   });
 
-  if (loading) return <div>Loading products...</div>;
   if (error) return <div>{error}</div>;
 
   return (
@@ -491,24 +490,28 @@ const SellerProductList: React.FC = () => {
                 ))}
               </thead>
               <tbody>
-                {table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="border-b border-primary-400/5 hover:bg-primary-400/5"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td
-                        key={cell.id}
-                        className="py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm text-primary-400"
-                      >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
+                {loading ? (
+                  <TableRowSkeleton rows={5} columns={5} />
+                ) : (
+                  table.getRowModel().rows.map((row) => (
+                    <tr
+                      key={row.id}
+                      className="border-b border-primary-400/5 hover:bg-primary-400/5"
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <td
+                          key={cell.id}
+                          className="py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm text-primary-400"
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
