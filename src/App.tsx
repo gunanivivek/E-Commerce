@@ -1,22 +1,6 @@
 import { Routes, Route } from "react-router";
 import Unauthorized from "./pages/Unauthorized";
 import RoleBasedRoute from "./routes/RoleBasedRoute";
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-import Login from "./pages/Login";
-import CustomerLayouts from "./layouts/CustomerLayouts";
-import TestDashboard from "./pages/TestDashboard";
-import ProtectedRoute from "./routes/ProtectedRoute";
-import NotFound from "./pages/NotFound";
-import AdminLayouts from "./layouts/AdminLayouts";
-import Test from "./pages/Test";
-import SellerLayouts from "./layouts/SellerLayouts";
-import AdminProfile from "./pages/Admin/AdminProfile";
-import About from "./pages/Customer/About";
->>>>>>> origin/dev-task-seller
-=======
->>>>>>> b25fb524b79d7b494672f4300c41e0c3a5ac59c2
 import PublicRoute from "./routes/PublicRoute";
 import OpenCustomerRoute from "./routes/OpenCustomerRoute";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -30,7 +14,6 @@ import NotFound from "./pages/NotFound";
 import CustomerLayouts from "./layouts/CustomerLayouts";
 import AdminLayouts from "./layouts/AdminLayouts";
 import SellerLayouts from "./layouts/SellerLayouts";
-import AdminProfile from "./pages/Admin/AdminProfile";
 
 import TestDashboard from "./pages/TestDashboard";
 import About from "./pages/Customer/About";
@@ -39,19 +22,10 @@ import SellerProductList from "./pages/Seller/SellerProductList";
 import SellerList from "./pages/Admin/SellerList";
 import CustomerList from "./pages/Admin/CustomerList";
 import CategoryList from "./pages/Admin/CategoryList";
-<<<<<<< HEAD
-<<<<<<< HEAD
 import AdminProfile from "./pages/Admin/AdminProfile";
-import SellerProfile from "./pages/Seller/SellerProfile";
+
 import Test from "./pages/Test";
-=======
 import SellerProfilePage from "./pages/Seller/SellerProfilePage";
->>>>>>> origin/dev-task-seller
-=======
-import AdminProfile from "./pages/Admin/AdminProfile";
-import SellerProfile from "./pages/Seller/SellerProfile";
-import Test from "./pages/Test";
->>>>>>> b25fb524b79d7b494672f4300c41e0c3a5ac59c2
 
 function App() {
   return (
@@ -85,19 +59,13 @@ function App() {
           </Route>
         </Route>
 
-<<<<<<< HEAD
-<<<<<<< HEAD
         {/* Seller */}
-=======
->>>>>>> origin/dev-task-seller
-=======
->>>>>>> b25fb524b79d7b494672f4300c41e0c3a5ac59c2
         <Route element={<RoleBasedRoute allowedRoles={["seller"]} />}>
           <Route path="/seller" element={<SellerLayouts />}>
             <Route index element={<TestDashboard />} />
             <Route path="products" element={<SellerProductList />} />
             <Route path="coupons" element={<Test />} />
-            <Route path=":sellerId" element={<SellerProfilePage />} />
+            <Route path="profile" element={<SellerProfilePage />} />
           </Route>
         </Route>
 
