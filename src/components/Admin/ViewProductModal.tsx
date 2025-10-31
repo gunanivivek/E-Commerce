@@ -2,28 +2,21 @@ import React from "react";
 import ReactDOM from "react-dom";
 import {
   X,
-  User,
   Tag,
   DollarSign,
   Hash,
   FileText,
   Image,
   Package,
+  Box,
+  
 } from "lucide-react";
+import type { Product } from "../../types/admin";
 
 interface ViewProductModalProps {
   isOpen: boolean;
   onClose: () => void;
-  product: {
-    id: number;
-    name: string;
-    seller: string;
-    category: string;
-    price: number;
-    status: string;
-    description?: string;
-    images?: string[];
-  } | null;
+  product: Product | null;
   onApprove?: (id: number) => void;
   onReject?: (id: number) => void;
 }
@@ -51,6 +44,7 @@ const ViewProductModal: React.FC<ViewProductModalProps> = ({
   if (!isOpen || !product) return null;
 
   const isPending = product.status.toLowerCase() === "pending";
+  console.log(product);
 
   return ReactDOM.createPortal(
     <>
@@ -82,7 +76,6 @@ const ViewProductModal: React.FC<ViewProductModalProps> = ({
               </div>
             </div>
             <div className="flex flex-row justify-between gap-2">
-            
               <span
                 className={`inline-block px-3 py-1 text-xs font-medium border rounded-full ${getStatusColor(
                   product.status
@@ -104,17 +97,17 @@ const ViewProductModal: React.FC<ViewProductModalProps> = ({
           <div className="flex-1 overflow-y-auto p-6 space-y-6">
             {/* Product Info Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center gap-3 p-4 rounded-lg border border-primary-border bg-primary-100/30 hover:bg-primary-100/50 transition-colors">
+              {/* <div className="flex items-center gap-3 p-4 rounded-lg border border-primary-border bg-primary-100/30 hover:bg-primary-100/50 transition-colors">
                 <User className="w-5 h-5 text-primary-400 flex-shrink-0" />
                 <div>
                   <strong className="text-primary-400 block text-sm mb-1">
-                    Seller
+                    Seller ID
                   </strong>
                   <p className="text-primary-600 text-sm font-medium truncate">
-                    {product.seller}
+                    #{product.seller_id}
                   </p>
                 </div>
-              </div>
+              </div> */}
               <div className="flex items-center gap-3 p-4 rounded-lg border border-primary-border bg-primary-100/30 hover:bg-primary-100/50 transition-colors">
                 <Tag className="w-5 h-5 text-primary-400 flex-shrink-0" />
                 <div>
@@ -122,7 +115,7 @@ const ViewProductModal: React.FC<ViewProductModalProps> = ({
                     Category
                   </strong>
                   <p className="text-primary-600 text-sm font-medium">
-                    {product.category}
+                    {product.category.name}
                   </p>
                 </div>
               </div>
@@ -133,7 +126,7 @@ const ViewProductModal: React.FC<ViewProductModalProps> = ({
                     Price
                   </strong>
                   <p className="text-primary-600 text-sm font-medium">
-                    ₹{product.price.toFixed(2)}
+                    ₹{Number(product.price).toFixed(2)}
                   </p>
                 </div>
               </div>
@@ -148,6 +141,32 @@ const ViewProductModal: React.FC<ViewProductModalProps> = ({
                   </p>
                 </div>
               </div>
+              {product.discount_price && (
+                <div className="flex items-center gap-3 p-4 rounded-lg border border-primary-border bg-primary-100/30 hover:bg-primary-100/50 transition-colors">
+                  <DollarSign className="w-5 h-5 text-primary-400 flex-shrink-0" />
+                  <div>
+                    <strong className="text-primary-400 block text-sm mb-1">
+                      Discount Price
+                    </strong>
+                    <p className="text-primary-600 text-sm font-medium">
+                      ₹{Number(product.discount_price).toFixed(2)}
+                    </p>
+                  </div>
+                </div>
+              )}
+              <div className="flex items-center gap-3 p-4 rounded-lg border border-primary-border bg-primary-100/30 hover:bg-primary-100/50 transition-colors">
+                <Box className="w-5 h-5 text-primary-400 flex-shrink-0" />
+                <div>
+                  <strong className="text-primary-400 block text-sm mb-1">
+                    Stock
+                  </strong>
+                  <p className="text-primary-600 text-sm font-medium">
+                    {product.stock}
+                  </p>
+                </div>
+              </div>
+          
+              
             </div>
 
             {/* Description */}
@@ -174,25 +193,70 @@ const ViewProductModal: React.FC<ViewProductModalProps> = ({
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {(product.images || []).length > 0 ? (
-                  product.images!.map((img, index) => (
-                    <div
-                      key={index}
-                      className="aspect-square rounded-lg border border-primary-border bg-primary-100/30 overflow-hidden shadow-sm hover:shadow-md hover:bg-primary-100/50 transition-all"
-                    >
-                      <img
-                        src={img}
-                        alt={`Product image ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ))
+                  product.images.map((img, index) => {
+                    // Type-safe check
+                    const imageUrl = typeof img === "string" ? img : img.url;
+
+                    return (
+                      <div
+                        key={index}
+                        className="aspect-square rounded-lg border border-primary-border bg-primary-100/30 overflow-hidden shadow-sm hover:shadow-md hover:bg-primary-100/50 transition-all"
+                      >
+                        <img
+                          src={imageUrl}
+                          alt={`Product image ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    );
+                  })
                 ) : (
-                  <div className="aspect-square rounded-lg border border-primary-border bg-primary-100/30 flex items-center justify-center col-span-full hover:bg-primary-100/50 transition-colors">
+                  <div className="aspect-square w-50 rounded-lg border border-primary-border bg-primary-100/30 flex items-center justify-center col-span-full hover:bg-primary-100/50 transition-colors">
                     <p className="text-primary-400 text-sm text-center">
                       No images available
                     </p>
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Additional Info */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="flex items-center gap-3 p-4 rounded-lg border border-primary-border bg-primary-100/30 hover:bg-primary-100/50 transition-colors">
+                <Hash className="w-5 h-5 text-primary-400 flex-shrink-0" />
+                <div>
+                  <strong className="text-primary-400 block text-sm mb-1">
+                    Created At
+                  </strong>
+                  <p className="text-primary-600 text-sm font-medium">
+                    {new Date(product.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-4 rounded-lg border border-primary-border bg-primary-100/30 hover:bg-primary-100/50 transition-colors">
+                <Hash className="w-5 h-5 text-primary-400 flex-shrink-0" />
+                <div>
+                  <strong className="text-primary-400 block text-sm mb-1">
+                    Updated At
+                  </strong>
+                  <p className="text-primary-600 text-sm font-medium">
+                    {product.updated_at
+                      ? new Date(product.updated_at).toLocaleDateString()
+                      : "N/A"}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-4 rounded-lg border border-primary-border bg-primary-100/30 hover:bg-primary-100/50 transition-colors col-span-1 md:col-span-2">
+                <Tag className="w-5 h-5 text-primary-400 flex-shrink-0" />
+                <div className="flex-1">
+                  <strong className="text-primary-400 block text-sm mb-1">
+                    Featured & Active
+                  </strong>
+                  <p className="text-primary-600 text-sm font-medium">
+                    {product.is_featured ? "Featured" : "Not Featured"} |{" "}
+                    {product.is_active ? "Active" : "Inactive"}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
