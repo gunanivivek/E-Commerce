@@ -6,9 +6,14 @@ import BulkUploadForm from "./BulkUploadForm";
 interface BulkUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
+  fetchData: () => Promise<void>;
 }
 
-const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose }) => {
+const BulkUploadModal: React.FC<BulkUploadModalProps> = ({
+  isOpen,
+  onClose,
+  fetchData,
+}) => {
   if (!isOpen) return null;
 
   return ReactDOM.createPortal(
@@ -25,11 +30,16 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose }) =>
           Bulk Upload Products
         </h2>
         <p className="text-sm text-gray-500 mb-4">
-          Upload your product list using an Excel sheet. Ensure the file follows the
-          correct format before uploading.
+          Upload your product list using an Excel sheet. Ensure the file follows
+          the correct format before uploading.
         </p>
 
-        <BulkUploadForm onClose={onClose}  />
+        <BulkUploadForm
+          onClose={onClose}
+          onSuccess={async () => {
+            await fetchData();
+          }}
+        />
       </div>
     </div>,
     document.body

@@ -6,13 +6,17 @@ import { toast } from "react-toastify";
 
 interface BulkUploadFormProps {
   onClose: () => void;
+  onSuccess: () => void;
 }
 
 interface FormValues {
   file: FileList;
 }
 
-const BulkUploadForm: React.FC<BulkUploadFormProps> = ({ onClose }) => {
+const BulkUploadForm: React.FC<BulkUploadFormProps> = ({
+  onClose,
+  onSuccess,
+}) => {
   const {
     register,
     handleSubmit,
@@ -32,6 +36,7 @@ const BulkUploadForm: React.FC<BulkUploadFormProps> = ({ onClose }) => {
 
       console.log("✅ Upload successful:", response);
       toast.success(`✅ File "${uploadedFile.name}" uploaded successfully!`);
+      onSuccess();
       onClose();
     } catch (error) {
       console.error("❌ Upload failed:", error);
@@ -52,7 +57,7 @@ const BulkUploadForm: React.FC<BulkUploadFormProps> = ({ onClose }) => {
     >
       <p className="text-sm text-gray-500 mb-4">
         Upload your file in the format provided. To check the format please
-        click &nbsp;
+        click. &nbsp;
         <button
           type="button"
           onClick={handleDownloadFormat}

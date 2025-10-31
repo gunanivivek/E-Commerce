@@ -67,20 +67,20 @@ const SellerProductList: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true);
-        const products = await getSellerProducts(String(user?.id));
-        setData(products);
-      } catch (err: any) {
-        console.error("Error fetching products:", err);
-        setError(err.message || "Failed to fetch products");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const products = await getSellerProducts(String(user?.id));
+      setData(products);
+    } catch (err: any) {
+      console.error("Error fetching products:", err);
+      setError(err.message || "Failed to fetch products");
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     if (user?.id) fetchData();
   }, [user?.id]);
 
@@ -98,24 +98,28 @@ const SellerProductList: React.FC = () => {
     // Add your view logic here, e.g., navigate to product details
   }, []);
 
-  const handleDelete = useCallback(async (ProductId: number) => {
-    const prevData = data;
-    setData((prev) => prev.filter((p) => p.id !== ProductId));
-    try {
-      const res = await deleteProduct(ProductId);
-      toast.success(res.message || "Product deleted successfully");
-    } catch (error: any) {
-      console.error("Failed to delete product:", error);
+  const handleDelete = useCallback(
+    async (ProductId: number) => {
+      const prevData = data;
+      setData((prev) => prev.filter((p) => p.id !== ProductId));
+      try {
+        const res = await deleteProduct(ProductId);
+        toast.success(res.message || "Product deleted successfully");
+      } catch (error: any) {
+        console.error("Failed to delete product:", error);
 
-      // Rollback if backend failed
-      setData(prevData);
-      toast.error(error.response?.data?.message || "Failed to delete product");
-    } finally {
-      setIsDeleteOpen(false);
-      setSelectedProduct(null);
-    }
-  },
-  [data, setData]);
+        // Rollback if backend failed
+        setData(prevData);
+        toast.error(
+          error.response?.data?.message || "Failed to delete product"
+        );
+      } finally {
+        setIsDeleteOpen(false);
+        setSelectedProduct(null);
+      }
+    },
+    [data, setData]
+  );
 
   const filteredData = useMemo(() => {
     let filtered = data.filter(
@@ -239,7 +243,10 @@ const SellerProductList: React.FC = () => {
               </button>
               <button
                 onClick={() => {
-                  setSelectedProduct({ id: Number(product.id), name: product.name });
+                  setSelectedProduct({
+                    id: Number(product.id),
+                    name: product.name,
+                  });
                   setIsDeleteOpen(true);
                 }}
                 className="p-1.5 bg-blue-50 text-red-600 hover:bg-blue-100 rounded transition-colors"
@@ -537,6 +544,7 @@ const SellerProductList: React.FC = () => {
       <BulkUploadModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        fetchData={fetchData}
       />
       <AddProductModal
         isOpen={isAddModelOpen}
