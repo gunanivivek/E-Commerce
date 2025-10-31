@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import CustomerLayouts from "./layouts/CustomerLayouts";
 import AdminLayouts from "./layouts/AdminLayouts";
 import SellerLayouts from "./layouts/SellerLayouts";
+import AdminProfile from "./pages/Admin/AdminProfile";
 
 import TestDashboard from "./pages/TestDashboard";
 import About from "./pages/Customer/About";
@@ -58,13 +59,12 @@ function App() {
           </Route>
         </Route>
 
-        {/* Seller */}
         <Route element={<RoleBasedRoute allowedRoles={["seller"]} />}>
           <Route path="/seller" element={<SellerLayouts />}>
             <Route index element={<TestDashboard />} />
             <Route path="products" element={<SellerProductList />} />
             <Route path="coupons" element={<Test />} />
-            <Route path="profile" element={<SellerProfile />} />
+            <Route path=":sellerId" element={<SellerProfilePage />} />
           </Route>
         </Route>
 
