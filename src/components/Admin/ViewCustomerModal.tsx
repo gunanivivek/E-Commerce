@@ -5,24 +5,18 @@ import {
   User,
   Mail,
   Phone,
-  Store,
-  MapPin,
   Calendar,
-  CheckCircle,
   Ban,
   ShieldCheck,
   Image as ImageIcon,
-  FileText,
 } from "lucide-react";
 
-import type { Seller } from "../../types/admin"; // adjust import if needed
+import type { Customer } from "../../types/admin"; // adjust the import path as needed
 
-interface ViewSellerModalProps {
+interface ViewCustomerModalProps {
   isOpen: boolean;
   onClose: () => void;
-  seller: Seller | null;
-  onApprove: (id: number) => void;
-  onReject: (id: number) => void;
+  customer: Customer | null;
   onToggleBlock: (id: number, newState: boolean) => void;
 }
 
@@ -38,15 +32,13 @@ const getStatusLabel = (isActive: boolean, isBlocked: boolean) => {
   return "Pending";
 };
 
-const ViewSellerModal: React.FC<ViewSellerModalProps> = ({
+const ViewCustomerModal: React.FC<ViewCustomerModalProps> = ({
   isOpen,
   onClose,
-  seller,
-  onApprove,
-  onReject,
+  customer,
   onToggleBlock,
 }) => {
-  if (!isOpen || !seller) return null;
+  if (!isOpen || !customer) return null;
 
   return ReactDOM.createPortal(
     <>
@@ -59,7 +51,7 @@ const ViewSellerModal: React.FC<ViewSellerModalProps> = ({
       {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div
-          className="relative bg-white border border-primary-border rounded-xl shadow-xl w-full max-w-3xl max-h-[95vh] overflow-hidden flex flex-col"
+          className="relative bg-white border border-primary-border rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -70,10 +62,10 @@ const ViewSellerModal: React.FC<ViewSellerModalProps> = ({
               </div>
               <div>
                 <h1 className="font-bold text-lg text-primary-400">
-                  Seller Details
+                  Customer Details
                 </h1>
                 <p className="text-xs font-medium text-primary-400/70">
-                  {seller.full_name}
+                  {customer.full_name}
                 </p>
               </div>
             </div>
@@ -81,11 +73,11 @@ const ViewSellerModal: React.FC<ViewSellerModalProps> = ({
             <div className="flex items-center gap-2">
               <span
                 className={`inline-block px-3 py-1 text-xs font-medium border rounded-full ${getStatusColor(
-                  seller.is_active,
-                  seller.is_blocked
+                  customer.is_active,
+                  customer.is_blocked
                 )}`}
               >
-                {getStatusLabel(seller.is_active, seller.is_blocked)}
+                {getStatusLabel(customer.is_active, customer.is_blocked)}
               </span>
               <button
                 onClick={onClose}
@@ -101,10 +93,10 @@ const ViewSellerModal: React.FC<ViewSellerModalProps> = ({
             {/* Profile */}
             <div className="flex flex-col items-center gap-3">
               <div className="w-24 h-24 rounded-full border border-primary-border overflow-hidden shadow-sm bg-primary-100/30 flex items-center justify-center">
-                {seller.profile_picture ? (
+                {customer.profile_picture ? (
                   <img
-                    src={seller.profile_picture}
-                    alt={seller.full_name}
+                    src={customer.profile_picture}
+                    alt={customer.full_name}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -112,80 +104,52 @@ const ViewSellerModal: React.FC<ViewSellerModalProps> = ({
                 )}
               </div>
               <h2 className="text-lg font-semibold text-primary-400">
-                {seller.full_name}
+                {customer.full_name}
               </h2>
-              <p className="text-sm text-primary-500">Seller ID: #{seller.id}</p>
+              <p className="text-sm text-primary-500">
+                Customer ID: #{customer.id}
+              </p>
             </div>
 
-            {/* Seller Info Grid */}
+            {/* Info Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <InfoCard icon={<Mail />} label="Email" value={seller.email} />
-              <InfoCard icon={<Phone />} label="Phone" value={seller.phone} />
-              <InfoCard
-                icon={<Store />}
-                label="Store Name"
-                value={seller.store_name || "Not Provided"}
-              />
-              <InfoCard
-                icon={<MapPin />}
-                label="Store Address"
-                value={seller.store_address || "Not Provided"}
-              />
-              {/* 🆕 Store Description */}
-              <InfoCard
-                icon={<FileText />}
-                label="Store Description"
-                value={seller.store_description || "No description provided"}
-              />
+              <InfoCard icon={<Mail />} label="Email" value={customer.email} />
+              <InfoCard icon={<Phone />} label="Phone" value={customer.phone} />
               <InfoCard
                 icon={<Calendar />}
                 label="Joined On"
-                value={new Date(seller.created_at).toLocaleDateString()}
+                value={new Date(customer.created_at).toLocaleDateString()}
+              />
+              <InfoCard
+                icon={<Calendar />}
+                label="Last Updated"
+                value={new Date(customer.updated_at).toLocaleDateString()}
               />
             </div>
           </div>
 
-          {/* Footer - Conditional Actions */}
-          <div className="p-6 border-t border-primary-border/50 bg-primary-50/50 flex justify-end gap-3">
-            {!seller.is_active ? (
-              <>
-                <button
-                  onClick={() => onReject(seller.id)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-300 bg-red-100 text-red-700 hover:bg-red-200 transition-colors font-medium text-sm"
-                >
+          {/* Footer */}
+          <div className="p-6 border-t border-primary-border/50 bg-primary-50/50 flex justify-end">
+            <button
+              onClick={() => onToggleBlock(customer.id, !customer.is_blocked)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                customer.is_blocked
+                  ? "border border-green-300 bg-green-100 text-green-700 hover:bg-green-200"
+                  : "border border-red-300 bg-red-100 text-red-700 hover:bg-red-200"
+              }`}
+            >
+              {customer.is_blocked ? (
+                <>
+                  <ShieldCheck className="w-4 h-4" />
+                  Unblock
+                </>
+              ) : (
+                <>
                   <Ban className="w-4 h-4" />
-                  Reject
-                </button>
-                <button
-                  onClick={() => onApprove(seller.id)}
-                  className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-400 hover:bg-primary-300 text-white shadow-sm transition-all font-medium text-sm"
-                >
-                  <CheckCircle className="w-4 h-4" />
-                  Approve
-                </button>
-              </>
-            ) : (
-              <button
-                onClick={() => onToggleBlock(seller.id, !seller.is_blocked)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
-                  seller.is_blocked
-                    ? "border border-green-300 bg-green-100 text-green-700 hover:bg-green-200"
-                    : "border border-red-300 bg-red-100 text-red-700 hover:bg-red-200"
-                }`}
-              >
-                {seller.is_blocked ? (
-                  <>
-                    <ShieldCheck className="w-4 h-4" />
-                    Unblock
-                  </>
-                ) : (
-                  <>
-                    <Ban className="w-4 h-4" />
-                    Block
-                  </>
-                )}
-              </button>
-            )}
+                  Block
+                </>
+              )}
+            </button>
           </div>
         </div>
       </div>
@@ -215,4 +179,4 @@ const InfoCard = ({
   </div>
 );
 
-export default ViewSellerModal;
+export default ViewCustomerModal;
