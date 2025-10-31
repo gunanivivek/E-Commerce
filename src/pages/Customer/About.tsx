@@ -1,5 +1,5 @@
-import Footer from "../../components/Footer";
-import Header from "../../components/Header";
+import Footer from "../../components/ui/Footer";
+import Header from "../../components/ui/Header";
 import { Link } from "react-router-dom";
 import { Target, Users, Award, TrendingUp } from "lucide-react";
 
@@ -39,9 +39,9 @@ const About = () => {
   ];
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col">
       <Header />
-      <div className="min-h-screen bg-[var(--color-background)]">
+      <div className="bg-[var(--color-background)]">
         {/* Hero Section */}
         <div className="py-20">
           <div className="container mx-auto px-4 max-w-4xl text-center">

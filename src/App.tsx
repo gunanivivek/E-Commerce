@@ -3,6 +3,7 @@ import Unauthorized from "./pages/Unauthorized";
 import RoleBasedRoute from "./routes/RoleBasedRoute";
 import Login from "./pages/Login";
 import CustomerLayouts from "./layouts/CustomerLayouts";
+import Products from "./pages/Customer/Products";
 import TestDashboard from "./pages/TestDashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import NotFound from "./pages/NotFound";
@@ -12,6 +13,7 @@ import SellerLayouts from "./layouts/SellerLayouts";
 import SellerProfile from "./pages/Seller/SellerProfile";
 import AdminProfile from "./pages/Admin/AdminProfile";
 import About from "./pages/Customer/About";
+import Contact from "./pages/Customer/Contact";
 import PublicRoute from "./routes/PublicRoute";
 import SignUp from "./pages/SignUp";
 import AdminProductList from "./pages/Admin/AdminProductList";
@@ -30,6 +32,8 @@ function App() {
         <Route index element={<TestDashboard />} />
       </Route>
       <Route path="/about" element={<About />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/products" element={<Products />} />
       <Route element={<PublicRoute />}>
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
