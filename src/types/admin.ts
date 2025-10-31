@@ -17,7 +17,7 @@ export interface Seller {
 export interface Customer {
   id: number;
   full_name: string;
-  email: string ;
+  email: string;
   phone: string;
   is_active: boolean;
   is_blocked: boolean;
@@ -32,14 +32,39 @@ export interface Product {
   id: number;
   name: string;
   description: string;
-  price: number;
+  price: string; 
+  discount_price: string;
   stock: number;
-  category: string;
-  image_url: string | null;
+  sku: string;
+  slug: string;
+  category: Category;
+  is_featured: boolean;
+  status: string;
   is_active: boolean;
+  images: ProductImage[];
+  seller_id: number;
   created_at: string;
   updated_at: string;
-  seller_id: number;
+}
+
+// ------------------- Category Type -------------------
+export interface Category {
+  id: number;
+  name: string;
+  description: string;
+  slug: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string | null;
+}
+
+// ------------------- Product Image Type -------------------
+export interface ProductImage {
+  id: number;
+  product_id: number;
+  url: string;
+  position: number;
+  created_at: string;
 }
 
 // ------------------- Admin State Types -------------------
@@ -64,6 +89,10 @@ export interface SellersResponse {
 
 export interface CustomersResponse {
   customers: Customer[];
+}
+
+export interface ProductsResponse {
+  products: Product[];
 }
 
 export interface ErrorResponse {
