@@ -1,5 +1,13 @@
 import React, { useState, useMemo, useCallback } from "react";
-import { Ban, Unlock, ArrowUpDown, ArrowUp, ArrowDown, Search } from "lucide-react";
+import {
+  Ban,
+  Unlock,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Search,
+  Eye
+} from "lucide-react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -10,9 +18,10 @@ import {
 } from "@tanstack/react-table";
 import type { Row } from "@tanstack/react-table";
 import { useAdminStore } from "../../store/adminStore";
-import { useFetchCustomers } from "../../hooks/useFetchCustomers";
+import { useFetchCustomers } from "../../hooks/Admin/useFetchCustomers"
 import type { Customer } from "../../types/admin";
-import LoadingState from "../../components/LoadingState";
+import TableRowSkeleton from "../../components/TableRowSkeleton"
+import ViewCustomerModal from "../../components/Admin/ViewCustomerModal";
 
 const columnHelper = createColumnHelper<Customer>();
 
@@ -24,20 +33,25 @@ const CustomerList: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // --- ACTION HANDLER ---
-  const handleBlockToggle = useCallback(
-    (id: number) => {
-      setCustomers((prev) =>
-        prev.map((c) =>
-          c.id === id ? { ...c, is_blocked: !c.is_blocked } : c
-        )
-      );
-    },
-    [setCustomers]
-  );
+const handleBlockToggle = useCallback(
+  (id: number, newState?: boolean) => {
+    setCustomers((prev) =>
+      prev.map((c) =>
+        c.id === id
+          ? { ...c, is_blocked: newState !== undefined ? newState : !c.is_blocked }
+          : c
+      )
+    );
+    setIsModalOpen(false); // close modal after block/unblock
+  },
+  [setCustomers]
+);
 
-  // --- FILTER + SEARCH LOGIC ---
+
+  // --- Filter & Search Logic ---
   const filteredData = useMemo(() => {
     let filtered = customers.filter(
       (c) =>
@@ -57,7 +71,7 @@ const CustomerList: React.FC = () => {
     return filtered;
   }, [customers, searchTerm, statusFilter, dateFrom, dateTo]);
 
-  // --- TABLE COLUMNS ---
+  // --- Table Columns ---
   const columns = useMemo(
     () => [
       columnHelper.display({
@@ -121,32 +135,43 @@ const CustomerList: React.FC = () => {
           );
         },
       }),
-      columnHelper.display({
-        id: "actions",
-        header: "Actions",
-        cell: ({ row }: { row: Row<Customer> }) => {
-          const customer = row.original;
-          return (
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleBlockToggle(customer.id)}
-                className={`p-1.5 ${
-                  customer.is_blocked
-                    ? "bg-green-50 text-green-600 hover:bg-green-100"
-                    : "bg-yellow-50 text-yellow-600 hover:bg-yellow-100"
-                } rounded`}
-                title={customer.is_blocked ? "Unblock" : "Block"}
-              >
-                {customer.is_blocked ? (
-                  <Unlock className="w-3.5 h-3.5" />
-                ) : (
-                  <Ban className="w-3.5 h-3.5" />
-                )}
-              </button>
-            </div>
-          );
-        },
-      }),
+     columnHelper.display({
+  id: "actions",
+  header: "Actions",
+  cell: ({ row }: { row: Row<Customer> }) => {
+    const customer = row.original;
+    return (
+      <div className="flex gap-2">
+        <button
+          onClick={() => {
+            setSelectedCustomer(customer);
+            setIsModalOpen(true);
+          }}
+          className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded"
+          title="View Details"
+        >
+          <Eye className="w-3.5 h-3.5" />
+        </button>
+        <button
+          onClick={() => handleBlockToggle(customer.id)}
+          className={`p-1.5 ${
+            customer.is_blocked
+              ? "bg-green-50 text-green-600 hover:bg-green-100"
+              : "bg-yellow-50 text-yellow-600 hover:bg-yellow-100"
+          } rounded`}
+          title={customer.is_blocked ? "Unblock" : "Block"}
+        >
+          {customer.is_blocked ? (
+            <Unlock className="w-3.5 h-3.5" />
+          ) : (
+            <Ban className="w-3.5 h-3.5" />
+          )}
+        </button>
+      </div>
+    );
+  },
+}),
+
     ],
     [handleBlockToggle]
   );
@@ -160,7 +185,7 @@ const CustomerList: React.FC = () => {
     initialState: { pagination: { pageSize: 9 } },
   });
 
-  if (loading) return <LoadingState message="Loading Customers..." />;
+
   if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
 
   return (
@@ -270,21 +295,37 @@ const CustomerList: React.FC = () => {
                 ))}
               </thead>
               <tbody>
-                {table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="border-b border-primary-400/5 hover:bg-primary-400/5"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td
-                        key={cell.id}
-                        className="py-2 px-3 text-xs sm:text-sm text-primary-400"
-                      >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
+                {loading ? (
+                  <TableRowSkeleton rows={8} columns={7} />
+                ) : table.getRowModel().rows.length > 0 ? (
+                  table.getRowModel().rows.map((row) => (
+                    <tr
+                      key={row.id}
+                      className="border-b border-primary-400/5 hover:bg-primary-400/5"
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <td
+                          key={cell.id}
+                          className="py-2 px-3 text-xs sm:text-sm text-primary-400"
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="text-center py-4 text-primary-400/60 text-sm"
+                    >
+                      No customers found
+                    </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
@@ -314,6 +355,13 @@ const CustomerList: React.FC = () => {
           </div>
         </div>
       </div>
+      <ViewCustomerModal
+  isOpen={isModalOpen}
+  onClose={() => setIsModalOpen(false)}
+  customer={selectedCustomer}
+  onToggleBlock={(id, newState) => handleBlockToggle(id, newState)}
+/>
+
     </div>
   );
 };

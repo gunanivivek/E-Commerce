@@ -1,21 +1,21 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getAllSellers } from "../api/adminApi";
-import { useAdminStore } from "../store/adminStore";
+import { getAllProducts } from "../../api/adminApi";
+import { useAdminStore } from "../../store/adminStore";
 import type { AxiosError } from "axios";
-import type { Seller } from "../types/admin";
+import type { Product } from "../../types/admin";
 
-export const useFetchSellers = () => {
-  const { setSellers, setError, setLoading } = useAdminStore();
+export const useFetchProducts = () => {
+  const { setError, setLoading } = useAdminStore();
 
-  const query = useQuery<Seller[], AxiosError>({
-    queryKey: ["sellers"],
+  const query = useQuery<Product[], AxiosError>({
+    queryKey: ["products"],
     queryFn: async () => {
       try {
-        const sellers = await getAllSellers();
-        return sellers;
+        const products = await getAllProducts();
+        return products;
       } catch (err: unknown) {
-        let errorMessage = "Failed to fetch sellers";
+        let errorMessage = "Failed to fetch products";
 
         const axiosError = err as AxiosError<{
           detail?: string | { msg?: string }[];
@@ -41,21 +41,22 @@ export const useFetchSellers = () => {
     retry: false,
   });
 
-
   useEffect(() => {
     setLoading(query.isFetching);
 
     if (query.isSuccess && query.data) {
-      setSellers(query.data);
+      // If you later add products to store, you can do: setProducts(query.data)
       setError(null);
     } else if (query.isError && query.error) {
       const axiosError = query.error as AxiosError<{
         detail?: string | { msg?: string }[];
       }>;
 
-      let errorMessage = "Failed to fetch sellers";
+      let errorMessage = "Failed to fetch products";
+
       if (axiosError.response?.data?.detail) {
         const { detail } = axiosError.response.data;
+
         if (Array.isArray(detail)) {
           errorMessage = detail[0]?.msg || errorMessage;
         } else if (typeof detail === "string") {
@@ -73,7 +74,6 @@ export const useFetchSellers = () => {
     query.isError,
     query.data,
     query.error,
-    setSellers,
     setError,
     setLoading,
   ]);

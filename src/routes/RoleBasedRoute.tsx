@@ -1,24 +1,44 @@
 import { Navigate, Outlet } from "react-router";
 import { useAuthStore } from "../store/authStore";
 
+type UserRole = "admin" | "seller" | "customer";
+
 interface RoleBasedRouteProps {
-  allowedRoles: Array<"admin" | "seller" | "customer">;
+  allowedRoles: UserRole[];
 }
 
 const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({ allowedRoles }) => {
   const user = useAuthStore((state) => state.user);
 
-  // If user not logged in → redirect to login
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  // If user exists but their role isn't allowed
-  if (!allowedRoles.includes(user.role)) {
+ 
+  const rawRole = user.role?.toLowerCase();
+  const role = ["admin", "seller", "customer"].includes(rawRole)
+    ? (rawRole as UserRole)
+    : undefined;
+
+  if (!role) {
     return <Navigate to="/unauthorized" replace />;
   }
 
-  // Otherwise allow access
+
+  if (!allowedRoles.includes(role)) {
+    switch (role) {
+      case "admin":
+        return <Navigate to="/admin" replace />;
+      case "seller":
+        return <Navigate to="/seller" replace />;
+      case "customer":
+        return <Navigate to="/" replace />;
+      default:
+        return <Navigate to="/unauthorized" replace />;
+    }
+  }
+
+  // ✅ Otherwise allow access
   return <Outlet />;
 };
 

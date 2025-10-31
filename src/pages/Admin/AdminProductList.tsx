@@ -9,72 +9,15 @@ import {
   createColumnHelper,
 } from '@tanstack/react-table';
 import type { Row } from '@tanstack/react-table';
+import { useQuery } from "@tanstack/react-query";
+import { getAllProducts } from "../../api/adminApi";
+import type { Product } from "../../types/admin";
 import ViewProductModal from '../../components/Admin/ViewProductModal';
-
-
-interface Product {
-  id: number;
-  name: string;
-  seller: string;
-  category: string;
-  price: number;
-  status: 'approved' | 'pending' | 'rejected';
-  addedDate: string;
-}
-
-interface ViewProduct {
-  id: number;
-  name: string;
-  seller: string;
-  category: string;
-  price: number;
-  status: string;
-  description?: string;
-  images?: string[];
-}
+import TableRowSkeleton from '../../components/TableRowSkeleton';
 
 const columnHelper = createColumnHelper<Product>();
 
-const initialProducts: Product[] = [
-  { id: 1, name: 'Margherita Pizza', seller: 'Pizza Palace', category: 'Italian', price: 12.00, status: 'approved', addedDate: '2024-10-01' },
-  { id: 2, name: 'Chicken Burger', seller: 'Burger Kingdom', category: 'American', price: 10.00, status: 'pending', addedDate: '2024-10-08' },
-  { id: 3, name: 'Caesar Salad', seller: 'Fresh & Healthy', category: 'Salads', price: 9.00, status: 'approved', addedDate: '2024-09-25' },
-  { id: 4, name: 'Pad Thai', seller: 'Thai Delights', category: 'Thai', price: 13.00, status: 'pending', addedDate: '2024-10-09' },
-  { id: 5, name: 'Tiramisu', seller: 'Italian Bistro', category: 'Desserts', price: 8.00, status: 'rejected', addedDate: '2024-09-30' },
-  { id: 6, name: 'Cheeseburger', seller: 'Burger Kingdom', category: 'American', price: 11.00, status: 'approved', addedDate: '2024-10-02' },
-  { id: 7, name: 'Greek Salad', seller: 'Fresh & Healthy', category: 'Salads', price: 10.50, status: 'pending', addedDate: '2024-10-05' },
-  { id: 8, name: 'Tom Yum Soup', seller: 'Thai Delights', category: 'Thai', price: 7.50, status: 'approved', addedDate: '2024-09-28' },
-  { id: 9, name: 'Cannoli', seller: 'Italian Bistro', category: 'Desserts', price: 6.00, status: 'rejected', addedDate: '2024-10-03' },
-  { id: 10, name: 'Pepperoni Pizza', seller: 'Pizza Palace', category: 'Italian', price: 14.00, status: 'pending', addedDate: '2024-10-07' },
-  { id: 11, name: 'Veggie Burger', seller: 'Burger Kingdom', category: 'American', price: 9.50, status: 'approved', addedDate: '2024-09-26' },
-  { id: 12, name: 'Quinoa Salad', seller: 'Fresh & Healthy', category: 'Salads', price: 11.00, status: 'pending', addedDate: '2024-10-04' },
-  { id: 13, name: 'Green Curry', seller: 'Thai Delights', category: 'Thai', price: 12.50, status: 'approved', addedDate: '2024-10-01' },
-  { id: 14, name: 'Panna Cotta', seller: 'Italian Bistro', category: 'Desserts', price: 7.00, status: 'rejected', addedDate: '2024-09-29' },
-  { id: 15, name: 'Hawaiian Pizza', seller: 'Pizza Palace', category: 'Italian', price: 13.50, status: 'pending', addedDate: '2024-10-06' },
-  { id: 16, name: 'BBQ Burger', seller: 'Burger Kingdom', category: 'American', price: 12.00, status: 'approved', addedDate: '2024-10-10' },
-  { id: 17, name: 'Cobb Salad', seller: 'Fresh & Healthy', category: 'Salads', price: 10.00, status: 'pending', addedDate: '2024-09-27' },
-  { id: 18, name: 'Massaman Curry', seller: 'Thai Delights', category: 'Thai', price: 14.00, status: 'rejected', addedDate: '2024-10-02' },
-  { id: 19, name: 'Gelato', seller: 'Italian Bistro', category: 'Desserts', price: 5.50, status: 'approved', addedDate: '2024-09-24' },
-  { id: 20, name: 'Supreme Pizza', seller: 'Pizza Palace', category: 'Italian', price: 15.00, status: 'pending', addedDate: '2024-10-11' },
-];
-
-const getStatusColor = (status: Product['status']) => {
-  switch (status) {
-    case 'approved':
-      return 'bg-primary-300 text-white';
-    case 'pending':
-      return 'bg-light/60 text-primary-400';
-    case 'rejected':
-      return 'bg-red-200 text-red-800';
-    default:
-      return 'bg-gray-200 text-gray-800';
-  }
-};
-
-
-
 const AdminProductList: React.FC = () => {
-  const [data, setData] = useState<Product[]>(initialProducts);
   const [searchTerm, setSearchTerm] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -83,32 +26,30 @@ const AdminProductList: React.FC = () => {
   const [priceMin, setPriceMin] = useState<number | ''>('');
   const [priceMax, setPriceMax] = useState<number | ''>('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState<ViewProduct | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  const uniqueCategories = useMemo(
-    () => Array.from(new Set(data.map(p => p.category))).sort(),
-    [data]
-  );
+  const {
+    data: products = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["products"],
+    queryFn: getAllProducts,
+  });
 
-  const generateDescription = useCallback((product: Product) => {
-    return `Indulge in our exquisite ${product.name}, crafted with the finest ingredients by ${product.seller}. A must-try from the ${product.category} collection!`;
-  }, []);
-
-  const generateImages = useCallback((product: Product) => {
-    const name = encodeURIComponent(product.name.replace(/\s+/g, '+'));
-    return [
-      `https://via.placeholder.com/300x300/FF6B6B/FFFFFF?text=${name}`,
-      `https://via.placeholder.com/300x300/4ECDC4/FFFFFF?text=${name}+2`,
-      `https://via.placeholder.com/300x300/45B7D1/FFFFFF?text=${name}+3`,
-    ];
-  }, []);
+  const uniqueCategories = useMemo(() => {
+    const categories = products
+      .map((p: Product) => p.category?.name)
+      .filter(Boolean);
+    return Array.from(new Set(categories)).sort();
+  }, [products]);
 
   const handleApprove = useCallback((id: number) => {
-    setData(prev => prev.map(p => p.id === id ? { ...p, status: 'approved' } : p));
+    console.log("Approved product ID:", id);
   }, []);
 
   const handleReject = useCallback((id: number) => {
-    setData(prev => prev.map(p => p.id === id ? { ...p, status: 'rejected' } : p));
+    console.log("Rejected product ID:", id);
   }, []);
 
   const handleApproveInModal = useCallback((id: number) => {
@@ -124,17 +65,12 @@ const AdminProductList: React.FC = () => {
   }, [handleReject]);
 
   const handleView = useCallback((id: number) => {
-    const product = data.find(p => p.id === id);
+    const product = products.find(p => p.id === id);
     if (product) {
-      setSelectedProduct({
-        ...product,
-        status: product.status,
-        description: generateDescription(product),
-        images: generateImages(product),
-      });
+      setSelectedProduct(product);
       setIsModalOpen(true);
     }
-  }, [data, generateDescription, generateImages]);
+  }, [products]);
 
   const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
@@ -142,68 +78,61 @@ const AdminProductList: React.FC = () => {
   }, []);
 
   const filteredData = useMemo(() => {
-    let filtered = data.filter(product =>
-      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.seller.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-
-    if (categoryFilter) {
-      filtered = filtered.filter(p => p.category === categoryFilter);
-    }
-
-    if (statusFilter) {
-      filtered = filtered.filter(p => p.status === statusFilter);
-    }
-
-    if (dateFrom) {
-      filtered = filtered.filter(p => p.addedDate >= dateFrom);
-    }
-
-    if (dateTo) {
-      filtered = filtered.filter(p => p.addedDate <= dateTo);
-    }
-
-    if (priceMin !== '') {
-      filtered = filtered.filter(p => p.price >= (priceMin as number));
-    }
-
-    if (priceMax !== '') {
-      filtered = filtered.filter(p => p.price <= (priceMax as number));
-    }
-
-    return filtered;
-  }, [data, searchTerm, categoryFilter, statusFilter, dateFrom, dateTo, priceMin, priceMax]);
+    return products.filter((p: Product) => {
+      const matchesSearch =
+        p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        p.category?.name?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesCategory = categoryFilter
+        ? p.category?.name === categoryFilter
+        : true;
+      const matchesStatus = statusFilter ? p.status === statusFilter : true;
+      const matchesDateFrom = dateFrom ? p.created_at >= dateFrom : true;
+      const matchesDateTo = dateTo ? p.created_at <= dateTo : true;
+      const matchesPriceMin = priceMin !== '' ? Number(p.price) >= priceMin : true;
+      const matchesPriceMax = priceMax !== '' ? Number(p.price) <= priceMax : true;
+      return matchesSearch && matchesCategory && matchesStatus && matchesDateFrom && matchesDateTo && matchesPriceMin && matchesPriceMax;
+    });
+  }, [products, searchTerm, categoryFilter, statusFilter, dateFrom, dateTo, priceMin, priceMax]);
 
   const columns = useMemo(() => [
     columnHelper.accessor('name', {
       header: 'Product Name',
       cell: info => <span className="font-medium text-primary-400">{info.getValue()}</span>,
     }),
-    columnHelper.accessor('seller', {
-      header: 'Seller',
-      cell: info => <span className="text-primary-400">{info.getValue()}</span>,
-    }),
-    columnHelper.accessor('category', {
+    columnHelper.accessor('category.name', {
       header: 'Category',
-      cell: info => <span className="text-primary-400">{info.getValue()}</span>,
+      cell: info => <span className="text-primary-400">{info.getValue() || "N/A"}</span>,
     }),
     columnHelper.accessor('price', {
       header: 'Price',
-      cell: info => <span className="text-primary-400">$${info.getValue().toFixed(2)}</span>,
+      cell: info => <span className="text-primary-400">₹{Number(info.getValue()).toFixed(2)}</span>,
     }),
     columnHelper.accessor('status', {
       header: 'Status',
       cell: info => {
-        const status = info.getValue() as Product['status'];
-        const colorClass = getStatusColor(status);
+        const status = info.getValue();
+        let badgeColor = "";
+        switch (status) {
+          case "approved":
+            badgeColor = "bg-green-100 text-green-700 border-green-300";
+            break;
+          case "pending":
+            badgeColor = "bg-yellow-100 text-yellow-800 border-yellow-300";
+            break;
+          case "rejected":
+            badgeColor = "bg-red-100 text-red-700 border-red-300";
+            break;
+          default:
+            badgeColor = "bg-gray-100 text-gray-700 border-gray-300";
+        }
         return (
-          <span className={`px-4 py-1 rounded-full text-xs font-medium ${colorClass}`}>
+          <span className={`px-3 py-1 border rounded-full text-xs font-medium ${badgeColor}`}>
             {status.charAt(0).toUpperCase() + status.slice(1)}
           </span>
         );
       },
     }),
-    columnHelper.accessor('addedDate', {
+    columnHelper.accessor('created_at', {
       header: 'Added Date',
       cell: info => <span className="text-primary-400">{info.getValue()}</span>,
     }),
@@ -254,10 +183,18 @@ const AdminProductList: React.FC = () => {
     getSortedRowModel: getSortedRowModel(),
     initialState: {
       pagination: {
-        pageSize: 7,
+        pageSize: 8,
       },
     },
   });
+
+
+  if (isError)
+    return (
+      <p className="text-center text-red-500 mt-10">
+        Failed to load products 😕
+      </p>
+    );
 
   return (
     <>
@@ -344,7 +281,7 @@ const AdminProductList: React.FC = () => {
                   min="0"
                   step="0.01"
                   value={priceMin}
-                  onChange={(e) => setPriceMin(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                  onChange={(e) => setPriceMin(e.target.value === '' ? '' : Number(e.target.value))}
                   placeholder="0.00"
                   className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
@@ -357,7 +294,7 @@ const AdminProductList: React.FC = () => {
                   min="0"
                   step="0.01"
                   value={priceMax}
-                  onChange={(e) => setPriceMax(e.target.value === '' ? '' : parseFloat(e.target.value))}
+                  onChange={(e) => setPriceMax(e.target.value === '' ? '' : Number(e.target.value))}
                   placeholder="100.00"
                   className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
@@ -395,17 +332,38 @@ const AdminProductList: React.FC = () => {
                     </tr>
                   ))}
                 </thead>
-                <tbody>
-                  {table.getRowModel().rows.map(row => (
-                    <tr key={row.id} className="border-b border-primary-400/5 hover:bg-primary-400/5">
-                      {row.getVisibleCells().map(cell => (
-                        <td key={cell.id} className="py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm text-primary-400">
-                          {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
+                           <tbody>
+              {isLoading ? (
+                // ✅ Skeleton rows when loading
+                <TableRowSkeleton rows={8} columns={6} />
+              ) : table.getRowModel().rows.length > 0 ? (
+                table.getRowModel().rows.map(row => (
+                  <tr
+                    key={row.id}
+                    className="border-b border-primary-400/5 hover:bg-primary-400/5"
+                  >
+                    {row.getVisibleCells().map(cell => (
+                      <td
+                        key={cell.id}
+                        className="py-2 px-3 text-xs sm:text-sm text-primary-400"
+                      >
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    ))}
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td
+                    colSpan={6}
+                    className="text-center py-4 text-primary-400/60 text-sm"
+                  >
+                    No products found
+                  </td>
+                </tr>
+              )}
+            </tbody>
+
               </table>
             </div>
 

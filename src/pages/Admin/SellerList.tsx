@@ -1,15 +1,15 @@
-import React, { useState, useMemo, useCallback } from "react";
+import  { useState, useMemo, useCallback, useEffect } from "react";
 import {
   Check,
   X,
-  Edit,
-  Trash2,
+ 
   Ban,
   Unlock,
   Search,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
+  Eye,
 } from "lucide-react";
 import {
   useReactTable,
@@ -23,11 +23,13 @@ import type { Row } from "@tanstack/react-table";
 import { useAdminStore } from "../../store/adminStore";
 import { useFetchSellers } from "../../hooks/useFetchSellers";
 import type { Seller } from "../../types/admin";
-import LoadingState from "../../components/LoadingState";
+import { useSellerActions } from "../../hooks/Admin/useSellerAction";
+import TableRowSkeleton from "../../components/TableRowSkeleton";
+import ViewSellerModal from "../../components/Admin/ViewSellerModal";
 
 const columnHelper = createColumnHelper<Seller>();
 
-const SellerList: React.FC = () => {
+const SellerList= () => {
   const { sellers, setSellers, loading, error } = useAdminStore();
   useFetchSellers();
 
@@ -36,32 +38,37 @@ const SellerList: React.FC = () => {
   const [blockFilter, setBlockFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const { approveSeller, rejectSeller } = useSellerActions();
+  const [selectedSeller, setSelectedSeller] = useState<Seller | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
+   useEffect(() => {
+    if (approveSeller.isSuccess || rejectSeller.isSuccess) {
+      setIsModalOpen(false);
+      setSelectedSeller(null);
+      approveSeller.reset();
+      rejectSeller.reset();
+    }
+  }, [approveSeller.isSuccess, rejectSeller.isSuccess]);
   // --- ACTION HANDLERS ---
   const handleApprove = useCallback(
     (id: number) => {
-      setSellers((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, is_active: true } : s))
-      );
+      approveSeller.mutate(id); 
     },
-    [setSellers]
+    [approveSeller]
   );
 
   const handleReject = useCallback(
     (id: number) => {
-      setSellers((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, is_active: false } : s))
-      );
+      rejectSeller.mutate(id); // ✅ Call API
     },
-    [setSellers]
+    [rejectSeller]
   );
 
   const handleBlockToggle = useCallback(
     (id: number) => {
       setSellers((prev) =>
-        prev.map((s) =>
-          s.id === id ? { ...s, is_blocked: !s.is_blocked } : s
-        )
+        prev.map((s) => (s.id === id ? { ...s, is_blocked: !s.is_blocked } : s))
       );
     },
     [setSellers]
@@ -71,19 +78,27 @@ const SellerList: React.FC = () => {
     console.log("Edit seller:", id);
   }, []);
 
-  const handleDelete = useCallback(
-    (id: number) => {
-      setSellers((prev) => prev.filter((s) => s.id !== id));
-    },
-    [setSellers]
-  );
+  // const handleDelete = useCallback(
+  //   (id: number) => {
+  //     setSellers((prev) => prev.filter((s) => s.id !== id));
+  //   },
+  //   [setSellers]
+  // );
+  const handleView = (seller: Seller) => {
+    setSelectedSeller(seller);
+    setIsModalOpen(true);
+  };
 
+ 
+ console.log(sellers);
   // --- FILTER + SEARCH LOGIC ---
   const filteredData = useMemo(() => {
     let filtered = sellers.filter(
       (s) =>
         s.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (s.store_name ?? "—").toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (s.store_name ?? "—")
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
         s.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
         s.phone?.toLowerCase().includes(searchTerm.toLowerCase())
     );
@@ -98,11 +113,9 @@ const SellerList: React.FC = () => {
         blockFilter === "blocked" ? s.is_blocked : !s.is_blocked
       );
 
-    if (dateFrom)
-      filtered = filtered.filter((s) => s.created_at >= dateFrom);
+    if (dateFrom) filtered = filtered.filter((s) => s.created_at >= dateFrom);
 
-    if (dateTo)
-      filtered = filtered.filter((s) => s.created_at <= dateTo);
+    if (dateTo) filtered = filtered.filter((s) => s.created_at <= dateTo);
 
     return filtered;
   }, [sellers, searchTerm, statusFilter, blockFilter, dateFrom, dateTo]);
@@ -219,23 +232,24 @@ const SellerList: React.FC = () => {
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
+                   <button
+                    onClick={() => handleView(seller)}
+                    className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded"
+                    title="View"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                  </button>
                 </>
               ) : (
                 <>
-                  <button
-                    onClick={() => handleEdit(seller.id)}
-                    className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded"
-                    title="Edit"
-                  >
-                    <Edit className="w-3.5 h-3.5" />
-                  </button>
-                  <button
+                 
+                  {/* <button
                     onClick={() => handleDelete(seller.id)}
                     className="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded"
                     title="Delete"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                  </button> */}
                   <button
                     onClick={() => handleBlockToggle(seller.id)}
                     className={`p-1.5 ${
@@ -251,6 +265,13 @@ const SellerList: React.FC = () => {
                       <Ban className="w-3.5 h-3.5" />
                     )}
                   </button>
+                       <button
+                    onClick={() => handleView(seller)}
+                    className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded"
+                    title="View"
+                  >
+                    <Eye className="w-3.5 h-3.5" />
+                  </button>
                 </>
               )}
             </div>
@@ -258,7 +279,7 @@ const SellerList: React.FC = () => {
         },
       }),
     ],
-    [handleApprove, handleReject, handleEdit, handleDelete, handleBlockToggle]
+    [handleApprove, handleReject, handleEdit, handleBlockToggle]
   );
 
   const table = useReactTable({
@@ -270,7 +291,6 @@ const SellerList: React.FC = () => {
     initialState: { pagination: { pageSize: 8 } },
   });
 
- if (loading) return<LoadingState  message="Loading Sellers..."/>;
   if (error) return <p className="p-4 text-red-500">Error: {error}</p>;
 
   return (
@@ -317,7 +337,9 @@ const SellerList: React.FC = () => {
             </div>
 
             <div className="flex flex-col min-w-[120px]">
-              <label className="text-xs text-primary-400 mb-1">Block Status</label>
+              <label className="text-xs text-primary-400 mb-1">
+                Block Status
+              </label>
               <select
                 value={blockFilter}
                 onChange={(e) => setBlockFilter(e.target.value)}
@@ -392,22 +414,39 @@ const SellerList: React.FC = () => {
                   </tr>
                 ))}
               </thead>
+
               <tbody>
-                {table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className="border-b border-primary-400/5 hover:bg-primary-400/5"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <td
-                        key={cell.id}
-                        className="py-2 px-3 text-xs sm:text-sm text-primary-400"
-                      >
-                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                      </td>
-                    ))}
+                {loading ? (
+                  <TableRowSkeleton rows={8} columns={9} />
+                ) : table.getRowModel().rows.length > 0 ? (
+                  table.getRowModel().rows.map((row) => (
+                    <tr
+                      key={row.id}
+                      className="border-b border-primary-400/5 hover:bg-primary-400/5"
+                    >
+                      {row.getVisibleCells().map((cell) => (
+                        <td
+                          key={cell.id}
+                          className="py-2 px-3 text-xs sm:text-sm text-primary-400"
+                        >
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td
+                      colSpan={7}
+                      className="text-center py-4 text-primary-400/60 text-sm"
+                    >
+                      No sellers found
+                    </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
@@ -437,6 +476,16 @@ const SellerList: React.FC = () => {
           </div>
         </div>
       </div>
+      {selectedSeller && (
+        <ViewSellerModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          seller={selectedSeller}
+          onApprove={handleApprove}
+          onReject={handleReject}
+          onToggleBlock={handleBlockToggle}
+        />
+      )}
     </div>
   );
 };
