@@ -6,6 +6,7 @@ import {
   ArrowUp,
   ArrowDown,
   Search,
+  Eye
 } from "lucide-react";
 import {
   useReactTable,
@@ -20,7 +21,7 @@ import { useAdminStore } from "../../store/adminStore";
 import { useFetchCustomers } from "../../hooks/Admin/useFetchCustomers"
 import type { Customer } from "../../types/admin";
 import TableRowSkeleton from "../../components/TableRowSkeleton"
-
+import ViewCustomerModal from "../../components/Admin/ViewCustomerModal";
 
 const columnHelper = createColumnHelper<Customer>();
 
@@ -32,16 +33,23 @@ const CustomerList: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // --- Block/Unblock Handler ---
-  const handleBlockToggle = useCallback(
-    (id: number) => {
-      setCustomers((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, is_blocked: !c.is_blocked } : c))
-      );
-    },
-    [setCustomers]
-  );
+const handleBlockToggle = useCallback(
+  (id: number, newState?: boolean) => {
+    setCustomers((prev) =>
+      prev.map((c) =>
+        c.id === id
+          ? { ...c, is_blocked: newState !== undefined ? newState : !c.is_blocked }
+          : c
+      )
+    );
+    setIsModalOpen(false); // close modal after block/unblock
+  },
+  [setCustomers]
+);
+
 
   // --- Filter & Search Logic ---
   const filteredData = useMemo(() => {
@@ -127,32 +135,43 @@ const CustomerList: React.FC = () => {
           );
         },
       }),
-      columnHelper.display({
-        id: "actions",
-        header: "Actions",
-        cell: ({ row }: { row: Row<Customer> }) => {
-          const customer = row.original;
-          return (
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleBlockToggle(customer.id)}
-                className={`p-1.5 ${
-                  customer.is_blocked
-                    ? "bg-green-50 text-green-600 hover:bg-green-100"
-                    : "bg-yellow-50 text-yellow-600 hover:bg-yellow-100"
-                } rounded`}
-                title={customer.is_blocked ? "Unblock" : "Block"}
-              >
-                {customer.is_blocked ? (
-                  <Unlock className="w-3.5 h-3.5" />
-                ) : (
-                  <Ban className="w-3.5 h-3.5" />
-                )}
-              </button>
-            </div>
-          );
-        },
-      }),
+     columnHelper.display({
+  id: "actions",
+  header: "Actions",
+  cell: ({ row }: { row: Row<Customer> }) => {
+    const customer = row.original;
+    return (
+      <div className="flex gap-2">
+        <button
+          onClick={() => {
+            setSelectedCustomer(customer);
+            setIsModalOpen(true);
+          }}
+          className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded"
+          title="View Details"
+        >
+          <Eye className="w-3.5 h-3.5" />
+        </button>
+        <button
+          onClick={() => handleBlockToggle(customer.id)}
+          className={`p-1.5 ${
+            customer.is_blocked
+              ? "bg-green-50 text-green-600 hover:bg-green-100"
+              : "bg-yellow-50 text-yellow-600 hover:bg-yellow-100"
+          } rounded`}
+          title={customer.is_blocked ? "Unblock" : "Block"}
+        >
+          {customer.is_blocked ? (
+            <Unlock className="w-3.5 h-3.5" />
+          ) : (
+            <Ban className="w-3.5 h-3.5" />
+          )}
+        </button>
+      </div>
+    );
+  },
+}),
+
     ],
     [handleBlockToggle]
   );
@@ -336,6 +355,13 @@ const CustomerList: React.FC = () => {
           </div>
         </div>
       </div>
+      <ViewCustomerModal
+  isOpen={isModalOpen}
+  onClose={() => setIsModalOpen(false)}
+  customer={selectedCustomer}
+  onToggleBlock={(id, newState) => handleBlockToggle(id, newState)}
+/>
+
     </div>
   );
 };
