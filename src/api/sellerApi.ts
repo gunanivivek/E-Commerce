@@ -1,10 +1,12 @@
-import type { BulkUploadRequest, CreateProductRequest } from "../types/seller";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type {
+  BulkUploadRequest,
+  CreateProductRequest,
+  Product,
+  SellerProfile,
+} from "../types/seller";
 import API from "./axiosInstance";
-// import type {
-//   Product,
-//   ProductRequest,
-//   ProductUpdateRequest,
-// } from "../types/seller";
+
 
 // Create new product
 export const createProduct = async (data: CreateProductRequest) => {
@@ -16,7 +18,7 @@ export const createProduct = async (data: CreateProductRequest) => {
   formData.append("price", data.price.toString());
   formData.append("stock", data.stock.toString());
   formData.append("category", data.category);
-  data.images.forEach((file) => formData.append("images", file)); 
+  data.images.forEach((file) => formData.append("images", file));
 
   const res = await API.post("products", formData, {
     headers: {
@@ -25,6 +27,26 @@ export const createProduct = async (data: CreateProductRequest) => {
   });
 
   return res.data;
+};
+
+export const handleDownloadFormat = async () => {
+  try {
+    const res = await API.get("/products/bulk-upload/template", {
+      responseType: "blob",
+    });
+
+    const blob = new Blob([res.data], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download","seller_upload_format.csv"); // adjust filename/extension
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (error) {
+    console.error("Error downloading format:", error);
+  }
 };
 
 export const bulkUploadProducts = async (data: BulkUploadRequest) => {
@@ -37,11 +59,34 @@ export const bulkUploadProducts = async (data: BulkUploadRequest) => {
   return res.data;
 };
 
-// // ✅ Get all products for the logged-in seller
-// export const getSellerProducts = async (): Promise<Product[]> => {
-//   const res = await API.get("products/my-products");
-//   return res.data;
-// };
+export const getSellerProfile = async (
+  sellerId: string
+): Promise<SellerProfile> => {
+  const res = await API.get(`/sellers/${sellerId}`);
+  return res.data;
+};
+
+export const updateSellerProfile = async (
+  sellerId: string,
+  data: Partial<SellerProfile>
+): Promise<SellerProfile> => {
+  const res = await API.patch(`/sellers/${sellerId}`, data);
+  return res.data;
+};
+
+export const getSellerProducts = async (
+  sellerId: string
+): Promise<Product[]> => {
+  const res = await API.get(`/products/${sellerId}/`);
+  return res.data.map((p: any) => ({
+    id: p.id,
+    name: p.name,
+    category: p.category?.name, // ✅ safe fallback
+    price: p.price,
+    status: p.status ,
+    addedDate: p.created_at,
+  }));
+};
 
 // // ✅ Get product details by ID
 // export const getProductById = async (id: number): Promise<Product> => {
@@ -60,9 +105,9 @@ export const bulkUploadProducts = async (data: BulkUploadRequest) => {
 
 // ✅ Delete product
 export const deleteProduct = async (
-  id: number
+  ProductId: number
 ): Promise<{ message: string }> => {
-  const res = await API.delete(`products/${id}`);
+  const res = await API.delete(`products/${ProductId}/delete`);
   return res.data;
 };
 

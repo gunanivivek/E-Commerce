@@ -11,16 +11,23 @@ export interface BulkUploadRequest{
     file: File;
 }
 
-// export interface Seller {
-//   id: string;
-//   name: string;
-//   email: string;
-//   phone: string;
-//   store_name: string;
-//   store_address: string;
-//   createdAt?: string;
-//   updatedAt?: string;
-// }
+export interface SellerProfile {
+  store_name: string;
+  store_description: string;
+  store_address: string;
+  full_name: string;
+  phone: string;
+}
+
+export interface Product {
+  id: number;
+  name: string;
+  category: string;
+  price: number;
+  status: "approved" | "pending" | "rejected";
+  addedDate: string; // or Date if you convert it later
+}
+
 
 // export interface SellerRequest {
 //   name: string;

@@ -1,6 +1,19 @@
 import { Routes, Route } from "react-router";
 import Unauthorized from "./pages/Unauthorized";
 import RoleBasedRoute from "./routes/RoleBasedRoute";
+<<<<<<< HEAD
+=======
+import Login from "./pages/Login";
+import CustomerLayouts from "./layouts/CustomerLayouts";
+import TestDashboard from "./pages/TestDashboard";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import NotFound from "./pages/NotFound";
+import AdminLayouts from "./layouts/AdminLayouts";
+import Test from "./pages/Test";
+import SellerLayouts from "./layouts/SellerLayouts";
+import AdminProfile from "./pages/Admin/AdminProfile";
+import About from "./pages/Customer/About";
+>>>>>>> origin/dev-task-seller
 import PublicRoute from "./routes/PublicRoute";
 import OpenCustomerRoute from "./routes/OpenCustomerRoute";
 import ProtectedRoute from "./routes/ProtectedRoute";
@@ -22,9 +35,13 @@ import SellerProductList from "./pages/Seller/SellerProductList";
 import SellerList from "./pages/Admin/SellerList";
 import CustomerList from "./pages/Admin/CustomerList";
 import CategoryList from "./pages/Admin/CategoryList";
+<<<<<<< HEAD
 import AdminProfile from "./pages/Admin/AdminProfile";
 import SellerProfile from "./pages/Seller/SellerProfile";
 import Test from "./pages/Test";
+=======
+import SellerProfilePage from "./pages/Seller/SellerProfilePage";
+>>>>>>> origin/dev-task-seller
 
 function App() {
   return (
@@ -58,13 +75,16 @@ function App() {
           </Route>
         </Route>
 
+<<<<<<< HEAD
         {/* Seller */}
+=======
+>>>>>>> origin/dev-task-seller
         <Route element={<RoleBasedRoute allowedRoles={["seller"]} />}>
           <Route path="/seller" element={<SellerLayouts />}>
             <Route index element={<TestDashboard />} />
             <Route path="products" element={<SellerProductList />} />
             <Route path="coupons" element={<Test />} />
-            <Route path="profile" element={<SellerProfile />} />
+            <Route path=":sellerId" element={<SellerProfilePage />} />
           </Route>
         </Route>
 
