@@ -95,7 +95,7 @@ const SellerProductList: React.FC = () => {
   const handleView = useCallback((id: number) => {
     console.log("View product:", id);
     setIsViewProdOpen(true);
-    // Add your view logic here, e.g., navigate to product details
+
   }, []);
 
   const handleDelete = useCallback(
@@ -106,9 +106,6 @@ const SellerProductList: React.FC = () => {
         const res = await deleteProduct(ProductId);
         toast.success(res.message || "Product deleted successfully");
       } catch (error: any) {
-        console.error("Failed to delete product:", error);
-
-        // Rollback if backend failed
         setData(prevData);
         toast.error(
           error.response?.data?.message || "Failed to delete product"
@@ -567,7 +564,7 @@ const SellerProductList: React.FC = () => {
         onClose={() => setIsDeleteOpen(false)}
         onConfirm={handleDelete}
         productId={selectedProduct?.id ?? 0}
-        productName="Wireless Headphones"
+        productName={selectedProduct?.name}
       />
     </div>
   );
