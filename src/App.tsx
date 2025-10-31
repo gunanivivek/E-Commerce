@@ -9,7 +9,6 @@ import NotFound from "./pages/NotFound";
 import AdminLayouts from "./layouts/AdminLayouts";
 import Test from "./pages/Test";
 import SellerLayouts from "./layouts/SellerLayouts";
-import SellerProfile from "./pages/Seller/SellerProfile";
 import AdminProfile from "./pages/Admin/AdminProfile";
 import About from "./pages/Customer/About";
 import PublicRoute from "./routes/PublicRoute";
@@ -21,6 +20,7 @@ import CustomerList from "./pages/Admin/CustomerList";
 import SellerList from "./pages/Admin/SellerList";
 import SellerProductList from "./pages/Seller/SellerProductList";
 import CategoryList from "./pages/Admin/CategoryList";
+import SellerProfilePage from "./pages/Seller/SellerProfilePage";
 
 function App() {
   return (
@@ -59,14 +59,12 @@ function App() {
           </Route>
         </Route>
 
-        {/* Seller-only routes */}
         <Route element={<RoleBasedRoute allowedRoles={["seller"]} />}>
           <Route path="/seller" element={<SellerLayouts />}>
             <Route index element={<TestDashboard />} />
-            <Route path="sellers" element={<Test />} />
             <Route path="products" element={<SellerProductList />} />
             <Route path="coupons" element={<Test />} />
-            <Route path="profile" element={<SellerProfile />} />
+            <Route path=":sellerId" element={<SellerProfilePage />} />
           </Route>
         </Route>
       </Route>

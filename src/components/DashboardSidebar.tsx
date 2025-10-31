@@ -155,7 +155,7 @@ const DashboardSidebar = () => {
         {/* Footer */}
         <div className="p-4 border-t border-primary-border">
           <NavLink
-            to={`/${user.role}/profile`}
+            to={`/${user.role}/${user.id}`}
             className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-primary-200/20 rounded-lg"
             onClick={closeSidebar}
           >

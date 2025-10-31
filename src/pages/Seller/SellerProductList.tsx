@@ -1,6 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
-import React, { useState, useMemo, useCallback } from "react";
-import { Search, Eye, ArrowUpDown, ArrowUp, ArrowDown, Trash2 } from "lucide-react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
+import {
+  Search,
+  Eye,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  Trash2,
+} from "lucide-react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -14,180 +22,12 @@ import BulkUploadModal from "../../components/Seller/BulkUploadModal";
 import AddProductModal from "../../components/Seller/AddProductModal";
 import UpdateProductForm from "../../components/Seller/UpdateProductForm";
 import DeleteProductModal from "../../components/Seller/DeleteProductModal";
-
-interface Product {
-  id: number;
-  name: string;
-  category: string;
-  price: number;
-  status: "approved" | "pending" | "rejected";
-  addedDate: string;
-}
+import type { Product } from "../../types/seller";
+import { deleteProduct, getSellerProducts } from "../../api/sellerApi";
+import { useAuthStore } from "../../store/authStore";
+import { toast } from "react-toastify";
 
 const columnHelper = createColumnHelper<Product>();
-
-const initialProducts: Product[] = [
-  {
-    id: 1,
-    name: "Margherita Pizza",
-    category: "Italian",
-    price: 12.0,
-    status: "approved",
-    addedDate: "2024-10-01",
-  },
-  {
-    id: 2,
-    name: "Chicken Burger",
-    category: "American",
-    price: 10.0,
-    status: "pending",
-    addedDate: "2024-10-08",
-  },
-  {
-    id: 3,
-    name: "Caesar Salad",
-    category: "Salads",
-    price: 9.0,
-    status: "approved",
-    addedDate: "2024-09-25",
-  },
-  {
-    id: 4,
-    name: "Pad Thai",
-    category: "Thai",
-    price: 13.0,
-    status: "pending",
-    addedDate: "2024-10-09",
-  },
-  {
-    id: 5,
-    name: "Tiramisu",
-    category: "Desserts",
-    price: 8.0,
-    status: "rejected",
-    addedDate: "2024-09-30",
-  },
-  {
-    id: 6,
-    name: "Cheeseburger",
-    category: "American",
-    price: 11.0,
-    status: "approved",
-    addedDate: "2024-10-02",
-  },
-  {
-    id: 7,
-    name: "Greek Salad",
-    category: "Salads",
-    price: 10.5,
-    status: "pending",
-    addedDate: "2024-10-05",
-  },
-  {
-    id: 8,
-    name: "Tom Yum Soup",
-    category: "Thai",
-    price: 7.5,
-    status: "approved",
-    addedDate: "2024-09-28",
-  },
-  {
-    id: 9,
-    name: "Cannoli",
-    category: "Desserts",
-    price: 6.0,
-    status: "rejected",
-    addedDate: "2024-10-03",
-  },
-  {
-    id: 10,
-    name: "Pepperoni Pizza",
-    category: "Italian",
-    price: 14.0,
-    status: "pending",
-    addedDate: "2024-10-07",
-  },
-  {
-    id: 11,
-    name: "Veggie Burger",
-    category: "American",
-    price: 9.5,
-    status: "approved",
-    addedDate: "2024-09-26",
-  },
-  {
-    id: 12,
-    name: "Quinoa Salad",
-    category: "Salads",
-    price: 11.0,
-    status: "pending",
-    addedDate: "2024-10-04",
-  },
-  {
-    id: 13,
-    name: "Green Curry",
-    category: "Thai",
-    price: 12.5,
-    status: "approved",
-    addedDate: "2024-10-01",
-  },
-  {
-    id: 14,
-    name: "Panna Cotta",
-    category: "Desserts",
-    price: 7.0,
-    status: "rejected",
-    addedDate: "2024-09-29",
-  },
-  {
-    id: 15,
-    name: "Hawaiian Pizza",
-    category: "Italian",
-    price: 13.5,
-    status: "pending",
-    addedDate: "2024-10-06",
-  },
-  {
-    id: 16,
-    name: "BBQ Burger",
-    category: "American",
-    price: 12.0,
-    status: "approved",
-    addedDate: "2024-10-10",
-  },
-  {
-    id: 17,
-    name: "Cobb Salad",
-    category: "Salads",
-    price: 10.0,
-    status: "pending",
-    addedDate: "2024-09-27",
-  },
-  {
-    id: 18,
-    name: "Massaman Curry",
-    category: "Thai",
-    price: 14.0,
-    status: "rejected",
-    addedDate: "2024-10-02",
-  },
-  {
-    id: 19,
-    name: "Gelato",
-    category: "Desserts",
-    price: 5.5,
-    status: "approved",
-    addedDate: "2024-09-24",
-  },
-  {
-    id: 20,
-    name: "Supreme Pizza",
-    category: "Italian",
-    price: 15.0,
-    status: "pending",
-    addedDate: "2024-10-11",
-  },
-];
 
 const getStatusColor = (status: Product["status"]) => {
   switch (status) {
@@ -208,7 +48,13 @@ const SellerProductList: React.FC = () => {
   const [isViewProdOpen, setIsViewProdOpen] = useState(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-  const [data] = useState<Product[]>(initialProducts);
+  const [selectedProduct, setSelectedProduct] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
+
+  const user = useAuthStore((state) => state.user);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
@@ -217,10 +63,34 @@ const SellerProductList: React.FC = () => {
   const [priceMin, setPriceMin] = useState<number | "">("");
   const [priceMax, setPriceMax] = useState<number | "">("");
 
-  const uniqueCategories = useMemo(
-    () => Array.from(new Set(data.map((p) => p.category))).sort(),
-    [data]
-  );
+  const [data, setData] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const products = await getSellerProducts(String(user?.id));
+        setData(products);
+      } catch (err: any) {
+        console.error("Error fetching products:", err);
+        setError(err.message || "Failed to fetch products");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user?.id) fetchData();
+  }, [user?.id]);
+
+  const uniqueCategories = useMemo(() => {
+    const categories = (data ?? [])
+      .map((p) => p.category)
+      .filter((c): c is string => !!c);
+
+    return Array.from(new Set(categories)).sort();
+  }, [data]);
 
   const handleView = useCallback((id: number) => {
     console.log("View product:", id);
@@ -228,13 +98,24 @@ const SellerProductList: React.FC = () => {
     // Add your view logic here, e.g., navigate to product details
   }, []);
 
-   const handleDeleteModal = () => {
-    setIsDeleteOpen(true);
-  } ;
+  const handleDelete = useCallback(async (ProductId: number) => {
+    const prevData = data;
+    setData((prev) => prev.filter((p) => p.id !== ProductId));
+    try {
+      const res = await deleteProduct(ProductId);
+      toast.success(res.message || "Product deleted successfully");
+    } catch (error: any) {
+      console.error("Failed to delete product:", error);
 
-  const handleDelete = useCallback((id: number) => {
-    console.log("🗑️ Product deleted: ", id);
-  }, []) ;
+      // Rollback if backend failed
+      setData(prevData);
+      toast.error(error.response?.data?.message || "Failed to delete product");
+    } finally {
+      setIsDeleteOpen(false);
+      setSelectedProduct(null);
+    }
+  },
+  [data, setData]);
 
   const filteredData = useMemo(() => {
     let filtered = data.filter(
@@ -297,31 +178,49 @@ const SellerProductList: React.FC = () => {
       }),
       columnHelper.accessor("price", {
         header: "Price",
-        cell: (info) => (
-          <span className="text-primary-400">
-            ${info.getValue().toFixed(2)}
-          </span>
-        ),
-      }),
-      columnHelper.accessor("status", {
-        header: "Status",
         cell: (info) => {
-          const status = info.getValue() as Product["status"];
-          const colorClass = getStatusColor(status);
+          const rawValue = info.getValue();
+          const value =
+            typeof rawValue === "number"
+              ? rawValue
+              : parseFloat(String(rawValue)); // ✅ safely handle both number/string
+
           return (
-            <span
-              className={`px-4 py-1 rounded-full text-xs font-medium ${colorClass}`}
-            >
-              {status.charAt(0).toUpperCase() + status.slice(1)}
+            <span className="text-primary-400">
+              {isNaN(value) ? "—" : `$${value.toFixed(2)}`}
             </span>
           );
         },
       }),
+      columnHelper.accessor("status", {
+        header: "Status",
+        cell: (info) => {
+          const status = info.getValue() as Product["status"] | undefined;
+          const colorClass = getStatusColor(status ?? "pending"); // fallback color
+
+          return (
+            <span
+              className={`px-4 py-1 rounded-full text-xs font-medium ${colorClass}`}
+            >
+              {status
+                ? status.charAt(0).toUpperCase() + status.slice(1)
+                : "Pending"}
+            </span>
+          );
+        },
+      }),
+
       columnHelper.accessor("addedDate", {
         header: "Added Date",
-        cell: (info) => (
-          <span className="text-primary-400">{info.getValue()}</span>
-        ),
+        cell: (info) => {
+          const date = new Date(info.getValue());
+          const formattedDate = date.toLocaleDateString("en-IN", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          });
+          return <span className="text-primary-400">{formattedDate}</span>;
+        },
       }),
       columnHelper.display({
         id: "actions",
@@ -339,7 +238,10 @@ const SellerProductList: React.FC = () => {
                 <Eye className="w-3.5 h-3.5" />
               </button>
               <button
-                onClick={() => handleDeleteModal()}
+                onClick={() => {
+                  setSelectedProduct({ id: Number(product.id), name: product.name });
+                  setIsDeleteOpen(true);
+                }}
                 className="p-1.5 bg-blue-50 text-red-600 hover:bg-blue-100 rounded transition-colors"
                 title="View Product"
               >
@@ -365,6 +267,9 @@ const SellerProductList: React.FC = () => {
       },
     },
   });
+
+  if (loading) return <div>Loading products...</div>;
+  if (error) return <div>{error}</div>;
 
   return (
     <div className="min-h-screen py-4 sm:py-6">
@@ -637,7 +542,8 @@ const SellerProductList: React.FC = () => {
         isOpen={isAddModelOpen}
         onClose={() => setIsAddModelOpen(false)}
       />
-      <UpdateProductForm  isOpen={isViewProdOpen}
+      <UpdateProductForm
+        isOpen={isViewProdOpen}
         onClose={() => setIsViewProdOpen(false)}
         existingData={{
           name: "Green Tea",
@@ -645,13 +551,14 @@ const SellerProductList: React.FC = () => {
           price: 250,
           stock: 80,
           category: "Beverages",
-        }} />
+        }}
+      />
 
-        <DeleteProductModal
+      <DeleteProductModal
         isOpen={isDeleteOpen}
         onClose={() => setIsDeleteOpen(false)}
         onConfirm={handleDelete}
-        productId={1}
+        productId={selectedProduct?.id ?? 0}
         productName="Wireless Headphones"
       />
     </div>

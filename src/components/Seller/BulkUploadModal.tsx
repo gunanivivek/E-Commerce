@@ -29,7 +29,7 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({ isOpen, onClose }) =>
           correct format before uploading.
         </p>
 
-        <BulkUploadForm onClose={onClose} />
+        <BulkUploadForm onClose={onClose}  />
       </div>
     </div>,
     document.body

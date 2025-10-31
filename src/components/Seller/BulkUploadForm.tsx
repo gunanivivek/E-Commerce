@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Upload } from "lucide-react";
-import { bulkUploadProducts } from "../../api/sellerApi";
+import { bulkUploadProducts, handleDownloadFormat } from "../../api/sellerApi";
 import { toast } from "react-toastify";
 
 interface BulkUploadFormProps {
@@ -50,10 +50,19 @@ const BulkUploadForm: React.FC<BulkUploadFormProps> = ({ onClose }) => {
       onSubmit={handleSubmit(onSubmit)}
       className="space-y-4 p-6 border border-gray-200 rounded-lg bg-white shadow-sm max-w-md mx-auto"
     >
-      <h2 className="text-lg font-semibold text-gray-800 text-center">
-        Bulk Upload
-      </h2>
-
+      <p className="text-sm text-gray-500 mb-4">
+        Upload your file in the format provided. To check the format please
+        click &nbsp;
+        <button
+          type="button"
+          onClick={handleDownloadFormat}
+          className="text-blue-500 underline hover:text-blue-600 hover:cursor-pointer"
+        >
+          here
+        </button>
+        .
+      </p>
+      .
       <div>
         <label className="block text-gray-700 text-sm font-medium mb-2">
           Upload Excel or CSV File
@@ -93,7 +102,6 @@ const BulkUploadForm: React.FC<BulkUploadFormProps> = ({ onClose }) => {
           <p className="text-red-500 text-sm mt-2">{errors.file.message}</p>
         )}
       </div>
-
       <button
         type="submit"
         className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition"
