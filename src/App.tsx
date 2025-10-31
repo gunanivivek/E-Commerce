@@ -1,8 +1,6 @@
 import { Routes, Route } from "react-router";
 import Unauthorized from "./pages/Unauthorized";
 import RoleBasedRoute from "./routes/RoleBasedRoute";
-<<<<<<< HEAD
-=======
 
 import Login from "./pages/Login";
 import CustomerLayouts from "./layouts/CustomerLayouts";
@@ -14,37 +12,18 @@ import Test from "./pages/Test";
 import SellerLayouts from "./layouts/SellerLayouts";
 import AdminProfile from "./pages/Admin/AdminProfile";
 import About from "./pages/Customer/About";
->>>>>>> 6f16c809782b223a6d0bbc6dd59c47217ad52f89
 import PublicRoute from "./routes/PublicRoute";
 import OpenCustomerRoute from "./routes/OpenCustomerRoute";
 import SignUp from "./pages/SignUp";
 import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
-<<<<<<< HEAD
-import NotFound from "./pages/NotFound";
-
-import CustomerLayouts from "./layouts/CustomerLayouts";
-import AdminLayouts from "./layouts/AdminLayouts";
-import SellerLayouts from "./layouts/SellerLayouts";
-
-import TestDashboard from "./pages/TestDashboard";
-import About from "./pages/Customer/About";
-=======
->>>>>>> 6f16c809782b223a6d0bbc6dd59c47217ad52f89
 import AdminProductList from "./pages/Admin/AdminProductList";
 import SellerProductList from "./pages/Seller/SellerProductList";
 import SellerList from "./pages/Admin/SellerList";
 import CustomerList from "./pages/Admin/CustomerList";
 import CategoryList from "./pages/Admin/CategoryList";
-<<<<<<< HEAD
-import AdminProfile from "./pages/Admin/AdminProfile";
-
-import Test from "./pages/Test";
-import SellerProfilePage from "./pages/Seller/SellerProfilePage";
-=======
 import SellerProfilePage from "./pages/Seller/SellerProfilePage";
 
->>>>>>> 6f16c809782b223a6d0bbc6dd59c47217ad52f89
 
 function App() {
   return (
@@ -78,17 +57,13 @@ function App() {
           </Route>
         </Route>
 
-<<<<<<< HEAD
-        {/* Seller */}
-=======
 
->>>>>>> 6f16c809782b223a6d0bbc6dd59c47217ad52f89
         <Route element={<RoleBasedRoute allowedRoles={["seller"]} />}>
           <Route path="/seller" element={<SellerLayouts />}>
             <Route index element={<TestDashboard />} />
             <Route path="products" element={<SellerProductList />} />
             <Route path="coupons" element={<Test />} />
-            <Route path="profile" element={<SellerProfilePage />} />
+            <Route path=":sellerId" element={<SellerProfilePage />} />
           </Route>
         </Route>
 
