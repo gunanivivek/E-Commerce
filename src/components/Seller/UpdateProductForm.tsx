@@ -1,18 +1,13 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { X } from "lucide-react";
 import ReactDOM from "react-dom";
+import type { Product } from "../../types/seller";
 
 interface UpdateProductModalProps {
   isOpen: boolean;
   onClose: () => void;
-  existingData?: {
-    name: string;
-    description: string;
-    price: number;
-    stock: number;
-    category: string;
-  };
+  product: Product | null;
 }
 
 interface ProductFormData {
@@ -26,16 +21,24 @@ interface ProductFormData {
 const UpdateProductForm: React.FC<UpdateProductModalProps> = ({
   isOpen,
   onClose,
-  existingData,
+  product,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<ProductFormData>({
-    defaultValues: existingData || {},
+    defaultValues: product || {},
   });
+
+  useEffect(() => {
+    if (product) {
+      reset(product);
+      setIsEditing(false); // Always start in view mode
+    }
+  }, [product, reset]);
 
   const onSubmit = (data: ProductFormData) => {
     console.log("📝 Updated product data:", { ...data});
