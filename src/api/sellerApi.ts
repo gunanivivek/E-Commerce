@@ -4,6 +4,7 @@ import type {
   CreateProductRequest,
   Product,
   SellerProfile,
+  ViewProduct,
 } from "../types/seller";
 import API from "./axiosInstance";
 
@@ -35,7 +36,7 @@ export const handleDownloadFormat = async () => {
 
     const link = document.createElement("a");
     link.href = url;
-    link.setAttribute("download","seller_upload_format.csv"); // adjust filename/extension
+    link.setAttribute("download", "seller_upload_format.csv"); // adjust filename/extension
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -54,7 +55,6 @@ export const bulkUploadProducts = async (data: BulkUploadRequest) => {
   return res.data;
 };
 
-
 // Product Related APIs
 // Create new product
 export const createProduct = async (data: CreateProductRequest) => {
@@ -63,9 +63,9 @@ export const createProduct = async (data: CreateProductRequest) => {
   formData.append("description", data.description);
   formData.append("price", data.price.toString());
   formData.append("stock", data.stock.toString());
-  formData.append("category", data.category);
+  formData.append("category_id", data.category.toString());
   data.images.forEach((file) => formData.append("images", file));
-  const res = await API.post("products", formData, {
+  const res = await API.post("products/", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -73,34 +73,56 @@ export const createProduct = async (data: CreateProductRequest) => {
   return res.data;
 };
 
-
 export const getSellerProducts = async (
   sellerId: string
 ): Promise<Product[]> => {
-  const res = await API.get(`/products/${sellerId}/`);
+  const res = await API.get(`/products/sellers/${sellerId}/`);
   return res.data.map((p: any) => ({
     id: p.id,
     name: p.name,
     category: p.category?.name, // ✅ safe fallback
     price: p.price,
-    status: p.status ,
+    status: p.status,
     addedDate: p.created_at,
   }));
 };
 
-export const getProductById = async (ProductId: number): Promise<Product> => {
+export const getProductById = async (ProductId: number): Promise<ViewProduct> => {
   const res = await API.get(`products/${ProductId}/`);
-  return res.data;
+  const item = res.data;
+
+  const product: ViewProduct = {
+    id: item.id,
+    name: item.name,
+    category: item.category?.name || "Unknown",
+    price: Number(item.price),
+    stock: item.stock,
+    description: item.description,
+    status: item.status,
+  };
+
+  return product;
 };
 
-// // ✅ Update product
-// export const updateProduct = async (
-//   id: number,
-//   data: ProductUpdateRequest
-// ): Promise<Product> => {
-//   const res = await API.patch(`products/${id}`, data);
-//   return res.data;
-// };
+// ✅ Update product
+export const updateProduct = async (
+  id: number,
+  data: CreateProductRequest
+): Promise<ViewProduct> => {
+  const formData = new FormData();
+  formData.append("name", data.name);
+  formData.append("description", data.description);
+  formData.append("price", data.price.toString());
+  formData.append("stock", data.stock.toString());
+  formData.append("category_id", data.category.toString());
+  data.images.forEach((file) => formData.append("images", file));
+  const res = await API.patch(`/products/${id}/update`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return res.data;
+};
 
 // ✅ Delete product
 export const deleteProduct = async (
