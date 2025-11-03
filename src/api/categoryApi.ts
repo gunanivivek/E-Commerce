@@ -14,8 +14,18 @@ export const createCategory = async (formData: FormData): Promise<Category> => {
   return res.data;
 };
 
-// ✅ Delete category by ID
+export const updateCategory = async (
+  id: number,
+  formData: FormData
+): Promise<Category> => {
+  const res = await API.patch(`/category/${id}`, formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
+  return res.data;
+};
+
 export const deleteCategory = async (id: number): Promise<{ message: string }> => {
   const res = await API.delete(`/category/${id}`);
   return res.data;
 };
+

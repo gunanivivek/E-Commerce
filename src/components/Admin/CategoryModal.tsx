@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { X, Image as ImageIcon, Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { useCreateCategory } from "../../hooks/useCategoryActions";
+import { useCreateCategory, useUpdateCategory } from "../../hooks/useCategoryActions";
 import type { Category, CreateCategoryRequest } from "../../types/category";
 import { toast } from "react-toastify";
 
 interface CategoryModalProps {
   isOpen: boolean;
   onClose: () => void;
-  category?: Category | null; // if provided → edit mode
+  category?: Category | null;
 }
 
 const CategoryModal: React.FC<CategoryModalProps> = ({
@@ -18,6 +18,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
   category,
 }) => {
   const isEdit = !!category;
+
   const { register, handleSubmit, reset, formState, setValue } =
     useForm<CreateCategoryRequest>({
       defaultValues: {
@@ -28,9 +29,23 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
     });
 
   const { mutate: createCategory, isPending: isCreating } = useCreateCategory();
+  const { mutate: updateCategory, isPending: isUpdating } = useUpdateCategory();
+
   const [preview, setPreview] = useState<string | null>(null);
 
-  // 🧠 Load data for edit mode
+  // ✅ Reset form when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      reset({
+        name: "",
+        description: "",
+        image: undefined,
+      });
+      setPreview(null);
+    }
+  }, [isOpen, reset]);
+
+  // ✅ Pre-fill form in edit mode
   useEffect(() => {
     if (isEdit && category) {
       reset({
@@ -44,7 +59,6 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
     }
   }, [isEdit, category, reset]);
 
-  // 🖼️ Image preview handler
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -55,17 +69,49 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
     }
   };
 
-  // 🚀 Submit handler
+  // ✅ Handle form submission
   const onSubmit = (data: CreateCategoryRequest) => {
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("description", data.description);
-    if (data.image) formData.append("image", data.image);
+    if (isEdit && category) {
+      // 🧠 Compare new data with old and only append changed fields
+      const formData = new FormData();
 
-    if (isEdit) {
-      // Here you can later plug in `useUpdateCategory` mutation
-      toast.info("Edit functionality coming soon 🛠️");
+      if (data.name !== category.name) {
+        formData.append("name", data.name);
+      }
+
+      if (data.description !== category.description) {
+        formData.append("description", data.description);
+      }
+
+      if (data.image) {
+        formData.append("image", data.image);
+      }
+
+      // ⚡ If no changes, show info toast and close
+      if ([...formData.keys()].length === 0) {
+        toast.info("No changes detected ✨");
+        onClose();
+        return;
+      }
+
+      // ✅ Update existing category
+      updateCategory(
+        { id: category.id, formData },
+        {
+          onSuccess: () => {
+            onClose();
+            reset();
+            setPreview(null);
+          },
+        }
+      );
     } else {
+      // 🟢 Create new category
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("description", data.description);
+      if (data.image) formData.append("image", data.image);
+
       createCategory(formData, {
         onSuccess: () => {
           onClose();
@@ -80,10 +126,13 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
 
   return ReactDOM.createPortal(
     <>
+      {/* Overlay */}
       <div
         className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
         onClick={onClose}
       />
+
+      {/* Modal */}
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div
           className="bg-white rounded-xl shadow-xl w-full max-w-md border border-primary-border relative"
@@ -104,6 +153,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
 
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4">
+            {/* Name */}
             <div>
               <label className="block text-sm font-medium text-primary-500 mb-1">
                 Name
@@ -120,6 +170,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
               )}
             </div>
 
+            {/* Description */}
             <div>
               <label className="block text-sm font-medium text-primary-500 mb-1">
                 Description
@@ -157,9 +208,8 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
                     <ImageIcon className="w-6 h-6 text-primary-400" />
                   )}
                 </div>
-                <label
-                  className="flex items-center gap-2 px-3 py-2 text-sm border border-primary-border rounded-lg bg-primary-50 hover:bg-primary-100 cursor-pointer transition"
-                >
+
+                <label className="flex items-center gap-2 px-3 py-2 text-sm border border-primary-border rounded-lg bg-primary-50 hover:bg-primary-100 cursor-pointer transition">
                   <Upload className="w-4 h-4 text-primary-400" />
                   Upload
                   <input
@@ -183,11 +233,13 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
               </button>
               <button
                 type="submit"
-                disabled={isCreating}
+                disabled={isCreating || isUpdating}
                 className="px-4 py-2 text-sm rounded-lg bg-primary-400 text-white hover:bg-primary-500 disabled:opacity-60"
               >
                 {isEdit
-                  ? "Save Changes"
+                  ? isUpdating
+                    ? "Saving..."
+                    : "Save Changes"
                   : isCreating
                   ? "Creating..."
                   : "Create"}

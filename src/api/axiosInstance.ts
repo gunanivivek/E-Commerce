@@ -27,7 +27,7 @@ api.interceptors.response.use(
   (error) => {
     const status = error?.response?.status;
 
-    if (status === 401 || status === 403 || status === 500) {
+    if (status === 401 || status === 403) {
       handleLogout();
     }
 
