@@ -30,17 +30,6 @@ import SellerProfilePage from "./pages/Seller/SellerProfilePage";
 function App() {
   return (
     <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<SignUp />} />
-      <Route path="/forgotPassword" element={<ForgotPassword />} />
-
-      {/* Customer-only routes */}
-      <Route path="/" element={<CustomerLayouts />}>
-        <Route index element={<TestDashboard />} />
-      </Route>
-      <Route path="/about" element={<About />} />
-      <Route path="/contact" element={<Contact />} />
-      <Route path="/products" element={<Products />} />
       {/* Public routes (only for guests) */}
       <Route element={<PublicRoute />}>
         <Route path="/login" element={<Login />} />
@@ -53,6 +42,8 @@ function App() {
       <Route element={<OpenCustomerRoute />}>
         <Route path="/" element={<CustomerLayouts />} />
         <Route path="about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/products" element={<Products />} />
       </Route>
 
       {/* Protected routes */}
@@ -70,7 +61,7 @@ function App() {
           </Route>
         </Route>
 
-
+        {/* Seller */}
         <Route element={<RoleBasedRoute allowedRoles={["seller"]} />}>
           <Route path="/seller" element={<SellerLayouts />}>
             <Route index element={<TestDashboard />} />
