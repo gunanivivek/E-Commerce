@@ -30,10 +30,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose }) => {
     if (imageFile && imageFile.length > 0) {
       const filesArray = Array.from(imageFile);
       const urls = filesArray.map((file) => URL.createObjectURL(file));
-
       setPreviewImage(urls); // set all URLs
-
-      // cleanup — revoke all object URLs when component unmounts or files change
       return () => urls.forEach((url) => URL.revokeObjectURL(url));
     }
   }, [imageFile]);

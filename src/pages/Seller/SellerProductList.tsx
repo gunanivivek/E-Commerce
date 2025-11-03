@@ -23,7 +23,7 @@ import AddProductModal from "../../components/Seller/AddProductModal";
 import UpdateProductForm from "../../components/Seller/UpdateProductForm";
 import DeleteProductModal from "../../components/Seller/DeleteProductModal";
 import type { Product } from "../../types/seller";
-import { deleteProduct, getSellerProducts } from "../../api/sellerApi";
+import { deleteProduct, getProductById, getSellerProducts } from "../../api/sellerApi";
 import { useAuthStore } from "../../store/authStore";
 import { toast } from "react-toastify";
 import TableRowSkeleton from "../../components/TableRowSkeleton";
@@ -53,6 +53,8 @@ const SellerProductList: React.FC = () => {
     id: number;
     name: string;
   } | null>(null);
+
+  const [selectedViewProduct, setSelectedViewProduct] = useState<Product | null>(null);
 
   const user = useAuthStore((state) => state.user);
 
@@ -93,9 +95,10 @@ const SellerProductList: React.FC = () => {
     return Array.from(new Set(categories)).sort();
   }, [data]);
 
-  const handleView = useCallback((id: number) => {
-    console.log("View product:", id);
-    setIsViewProdOpen(true);
+  const handleView = useCallback( async(ProductId: number) => {
+     const data = await getProductById(ProductId);
+     setSelectedViewProduct(data); 
+     setIsViewProdOpen(true);
   }, []);
 
   const handleDelete = useCallback(
@@ -241,7 +244,7 @@ const SellerProductList: React.FC = () => {
               <button
                 onClick={() => {
                   setSelectedProduct({
-                    id: Number(product.id),
+                    id: product.id,
                     name: product.name,
                   });
                   setIsDeleteOpen(true);
@@ -553,13 +556,7 @@ const SellerProductList: React.FC = () => {
       <UpdateProductForm
         isOpen={isViewProdOpen}
         onClose={() => setIsViewProdOpen(false)}
-        existingData={{
-          name: "Green Tea",
-          description: "Organic premium tea leaves",
-          price: 250,
-          stock: 80,
-          category: "Beverages",
-        }}
+        product={selectedViewProduct}
       />
 
       <DeleteProductModal

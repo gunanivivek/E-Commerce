@@ -154,28 +154,28 @@ const DashboardSidebar = () => {
 
         {/* Footer */}
         <div className="p-4 border-t border-primary-border">
-          <NavLink
-            to={`/${user.role}/${user.id}`}
-            className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-primary-200/20 rounded-lg"
-            onClick={closeSidebar}
-          >
-            <div className="w-8 h-8 rounded-full bg-primary-100/50 flex items-center justify-center">
-              <span className="font-semibold text-xs">
-                {user.full_name
-                  .split(" ")
-                  .map((n) => n[0])
-                  .join("")}
-              </span>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-semibold text-primary-400 truncate">
-                {user.email}
-              </p>
-              <p className="text-xs text-primary-400">
-                {user.role.charAt(0).toUpperCase() + user.role.slice(1)} Account
-              </p>
-            </div>
-          </NavLink>
+         <NavLink
+    to={user.role === "admin" ? "/admin/profile" : `/seller/${user.id}`}
+    className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-primary-200/20 rounded-lg"
+    onClick={closeSidebar}
+  >
+    <div className="w-8 h-8 rounded-full bg-primary-100/50 flex items-center justify-center">
+      <span className="font-semibold text-xs">
+        {user.full_name
+          .split(" ")
+          .map((n) => n[0])
+          .join("")}
+      </span>
+    </div>
+    <div className="flex-1 min-w-0">
+      <p className="font-semibold text-primary-400 truncate">
+        {user.email}
+      </p>
+      <p className="text-xs text-primary-400">
+        {user.role.charAt(0).toUpperCase() + user.role.slice(1)} Account
+      </p>
+    </div>
+  </NavLink>
           <button
             onClick={handleLogout}
             className="w-full mt-2 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-primary-400 hover:bg-sidebar-accent/50 transition-colors"
