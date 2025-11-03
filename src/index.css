@@ -1,21 +1,14 @@
 @import "tailwindcss";
- 
+
 @theme {
-  /* Background: Light off-white base for content areas */
-  --color-background: #fff8f0;
- 
-  /* Primary colors: Dark shades for main UI elements and text */
-  --color-primary-400: #000000;  /* Pure black for highest contrast */
-  --color-primary-300: #4d4d4d;  /* Medium dark gray for secondary text */
-  --color-primary-200: #333333;  /* Deep charcoal for borders or muted text */
-  --color-primary-100: #1a1a1a;  /* Near black for subtle elements */
- 
-  /* Accent color: Vibrant orange for CTAs, highlights */
-  --color-light: #ff6700;
- 
-  /* Border color: Softer orange for outlines and subtle emphasis */
-  --color-primary-border: #ff8c42;
- 
-  /* Corner radius for rounded UI components */
+  --color-primary-100: #d9e9cf;
+  --color-primary-200: #b6ceb4;
+  --color-primary-300: #96a78d;
+  --color-primary-400: #4e5c46;
+  --color-light: #74a45a;
+  --color-background: #f0f0f0;
   --radius: 0.5rem;
+ 
+  --color-primary-border: hsl(100 25% 85%);
 }
+

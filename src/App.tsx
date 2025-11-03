@@ -25,10 +25,18 @@ import SellerList from "./pages/Admin/SellerList";
 import CustomerList from "./pages/Admin/CustomerList";
 import CategoryList from "./pages/Admin/CategoryList";
 import SellerProfilePage from "./pages/Seller/SellerProfilePage";
+import { useCategories } from "./hooks/useCategories";
+
+function RootCategoryFetcher() {
+  useCategories();
+  return null;
+}
 
 
 function App() {
   return (
+    <>
+    <RootCategoryFetcher/>
     <Routes>
       {/* Public routes (only for guests) */}
       <Route element={<PublicRoute />}>
@@ -84,7 +92,11 @@ function App() {
       {/* ✅ Always show NotFound for missing paths (even if not logged in) */}
       <Route path="*" element={<NotFound />} />
     </Routes>
+    </>
   );
 }
 
 export default App;
+
+
+
