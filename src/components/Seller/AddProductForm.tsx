@@ -1,13 +1,16 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import { createProduct } from "../../api/sellerApi";
+import { useCategoryStore } from "../../store/categoryStore";
+import { toast } from "react-toastify";
 
 interface ProductFormValues {
   productName: string;
   description: string;
   price: number;
   stock: number;
-  category: string;
+  category_id: string;
   image: FileList;
 }
 
@@ -26,6 +29,8 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose }) => {
   const [previewImage, setPreviewImage] = useState<string[]>([]);
   const imageFile = watch("image");
 
+  const categories = useCategoryStore((state) => state.categories);
+
   React.useEffect(() => {
     if (imageFile && imageFile.length > 0) {
       const filesArray = Array.from(imageFile);
@@ -42,18 +47,16 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose }) => {
         description: data.description,
         price: Number(data.price),
         stock: Number(data.stock),
-        category: data.category,
+        category: Number(data.category_id),
         images: Array.from(data.image), // take the actual File
       };
 
       const response = await createProduct(productData);
-
-      console.log("🛒 Product created successfully:", response);
-      alert(`✅ Product "${data.productName}" uploaded successfully!`);
+      console.log(response.data)
+      toast.success("Product Created successfully")
       onClose();
-    } catch (error) {
-      console.error("❌ Error creating product:", error);
-      alert("Failed to upload product. Please try again.");
+    } catch (error: any) {
+      toast.error(error);
     }
   };
 
@@ -147,18 +150,17 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose }) => {
           Category
         </label>
         <select
-          {...register("category", { required: "Category is required" })}
+          {...register("category_id", { required: "Category is required" })}
           className="w-full border border-primary-border rounded-xl p-3 bg-primary-100/40 focus:ring-2 focus:ring-primary-300 outline-none transition"
         >
-          <option value="">Select category</option>
-          <option value="electronics">Electronics</option>
-          <option value="fashion">Fashion</option>
-          <option value="grocery">Grocery</option>
-          <option value="home">Home & Living</option>
-          <option value="other">Other</option>
+           {categories.map((cat) => (
+          <option key={cat.id} value={cat.id}>
+            {cat.name}
+          </option>
+        ))}
         </select>
-        {errors.category && (
-          <p className="text-red-500 text-sm mt-1">{errors.category.message}</p>
+        {errors.category_id && (
+          <p className="text-red-500 text-sm mt-1">{errors.category_id.message}</p>
         )}
       </div>
 

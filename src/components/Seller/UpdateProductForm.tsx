@@ -1,13 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { X } from "lucide-react";
 import ReactDOM from "react-dom";
-import type { Product } from "../../types/seller";
+import type { CreateProductRequest, ViewProduct } from "../../types/seller";
+import { useCategoryStore } from "../../store/categoryStore";
+import { updateProduct } from "../../api/sellerApi";
+import { toast } from "react-toastify";
 
 interface UpdateProductModalProps {
   isOpen: boolean;
   onClose: () => void;
-  product: Product | null;
+  product: ViewProduct | null;
 }
 
 interface ProductFormData {
@@ -15,7 +19,7 @@ interface ProductFormData {
   description: string;
   price: number;
   stock: number;
-  category: string;
+  category_id: number;
 }
 
 const UpdateProductForm: React.FC<UpdateProductModalProps> = ({
@@ -40,11 +44,40 @@ const UpdateProductForm: React.FC<UpdateProductModalProps> = ({
     }
   }, [product, reset]);
 
-  const onSubmit = (data: ProductFormData) => {
-    console.log("📝 Updated product data:", { ...data});
-    alert("✅ Product updated successfully!");
-    setIsEditing(false);
+  const onSubmit = async (data: ProductFormData) => {
+    if (!product?.id) {
+      console.error("❌ No product ID found");
+      return;
+    }
+    try {
+      const productData: CreateProductRequest = {
+        name: data.name,
+        description: data.description,
+        price: Number(data.price),
+        stock: Number(data.stock),
+        category: Number(data.category_id),
+        images: [], 
+      };
+      const response = await updateProduct(product?.id, productData);
+
+      toast.success("Product updated successfully!");
+
+      console.log("✅ Updated Product:", response);
+      onClose();
+    } catch (error: any) {
+      if (error.response) {
+        console.error("❌ Server error:", error.response.data);
+        toast.error(
+          error.response.data.detail || "Failed to update product. Try again."
+        );
+      } else {
+        console.error("❌ Unexpected error:", error);
+        toast.error("Something went wrong. Please try again later.");
+      }
+    }
   };
+
+  const categories = useCategoryStore((state) => state.categories);
 
   if (!isOpen) return null;
 
@@ -130,17 +163,24 @@ const UpdateProductForm: React.FC<UpdateProductModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium text-primary-400 mb-1">
               Category
             </label>
-            <input
-              type="text"
-              {...register("category", { required: "Category is required" })}
+            <select
+              {...register("category_id", { required: "Category is required" })}
+              className="w-full border border-primary-border rounded-xl p-3 bg-primary-100/40 focus:ring-2 focus:ring-primary-300 outline-none transition"
               disabled={!isEditing}
-              className="w-full p-2 mt-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[--color-light] disabled:bg-gray-100"
-            />
-            {errors.category && (
-              <p className="text-red-500 text-sm">{errors.category.message}</p>
+            >
+              {categories.map((cat) => (
+                <option key={cat.id} value={cat.id}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+            {errors.category_id && (
+              <p className="text-red-500 text-sm mt-1">
+                {errors.category_id.message}
+              </p>
             )}
           </div>
 
