@@ -7,6 +7,8 @@ import {
   LogOut,
   Menu,
   X,
+  User,
+  ChartColumnStacked,
 } from "lucide-react";
 import { NavLink } from "react-router";
 import { useAuthStore } from "../store/authStore";
@@ -23,7 +25,9 @@ const navConfig: Record<string, NavItem[]> = {
   admin: [
     { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
     { name: "Sellers", href: "/admin/sellers", icon: Users },
+    { name: "Customers", href: "/admin/customers", icon: User },
     { name: "Products", href: "/admin/products", icon: Package },
+     { name: "Categories", href: "/admin/category", icon: ChartColumnStacked  },
     { name: "Coupons", href: "/admin/coupons", icon: Ticket },
   ],
   seller: [
@@ -151,7 +155,7 @@ const DashboardSidebar = () => {
         {/* Footer */}
         <div className="p-4 border-t border-primary-border">
           <NavLink
-            to={`/${user.role}/profile`}
+            to={`/${user.role}/${user.id}`}
             className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-primary-200/20 rounded-lg"
             onClick={closeSidebar}
           >
