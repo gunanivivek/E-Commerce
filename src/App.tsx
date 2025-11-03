@@ -25,18 +25,15 @@ import SellerList from "./pages/Admin/SellerList";
 import CustomerList from "./pages/Admin/CustomerList";
 import CategoryList from "./pages/Admin/CategoryList";
 import SellerProfilePage from "./pages/Seller/SellerProfilePage";
-import { useCategories } from "./hooks/useCategories";
+import { useFetchCategories } from "./hooks/useFetchCategories";
 
-function RootCategoryFetcher() {
-  useCategories();
-  return null;
-}
+
 
 
 function App() {
+   useFetchCategories();
   return (
     <>
-    <RootCategoryFetcher/>
     <Routes>
       {/* Public routes (only for guests) */}
       <Route element={<PublicRoute />}>

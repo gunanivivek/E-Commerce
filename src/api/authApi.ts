@@ -29,7 +29,7 @@ export const signupSeller = async (
 
 
 export const loginUser = async (credentials: LoginRequest): Promise<LoginResponse> => {
-  const res = await API.post<LoginResponse>("auth/login", credentials, { skipRefresh: true });
+  const res = await API.post<LoginResponse>("auth/login", credentials);
   return res.data;
 };
 
