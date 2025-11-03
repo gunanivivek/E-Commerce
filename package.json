@@ -16,6 +16,7 @@
     "@tanstack/react-table": "^8.21.3",
     "axios": "^1.12.2",
     "exceljs": "^4.4.0",
+    "framer-motion": "^12.23.24",
     "lucide-react": "^0.545.0",
     "papaparse": "^5.5.3",
     "react": "^19.1.1",
