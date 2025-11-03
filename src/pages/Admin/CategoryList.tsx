@@ -1,5 +1,7 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { Plus, Edit, Trash2, Search } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import axios from "axios";
 
 interface Category {
   id: number;
@@ -8,44 +10,22 @@ interface Category {
   created_at: string;
 }
 
-const sampleCategories: Category[] = [
-  {
-    id: 1,
-    name: "Electronics",
-    image_url: "https://images.unsplash.com/photo-1510552776732-03e61cf4b144",
-    created_at: "2024-01-10",
-  },
-  {
-    id: 2,
-    name: "Fashion",
-    image_url: "https://images.unsplash.com/photo-1521335629791-ce4aec67dd47",
-    created_at: "2024-02-14",
-  },
-  {
-    id: 3,
-    name: "Home Decor",
-    image_url: "https://images.unsplash.com/photo-1505691938895-1758d7feb511",
-    created_at: "2024-03-25",
-  },
-  {
-    id: 4,
-    name: "Sports",
-    image_url: "https://images.unsplash.com/photo-1517649763962-0c623066013b",
-    created_at: "2024-05-30",
-  },
-  {
-    id: 5,
-    name: "Toys",
-    image_url: "https://images.unsplash.com/photo-1606813903172-69a5b9ee8eaf",
-    created_at: "2024-06-18",
-  },
-];
+const fetchCategories = async (): Promise<Category[]> => {
+  const res = await axios.get(`${import.meta.env.VITE_API_URL}/category`);
+  return res.data.data || res.data; // depends on your API structure
+};
 
 const CategoryList: React.FC = () => {
-  const [categories, setCategories] = useState<Category[]>(sampleCategories);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // --- Filter categories ---
+  // --- Fetch categories from API ---
+  const { data: categories = [], isLoading, isError, refetch } = useQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+    staleTime: 1000 * 60 * 5, // 5 minutes cache
+  });
+
+  // --- Filter categories based on search term ---
   const filteredCategories = useMemo(() => {
     return categories.filter((cat) =>
       cat.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -55,13 +35,32 @@ const CategoryList: React.FC = () => {
   // --- Handlers ---
   const handleAdd = () => alert("Add Category clicked!");
   const handleEdit = (id: number) => alert(`Edit Category ${id}`);
-
-  const handleDelete = (id: number) => {
+  const handleDelete = async (id: number) => {
     if (confirm("Delete this category?")) {
-      setCategories((prev) => prev.filter((c) => c.id !== id));
+      try {
+        await axios.delete(`${import.meta.env.VITE_API_URL}/category/${id}`);
+        refetch(); // refresh list
+      } catch (error) {
+        console.error(error);
+        alert("Failed to delete category!");
+      }
     }
   };
 
+  // --- Loading / Error states ---
+  if (isLoading)
+    return (
+      <div className="flex justify-center items-center h-64 text-primary-400">
+        Loading categories...
+      </div>
+    );
+
+  if (isError)
+    return (
+      <div className="text-center text-red-500">Failed to load categories.</div>
+    );
+
+  // --- Render UI ---
   return (
     <div className="min-h-screen py-4 sm:py-6">
       <div className="px-4 sm:px-8">
@@ -135,7 +134,6 @@ const CategoryList: React.FC = () => {
 
                   {/* Actions */}
                   <div className="flex gap-2 mt-2">
-                  
                     <button
                       onClick={() => handleEdit(category.id)}
                       className="p-1.5 bg-yellow-50 text-yellow-600 rounded hover:bg-yellow-100"
