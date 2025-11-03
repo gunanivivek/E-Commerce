@@ -1,8 +1,21 @@
 export interface Category {
   id: number;
   name: string;
-  description: string | null;
-  image_url: string | null;
+  description: string;
+  image_url: string;
   created_at: string;
-  updated_at: string | null;
+  updated_at: string;
+}
+
+export interface CreateCategoryRequest {
+  name: string;
+  description: string;
+  image: File; 
+}
+
+
+export type CreateCategoryResponse = Category;
+
+export interface DeleteCategoryResponse {
+  message: string;
 }
