@@ -38,42 +38,29 @@ const Header = () => {
     }
   };
 
-  // useEffect(() => {
-  //   const onStorage = (e: StorageEvent) => {
-  //     if (e.key === "access_token") {
-  //       const isAuthenticated = Boolean(e.newValue);
-  //       setIsLoggedIn(isAuthenticated);
-  //     }
-  //   };
-  //   window.addEventListener("storage", onStorage);
-  //   return () => window.removeEventListener("storage", onStorage);
-  // }, [setIsLoggedIn]);
-
   return (
-    <header className="sticky top-0 z-50 w-full  bg-primary-300 backdrop-blur supports-[backdrop-filter]:bg-primary-200">
-      <div className=" flex h-16 items-center justify-between">
+    <header className="sticky top-0 z-50 w-full bg-black  border-orange-500">
+      <div className="flex h-16 items-center justify-between">
         <div className="flex items-center gap-6">
-          <button className="md:hidden p-2 text-primary-400 hover:text-primary-600">
+          <button className="md:hidden p-2 text-white hover:text-orange-500">
             <Menu className="h-5 w-5" />
           </button>
           <a href="/" className="flex items-center space-x-4">
-            <div className="ml-3 h-8 w-8 rounded-lg bg-gradient-to-br from-primary-200 to-primary-400 flex items-center justify-center">
-              <span className="text-primary-100 font-bold text-lg">S</span>
-            </div>
-            <span className="hidden font-bold text-2xl md:inline-block text-primary-400">
-              ShopEase
+         
+            <span className="hidden font-logo ml-8 font-bold text-2xl md:inline-block text-white">
+            Cartify
             </span>
           </a>
-          <nav className="hidden md:flex gap-6">
+          <nav className="hidden md:flex gap-6 px-20">
             <a
               href="/products"
-              className="text-lg font-semibold transition-colors hover:text-primary-400"
+              className="text font-semibold text-white transition-colors hover:text-orange-500"
             >
               Products
             </a>
             <a
               href="/categories"
-              className="text-lg font-semibold transition-colors hover:text-primary-400"
+              className="text font-semibold text-white transition-colors hover:text-orange-500"
             >
               Categories
             </a>
@@ -85,11 +72,11 @@ const Header = () => {
           className="hidden md:flex flex-1 max-w-md mx-4"
         >
           <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-primary-300" />
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <input
               type="search"
               placeholder="Search products..."
-              className="pl-10 border rounded-md py-2 px-4 w-full border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-400"
+              className="pl-10 border bg-white rounded-md py-2 px-4 w-full   placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -101,7 +88,7 @@ const Header = () => {
             <>
               <button
                 onClick={() => navigate("/wishlist")}
-                className="p-2 text-primary-400 hover:text-primary-600"
+                className="p-2 text-white hover:text-orange-500"
                 aria-label="Wishlist"
               >
                 <Heart className="h-5 w-5 cursor-pointer" />
@@ -109,7 +96,7 @@ const Header = () => {
 
               <button
                 onClick={() => navigate("/profile")}
-                className="p-2 text-primary-400 hover:text-primary-600"
+                className="p-2 text-white hover:text-orange-500"
                 aria-label="Profile"
               >
                 <User className="h-5 w-5 cursor-pointer" />
@@ -117,12 +104,12 @@ const Header = () => {
 
               <button
                 onClick={() => navigate("/cart")}
-                className="relative p-2 cursor-pointer text-primary-400 hover:text-primary-600"
+                className="relative p-2 cursor-pointer text-white hover:text-orange-500"
                 aria-label="Cart"
               >
                 <ShoppingCart className="h-5 w-5" />
                 {cartCount > 0 && (
-                  <div className="cursor-pointer absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-accent text-white text-xs rounded-full">
+                  <div className="cursor-pointer absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-orange-500 text-white text-xs rounded-full">
                     {cartCount}
                   </div>
                 )}
@@ -130,7 +117,7 @@ const Header = () => {
 
               <button
                 onClick={handleLogout}
-                className="p-2 cursor-pointer text-black font-bold hover:text-primary-600"
+                className="p-2 cursor-pointer text-white font-bold hover:text-orange-500"
                 aria-label="Logout"
               >
                 <LogOut className="h-5 w-5" />
@@ -139,15 +126,12 @@ const Header = () => {
           ) : (
             <button
               onClick={() => navigate("/login")}
-              className="p-2 cursor-pointer text-black font-bold hover:text-primary-600"
+              className="p-2 cursor-pointer text-white font-bold hover:text-orange-500"
               aria-label="Login"
             >
               <LogIn className="h-5 w-5" />
             </button>
           )}
-
-          
-         
         </div>
       </div>
     </header>

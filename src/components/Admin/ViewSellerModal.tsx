@@ -194,7 +194,7 @@ const ViewSellerModal: React.FC<ViewSellerModalProps> = ({
   );
 };
 
-
+// Small subcomponent for cleaner info grid
 const InfoCard = ({
   icon,
   label,

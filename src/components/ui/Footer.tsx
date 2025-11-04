@@ -3,167 +3,122 @@ import { Facebook, Twitter, Instagram, Mail } from "lucide-react";
 
 const Footer = () => {
   return (
-    <div className=" bg-gradient-to-br from-primary-200 to-primary-300">
-      <div className=" pt-12 px-6 md:pt-16">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
-          {/* Logo & Description */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary-200 to-primary-400 flex items-center justify-center">
-                <span className="text-primary-100 font-bold text-lg">S</span>
-              </div>
-              <span className="font-bold text-xl text-primary-400">
-                ShopEase
+    <footer className="bg-[var(--color-surface)] text-[var(--color-text-secondary)] border-t border-[var(--color-border-light)]">
+      <div className="max-w-7xl mx-auto px-6 md:px-12 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+          {/* Brand */}
+          <div>
+            <div className="flex items-center space-x-2 mb-4">
+              <span className="font-logo text-2xl font-extrabold text-[var(--color-accent)]">
+                Cartify
               </span>
             </div>
-            <p className="text-base font-semibold text-primary-400">
-              Your trusted destination for quality products at unbeatable
-              prices.
+            <p className="text-[var(--color-text-secondary)] text-base mb-6 leading-relaxed">
+              Your trusted destination for premium products at unbeatable prices.
             </p>
-            <div className="flex gap-2">
-              <a
-                href="#"
-                className="p-2 text-primary-400 hover:text-primary-600 transition-colors"
-              >
-                <Facebook className="h-4 w-4" />
-              </a>
-              <a
-                href="#"
-                className="p-2 text-primary-400 hover:text-primary-600 transition-colors"
-              >
-                <Twitter className="h-4 w-4" />
-              </a>
-              <a
-                href="#"
-                className="p-2 text-primary-400 hover:text-primary-600 transition-colors"
-              >
-                <Instagram className="h-4 w-4" />
-              </a>
+            <div className="flex gap-4">
+              {[Facebook, Twitter, Instagram].map((Icon, i) => (
+                <a
+                  key={i}
+                  href="#"
+                  className="p-2 rounded-full bg-[var(--color-surface-light)] hover:bg-[var(--color-accent)] transition-all duration-200"
+                >
+                  <Icon className="h-4 w-4 text-[var(--color-text-primary)]" />
+                </a>
+              ))}
             </div>
           </div>
 
-          {/* Shop Links */}
+          {/* Shop */}
           <div>
-            <h3 className="font-bold mb-4 text-xl text-primary-400">Shop</h3>
-            <ul className="space-y-3 text-base ">
-              <li>
-                <Link
-                  to="/products"
-                  className="text-primary-400 hover:text-primary-100 transition-colors"
-                >
-                  All Products
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/categories"
-                  className="text-primary-400 hover:text-primary-100 transition-colors"
-                >
-                  Categories
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/about"
-                  className="text-primary-400 hover:text-primary-100 transition-colors"
-                >
-                  About
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/new-arrivals"
-                  className="text-primary-400 hover:text-primary-100 transition-colors"
-                >
-                  New Arrivals
-                </Link>
-              </li>
+            <h3 className="font-heading text-xl font-bold text-[var(--color-text-primary)] mb-4">
+              Shop
+            </h3>
+            <ul className="space-y-3">
+              {[
+                { name: "All Products", link: "/products" },
+                { name: "Categories", link: "/categories" },
+                { name: "About", link: "/about" },
+                { name: "New Arrivals", link: "/new-arrivals" },
+              ].map((item, i) => (
+                <li key={i}>
+                  <Link
+                    to={item.link}
+                    className="hover:text-[var(--color-accent-light)] transition-colors"
+                  >
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Support Links */}
+          {/* Support */}
           <div>
-            <h3 className="font-bold mb-4 text-lg text-primary-400">Support</h3>
-            <ul className="space-y-3 text-base hover:text-primary-400 text-primary-300">
-              <li>
-                <Link
-                  to="/help-center"
-                  className="text-primary-400 hover:text-primary-100 transition-colors"
-                >
-                  Help Center
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/contact"
-                  className="text-primary-400 hover:text-primary-100 transition-colors"
-                >
-                  Contact Us
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/shipping-info"
-                  className="text-primary-400 hover:text-primary-100 transition-colors"
-                >
-                  Shipping Info
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/returns-refunds"
-                  className="text-primary-400 hover:text-primary-100 transition-colors"
-                >
-                  Returns & Refunds
-                </Link>
-              </li>
+            <h3 className="font-heading text-xl font-bold text-[var(--color-text-primary)] mb-4">
+              Support
+            </h3>
+            <ul className="space-y-3">
+              {[
+                { name: "Help Center", link: "/help-center" },
+                { name: "Contact Us", link: "/contact" },
+                { name: "Shipping Info", link: "/shipping-info" },
+                { name: "Returns & Refunds", link: "/returns-refunds" },
+              ].map((item, i) => (
+                <li key={i}>
+                  <Link
+                    to={item.link}
+                    className="hover:text-[var(--color-accent-light)] transition-colors"
+                  >
+                    {item.name}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 
-          {/* Newsletter Section */}
+          {/* Newsletter */}
           <div>
-            <h3 className="font-bold mb-4 text-lg text-primary-400">Newsletter</h3>
-            <p className="text-base text-primary-400 mb-4 ">
-              Subscribe to get special offers and updates.
+            <h3 className="font-heading text-xl font-bold text-[var(--color-text-primary)] mb-4">
+              Newsletter
+            </h3>
+            <p className="text-[var(--color-text-secondary)] text-base mb-4">
+              Subscribe for special offers & updates.
             </p>
             <div className="flex gap-2">
-              {/* Manually creating the input field */}
               <input
                 type="email"
                 placeholder="Your email"
-                className="flex-1 p-2 border-2 border-primary-300 rounded-md text-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-400"
+                className="flex-1 bg-[var(--color-surface-light)] text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] border border-[var(--color-border)] rounded-md p-2 focus:ring-2 focus:ring-[var(--color-accent)] outline-none"
               />
-              {/* Manually creating the button with icon */}
-              <button className="p-3 text-primary-400 bg-primary-100 hover:bg-primary-200 rounded-md">
+              <button className="p-3 rounded-md bg-[var(--gradient-orange)] text-[var(--color-white)] hover:opacity-90 transition-all">
                 <Mail className="h-5 w-5" />
               </button>
             </div>
           </div>
         </div>
 
-        {/* Footer Bottom */}
-        <div className="m-6 pt-6 border-t text-center text-lg text-primary-400">
-          <p>
-            &copy; {new Date().getFullYear()} ShopEase. All rights reserved.
-          </p>
-          <div className="flex justify-center gap-4 mt-2">
+        {/* Bottom Footer */}
+        <div className="mt-12 border-t border-[var(--color-border-light)] pt-6 text-center text-sm text-[var(--color-text-muted)]">
+          <p>&copy; {new Date().getFullYear()} Cartify. All rights reserved.</p>
+          <div className="flex justify-center gap-4 mt-3 text-[var(--color-text-secondary)]">
             <Link
               to="/privacy-policy"
-              className="text-primary-400 transition-colors"
+              className="hover:text-[var(--color-accent-light)]"
             >
               Privacy Policy
             </Link>
             <span>|</span>
             <Link
               to="/terms-conditions"
-              className="text-primary-400 transition-colors"
+              className="hover:text-[var(--color-accent-light)]"
             >
               Terms of Service
             </Link>
           </div>
         </div>
       </div>
-    </div>
+    </footer>
   );
 };
 

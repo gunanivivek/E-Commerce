@@ -22,7 +22,7 @@ import BulkUploadModal from "../../components/Seller/BulkUploadModal";
 import AddProductModal from "../../components/Seller/AddProductModal";
 import UpdateProductForm from "../../components/Seller/UpdateProductForm";
 import DeleteProductModal from "../../components/Seller/DeleteProductModal";
-import type { Product } from "../../types/seller";
+import type { Product, ViewProduct } from "../../types/seller";
 import { deleteProduct, getProductById, getSellerProducts } from "../../api/sellerApi";
 import { useAuthStore } from "../../store/authStore";
 import { toast } from "react-toastify";
@@ -54,7 +54,7 @@ const SellerProductList: React.FC = () => {
     name: string;
   } | null>(null);
 
-  const [selectedViewProduct, setSelectedViewProduct] = useState<Product | null>(null);
+  const [selectedViewProduct, setSelectedViewProduct] = useState<ViewProduct | null>(null);
 
   const user = useAuthStore((state) => state.user);
 

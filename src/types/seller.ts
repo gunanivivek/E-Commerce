@@ -3,7 +3,7 @@ export interface CreateProductRequest {
     description: string;
     price: number;
     stock: number;
-    category: string;
+    category: number;
     images: File[];
 }
 
@@ -26,6 +26,16 @@ export interface Product {
   price: number;
   status: "approved" | "pending" | "rejected";
   addedDate: string; // or Date if you convert it later
+}
+
+export interface ViewProduct {
+  id: number;
+  name: string;
+  description: string;
+  stock: number;
+  category: string;
+  price: number;
+  status: "approved" | "pending" | "rejected"; // or Date if you convert it later
 }
 
 

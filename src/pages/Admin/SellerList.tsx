@@ -1,4 +1,4 @@
-import  { useState, useMemo, useCallback, useEffect } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import {
   Check,
   X,
@@ -29,7 +29,7 @@ import ViewSellerModal from "../../components/Admin/ViewSellerModal";
 
 const columnHelper = createColumnHelper<Seller>();
 
-const SellerList= () => {
+const SellerList: React.FC = () => {
   const { sellers, setSellers, loading, error } = useAdminStore();
   useFetchSellers();
 
@@ -53,7 +53,7 @@ const SellerList= () => {
   // --- ACTION HANDLERS ---
   const handleApprove = useCallback(
     (id: number) => {
-      approveSeller.mutate(id); 
+      approveSeller.mutate(id); // ✅ Call API
     },
     [approveSeller]
   );
@@ -264,13 +264,6 @@ const SellerList= () => {
                     ) : (
                       <Ban className="w-3.5 h-3.5" />
                     )}
-                  </button>
-                       <button
-                    onClick={() => handleView(seller)}
-                    className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded"
-                    title="View"
-                  >
-                    <Eye className="w-3.5 h-3.5" />
                   </button>
                 </>
               )}

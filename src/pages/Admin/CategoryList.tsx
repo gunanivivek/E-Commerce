@@ -1,49 +1,23 @@
 import React, { useState, useMemo } from "react";
-import { Plus, Edit, Trash2, Search } from "lucide-react";
+import { Plus, Edit, Trash2, Search, AlertTriangle } from "lucide-react";
+import { useDeleteCategory } from "../../hooks/useCategoryActions";
 
-interface Category {
-  id: number;
-  name: string;
-  image_url?: string;
-  created_at: string;
-}
-
-const sampleCategories: Category[] = [
-  {
-    id: 1,
-    name: "Electronics",
-    image_url: "https://images.unsplash.com/photo-1510552776732-03e61cf4b144",
-    created_at: "2024-01-10",
-  },
-  {
-    id: 2,
-    name: "Fashion",
-    image_url: "https://images.unsplash.com/photo-1521335629791-ce4aec67dd47",
-    created_at: "2024-02-14",
-  },
-  {
-    id: 3,
-    name: "Home Decor",
-    image_url: "https://images.unsplash.com/photo-1505691938895-1758d7feb511",
-    created_at: "2024-03-25",
-  },
-  {
-    id: 4,
-    name: "Sports",
-    image_url: "https://images.unsplash.com/photo-1517649763962-0c623066013b",
-    created_at: "2024-05-30",
-  },
-  {
-    id: 5,
-    name: "Toys",
-    image_url: "https://images.unsplash.com/photo-1606813903172-69a5b9ee8eaf",
-    created_at: "2024-06-18",
-  },
-];
+import { useCategoryStore } from "../../store/categoryStore";
+import { useFetchCategories } from "../../hooks/useFetchCategories";
+import CategoryModal from "../../components/Admin/CategoryModal"; // ✅ Import your modal
+import type { Category } from "../../types/category";
 
 const CategoryList: React.FC = () => {
-  const [categories, setCategories] = useState<Category[]>(sampleCategories);
   const [searchTerm, setSearchTerm] = useState("");
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null); // for edit mode
+
+  const { isLoading, isError, refetch } = useFetchCategories();
+  const { categories } = useCategoryStore();
+
+  const { mutate: deleteCategory } = useDeleteCategory();
+  // const { mutate: updateCategory } = useUpdateCategory();
 
   // --- Filter categories ---
   const filteredCategories = useMemo(() => {
@@ -53,15 +27,59 @@ const CategoryList: React.FC = () => {
   }, [categories, searchTerm]);
 
   // --- Handlers ---
-  const handleAdd = () => alert("Add Category clicked!");
-  const handleEdit = (id: number) => alert(`Edit Category ${id}`);
-
-  const handleDelete = (id: number) => {
-    if (confirm("Delete this category?")) {
-      setCategories((prev) => prev.filter((c) => c.id !== id));
-    }
+  const handleAdd = () => {
+    setSelectedCategory(null);
+    setModalOpen(true);
   };
 
+  const handleEdit = (category: Category) => {
+    setSelectedCategory(category);
+    setModalOpen(true);
+  };
+
+  const handleDelete = (id: number) => {
+    setDeletingId(id);
+    deleteCategory(id, {
+      onSettled: () => setDeletingId(null),
+    });
+  };
+
+  // --- Skeleton Loader ---
+  const SkeletonCard = () => (
+    <div className="bg-white rounded-xl shadow-sm border border-primary-400/10 overflow-hidden">
+      <div className="w-full h-36 bg-primary-400/10 animate-pulse"></div>
+      <div className="p-3 space-y-3">
+        <div className="w-2/3 h-4 bg-primary-400/10 rounded animate-pulse"></div>
+        <div className="w-1/3 h-3 bg-primary-400/10 rounded animate-pulse"></div>
+        <div className="flex gap-2 mt-3">
+          <div className="w-8 h-8 bg-primary-400/10 rounded animate-pulse"></div>
+          <div className="w-8 h-8 bg-primary-400/10 rounded animate-pulse"></div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // --- Error UI ---
+  if (isError)
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center text-center px-4">
+        <AlertTriangle className="w-10 h-10 text-red-500 mb-2" />
+        <h2 className="text-primary-400 font-semibold text-lg mb-1">
+          Failed to load categories
+        </h2>
+        <p className="text-primary-400/70 text-sm mb-4">
+          Something went wrong while fetching data.
+        </p>
+        <button
+          onClick={() => refetch?.()}
+          className="px-4 py-1.5 bg-primary-400 text-white rounded-md text-sm hover:bg-primary-500 transition"
+        >
+          Retry
+        </button>
+      </div>
+    );
+
+  // --- Main UI ---
   return (
     <div className="min-h-screen py-4 sm:py-6">
       <div className="px-4 sm:px-8">
@@ -96,67 +114,81 @@ const CategoryList: React.FC = () => {
           />
         </div>
 
-        {/* Category Cards Grid */}
-        {filteredCategories.length === 0 ? (
-          <p className="text-primary-400 text-sm">No categories found.</p>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-            {filteredCategories.map((category) => (
-              <div
-                key={category.id}
-                className="bg-white rounded-xl shadow-sm border border-primary-400/10 overflow-hidden hover:shadow-md transition"
-              >
-                {/* Image */}
-                <div className="w-full h-36 bg-primary-400/5 overflow-hidden">
-                  {category.image_url ? (
-                    <img
-                      src={category.image_url}
-                      alt={category.name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="flex items-center justify-center h-full text-primary-400/60 text-sm">
-                      No Image
+        {/* Loading / Data Display */}
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {isLoading
+            ? Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
+            : filteredCategories.length === 0 ? (
+              <p className="text-primary-400 text-sm col-span-full text-center">
+                No categories found.
+              </p>
+            ) : (
+              filteredCategories.map((category) => {
+                const isDeleting = deletingId === category.id;
+                return (
+                  <div
+                    key={category.id}
+                    className="bg-white rounded-xl shadow-sm border border-primary-400/10 overflow-hidden hover:shadow-md transition"
+                  >
+                    {/* Image */}
+                    <div className="w-full h-36 bg-primary-400/5 overflow-hidden">
+                      {category.image_url ? (
+                        <img
+                          src={category.image_url}
+                          alt={category.name}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex items-center justify-center h-full text-primary-400/60 text-sm">
+                          No Image
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
 
-                {/* Content */}
-                <div className="p-3 flex flex-col justify-between h-[120px]">
-                  <div>
-                    <h3 className="text-primary-400 font-semibold text-sm truncate">
-                      {category.name}
-                    </h3>
-                    <p className="text-primary-400/70 text-xs mt-1">
-                      Created on{" "}
-                      {new Date(category.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
+                    {/* Content */}
+                    <div className="p-3 flex flex-col justify-between h-[120px]">
+                      <div>
+                        <h3 className="text-primary-400 font-semibold text-sm truncate">
+                          {category.name}
+                        </h3>
+                        <p className="text-primary-400/70 text-xs mt-1">
+                          Created on{" "}
+                          {new Date(category.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
 
-                  {/* Actions */}
-                  <div className="flex gap-2 mt-2">
-                  
-                    <button
-                      onClick={() => handleEdit(category.id)}
-                      className="p-1.5 bg-yellow-50 text-yellow-600 rounded hover:bg-yellow-100"
-                      title="Edit"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(category.id)}
-                      className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100"
-                      title="Delete"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                      {/* Actions */}
+                      <div className="flex gap-2 mt-2">
+                        <button
+                          onClick={() => handleEdit(category)}
+                          className="p-1.5 bg-yellow-50 text-yellow-600 rounded hover:bg-yellow-100"
+                          title="Edit"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(category.id)}
+                          className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100 disabled:opacity-50"
+                          title="Delete"
+                          disabled={isDeleting}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+                );
+              })
+            )}
+        </div>
       </div>
+
+    
+      <CategoryModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        category={selectedCategory}
+      />
     </div>
   );
 };
