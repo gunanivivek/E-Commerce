@@ -94,22 +94,42 @@ const Contact: React.FC = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <div className="min-h-screen bg-[var(--color-background)] py-12">
-        <div className="container mx-auto px-4 max-w-6xl">
+      <div className="flex-1" >
+        <div className="container mx-auto px-4 max-w-6xl py-12">
           <div className="text-center mb-12">
-            <h1 className="text-4xl font-bold text-[var(--color-primary-400)] mb-4">
+            <h1 
+              className="text-4xl md:text-5xl font-black mb-4 leading-tight"
+              style={{ 
+                fontFamily: 'var(--font-heading)',
+             
+              }}
+            >
               Get in Touch
             </h1>
-            <p className="text-[var(--color-primary-300)] max-w-2xl mx-auto">
-              Have a question or need assistance? We're here to help! Reach out
-              to us through any of the methods below.
+            <p 
+              className="text-lg max-w-2xl mx-auto leading-relaxed"
+              style={{ 
+                color: 'var(--color-text-secondary)',
+                fontFamily: 'var(--font-body)'
+              }}
+            >
+              Have a question or need assistance? We're here to help! Reach out to us through any of the methods below.
             </p>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Contact Form */}
-            <div className="bg-white rounded-lg p-8 shadow-md border border-[var(--color-primary-border)]">
-              <h2 className="text-2xl font-semibold text-[var(--color-primary-400)] mb-6">
+            <div 
+              className="rounded-[var(--radius-xl)] p-8 shadow-[var(--shadow-md)] border border-[var(--color-gray-700)]"
+              style={{ backgroundColor: 'var(--color-surface-light)' }}
+            >
+              <h2 
+                className="text-2xl font-bold mb-6 leading-tight"
+                style={{ 
+                  fontFamily: 'var(--font-heading)',
+                  color: 'var(--color-white)'
+                }}
+              >
                 Send Us a Message
               </h2>
 
@@ -168,13 +188,24 @@ const Contact: React.FC = () => {
                 <button
                   type="submit"
                   disabled={mutation.isPending}
-                  className="w-full bg-[var(--color-light)] text-white py-3 rounded-[var(--radius)] font-semibold hover:bg-[var(--color-primary-400)] transition-colors disabled:opacity-70"
+                  className="w-full py-3 rounded-[var(--radius-lg)] font-bold transition-all duration-[var(--transition-normal)] disabled:opacity-70"
+                  style={{
+                    background: 'var(--gradient-orange)',
+                    color: 'var(--color-white)',
+                    border: 'none',
+                    boxShadow: 'var(--shadow-orange)'
+                  }}
                 >
                   {mutation.isPending ? "Sending..." : "Send Message"}
                 </button>
 
                 {status && (
-                  <p className="text-center text-[var(--color-primary-300)] mt-2">
+                  <p 
+                    className="text-center mt-2"
+                    style={{ 
+                      color: mutation.isError ? 'var(--color-error)' : 'var(--color-success)' 
+                    }}
+                  >
                     {status}
                   </p>
                 )}
@@ -183,8 +214,17 @@ const Contact: React.FC = () => {
 
             {/* Contact Information */}
             <div className="space-y-6">
-              <div className="bg-white rounded-lg p-8 shadow-md border border-[var(--color-primary-border)]">
-                <h2 className="text-2xl font-semibold text-[var(--color-primary-400)] mb-6">
+              <div 
+                className="rounded-[var(--radius-xl)] p-8 shadow-[var(--shadow-md)] border border-[var(--color-gray-700)]"
+                style={{ backgroundColor: 'var(--color-surface-light)' }}
+              >
+                <h2 
+                  className="text-2xl font-bold mb-6 leading-tight"
+                  style={{ 
+                    fontFamily: 'var(--font-heading)',
+                    color: 'var(--color-white)'
+                  }}
+                >
                   Contact Information
                 </h2>
                 <div className="space-y-6">
@@ -192,17 +232,30 @@ const Contact: React.FC = () => {
                     const Icon = info.icon;
                     return (
                       <div key={i} className="flex items-start gap-4">
-                        <div className="inline-flex items-center justify-center w-12 h-12 bg-white rounded-lg flex-shrink-0">
-                          <Icon className="h-6 w-6 text-[var(--color-primary-400)]" />
+                        <div 
+                          className="flex items-center justify-center w-12 h-12 rounded-[var(--radius-md)] flex-shrink-0"
+                          style={{ backgroundColor: 'var(--color-accent)/10' }}
+                        >
+                          <Icon className="h-5 w-5" style={{ color: 'var(--color-accent)' }} />
                         </div>
                         <div>
-                          <h3 className="font-semibold text-[var(--color-primary-400)] mb-1">
+                          <h3 
+                            className="font-semibold mb-1 leading-tight"
+                            style={{ 
+                              fontFamily: 'var(--font-heading)',
+                              color: 'var(--color-white)'
+                            }}
+                          >
                             {info.title}
                           </h3>
                           {info.link ? (
                             <a
                               href={info.link}
-                              className="text-[var(--color-primary-300)] hover:text-[var(--color-light)] transition-colors"
+                              className="hover:text-[var(--color-accent)] transition-colors duration-[var(--transition-fast)]"
+                              style={{ 
+                                color: 'var(--color-text-secondary)',
+                                fontFamily: 'var(--font-body)'
+                              }}
                               target={
                                 info.link.startsWith("http")
                                   ? "_blank"
@@ -217,7 +270,13 @@ const Contact: React.FC = () => {
                               {info.content}
                             </a>
                           ) : (
-                            <p className="text-[var(--color-primary-300)]">
+                            <p 
+                              className="leading-relaxed"
+                              style={{ 
+                                color: 'var(--color-text-secondary)',
+                                fontFamily: 'var(--font-body)'
+                              }}
+                            >
                               {info.content}
                             </p>
                           )}
@@ -228,27 +287,86 @@ const Contact: React.FC = () => {
                 </div>
               </div>
 
-              <div className="bg-white rounded-lg p-8 shadow-md border border-[var(--color-primary-border)]">
-                <h3 className="text-xl font-semibold text-[var(--color-primary-400)] mb-4">
+              <div 
+                className="rounded-[var(--radius-xl)] p-8 shadow-[var(--shadow-md)] border border-[var(--color-gray-700)]"
+                style={{ backgroundColor: 'var(--color-surface-light)' }}
+              >
+                <h3 
+                  className="text-xl font-bold mb-4 leading-tight"
+                  style={{ 
+                    fontFamily: 'var(--font-heading)',
+                    color: 'var(--color-white)'
+                  }}
+                >
                   Frequently Asked Questions
                 </h3>
-                <p className="text-[var(--color-primary-300)] mb-4">
-                  Before reaching out, you might find answers in our FAQ
-                  section.
+                <p 
+                  className="mb-4 leading-relaxed"
+                  style={{ 
+                    color: 'var(--color-text-secondary)',
+                    fontFamily: 'var(--font-body)'
+                  }}
+                >
+                  Before reaching out, you might find answers in our FAQ section.
                 </p>
-                <button className="w-full border border-[var(--color-light)] text-[var(--color-light)] py-2 rounded-[var(--radius)] font-medium hover:bg-[var(--color-light)] hover:text-white transition-colors">
+                <button 
+                  className="w-full py-2 rounded-[var(--radius-md)] font-medium transition-all duration-[var(--transition-normal)]"
+                  style={{
+                    border: '1px solid var(--color-accent)',
+                    color: 'var(--color-accent)',
+                    backgroundColor: 'transparent'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--color-accent)';
+                    e.currentTarget.style.color = 'var(--color-white)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = 'var(--color-accent)';
+                  }}
+                >
                   Visit FAQ Page
                 </button>
               </div>
 
-              <div className="bg-white rounded-lg p-6 border border-[var(--color-primary-200)]">
-                <h3 className="font-semibold text-[var(--color-primary-400)] mb-2">
+              <div 
+                className="rounded-[var(--radius-xl)] p-6 border border-[var(--color-gray-600)]"
+                style={{ backgroundColor: 'var(--color-surface-light)' }}
+              >
+                <h3 
+                  className="font-bold mb-2 leading-tight"
+                  style={{ 
+                    fontFamily: 'var(--font-heading)',
+                    color: 'var(--color-white)'
+                  }}
+                >
                   💬 Live Chat Support
                 </h3>
-                <p className="text-sm text-[var(--color-primary-300)] mb-4">
+                <p 
+                  className="text-sm mb-4 leading-relaxed"
+                  style={{ 
+                    color: 'var(--color-text-secondary)',
+                    fontFamily: 'var(--font-body)'
+                  }}
+                >
                   Get instant help from our support team during business hours
                 </p>
-                <button className="w-full border border-[var(--color-light)] text-[var(--color-light)] py-2 rounded-[var(--radius)] font-medium hover:bg-[var(--color-light)] hover:text-white transition-colors">
+                <button 
+                  className="w-full py-2 rounded-[var(--radius-md)] font-medium transition-all duration-[var(--transition-normal)]"
+                  style={{
+                    border: '1px solid var(--color-accent)',
+                    color: 'var(--color-accent)',
+                    backgroundColor: 'transparent'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = 'var(--color-accent)';
+                    e.currentTarget.style.color = 'var(--color-white)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = 'var(--color-accent)';
+                  }}
+                >
                   Start Live Chat
                 </button>
               </div>
@@ -282,7 +400,11 @@ const InputField: React.FC<InputFieldProps> = ({
   <div className="space-y-2">
     <label
       htmlFor={id}
-      className="text-sm font-medium text-[var(--color-primary-400)]"
+      className="text-sm font-medium"
+      style={{ 
+        color: 'var(--color-white)',
+        fontFamily: 'var(--font-body)'
+      }}
     >
       {label}
     </label>
@@ -292,7 +414,12 @@ const InputField: React.FC<InputFieldProps> = ({
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-      className="w-full px-4 py-2 border border-[var(--color-primary-100)] rounded-[var(--radius)] focus:ring-2 focus:ring-[var(--color-light)] focus:outline-none"
+      className="w-full px-4 py-3 rounded-[var(--radius-md)] transition-colors duration-[var(--transition-fast)] focus:ring-2 focus:outline-none"
+      style={{
+        backgroundColor: 'var(--color-surface-light)',
+        border: '1px solid var(--color-gray-600)',
+        color: 'var(--color-white)'
+      }}
     />
   </div>
 );
@@ -315,7 +442,11 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
   <div className="space-y-2">
     <label
       htmlFor={id}
-      className="text-sm font-medium text-[var(--color-primary-400)]"
+      className="text-sm font-medium"
+      style={{ 
+        color: 'var(--color-white)',
+        fontFamily: 'var(--font-body)'
+      }}
     >
       {label}
     </label>
@@ -325,7 +456,12 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
       onChange={onChange}
       placeholder={placeholder}
       rows={6}
-      className="w-full px-4 py-2 border border-[var(--color-primary-border)] rounded-[var(--radius)] focus:ring-2 focus:ring-[var(--color-light)] focus:outline-none resize-none"
+      className="w-full px-4 py-3 rounded-[var(--radius-md)] transition-colors duration-[var(--transition-fast)] focus:ring-2 focus:outline-none resize-none"
+      style={{
+        backgroundColor: 'var(--color-surface-light)',
+        border: '1px solid var(--color-gray-600)',
+        color: 'var(--color-white)'
+      }}
     />
   </div>
 );
