@@ -1,7 +1,7 @@
 import React from "react";
 import Header from "../../components/ui/Header";
 import Footer from "../../components/ui/Footer";
-import ProductsCard from "../../components/ui/ProductsCard";
+import ProductsCard from "../../components/Customer/ProductsCard";
 
 const ProductsPage: React.FC = () => {
   return (

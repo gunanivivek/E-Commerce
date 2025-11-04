@@ -150,7 +150,7 @@ const CustomerPage: React.FC = () => {
         }}
       >
         {/* Hero Section */}
-        <section className="overflow-hidden bg-[var(--color-primary-100)]">
+        <section className="overflow-hidden cursor-grab bg-[var(--color-primary-100)]">
           <Slider {...heroSettings}>
             {heroSlides.map((slide, i) => (
               <div
@@ -181,14 +181,14 @@ const CustomerPage: React.FC = () => {
                   transition={{ duration: 0.8 }}
                   className="py-40 relative z-10 px-8 md:px-20 max-w-2xl"
                 >
-                  <h1 className="text-4xl md:text-5xl font-bold mb-3 text-white drop-shadow-lg">
+                  <h1 className="text-4xl md:text-5xl font-bold mb-3 text-[var(--color-primary-100)] drop-shadow-lg">
                     {slide.title}
                   </h1>
                   <p className="text-lg mb-6 text-[var(--color-primary-100)]">
                     {slide.subtitle}
                   </p>
                   <button
-                    className="px-8 py-3 font-semibold rounded-lg shadow-md transition hover:scale-105"
+                    className="px-8 py-3 cursor-pointer font-semibold rounded-lg shadow-md transition hover:scale-105"
                     style={{
                       background: "var(--color-light)",
                       color: "#fff",

@@ -5,6 +5,7 @@ import RoleBasedRoute from "./routes/RoleBasedRoute";
 import Login from "./pages/Login";
 import CustomerLayouts from "./layouts/CustomerLayouts";
 import Products from "./pages/Customer/Products";
+import ProductsDescription from "./pages/Customer/ProductsDescription";
 import TestDashboard from "./pages/TestDashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import NotFound from "./pages/NotFound";
@@ -40,7 +41,9 @@ function App() {
       </Route>
       <Route path="/about" element={<About />} />
       <Route path="/contact" element={<Contact />} />
+      <Route path="/product/:id" element={<ProductsDescription />} />
       <Route path="/products" element={<Products />} />
+
       {/* Public routes (only for guests) */}
       <Route element={<PublicRoute />}>
         <Route path="/login" element={<Login />} />
