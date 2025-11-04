@@ -78,9 +78,7 @@ function App() {
 
         {/* Customer private pages */}
         <Route element={<RoleBasedRoute allowedRoles={["customer"]} />}>
-          <Route path="/profile" element={<CustomerLayouts />}>
-            <Route index element={<TestDashboard />} />
-          </Route>
+    
         </Route>
 
         <Route path="/unauthorized" element={<Unauthorized />} />
