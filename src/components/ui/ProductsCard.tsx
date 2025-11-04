@@ -7,6 +7,8 @@ import {
   getPaginationRowModel,
 } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
+import { motion } from "framer-motion";
+import { Star } from "lucide-react";
 
 interface Product {
   id: number;
@@ -95,9 +97,7 @@ const ProductsCard: React.FC = () => {
   const table = useReactTable({
     data,
     columns,
-    state: {
-      globalFilter,
-    },
+    state: { globalFilter },
     onGlobalFilterChange: setGlobalFilter,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
@@ -107,47 +107,92 @@ const ProductsCard: React.FC = () => {
 
   const filteredProducts = table.getFilteredRowModel().rows.map((row) => row.original);
 
-  if (!filteredProducts.length) return <p>No products available right now.</p>;
+  if (!filteredProducts.length)
+    return (
+      <p className="text-center text-gray-500 py-12">
+        No products available right now.
+      </p>
+    );
 
   return (
-    <section className="bg-[var(--color-background)] py-10 px-6 md:px-20">
-      
-      {/* Product Grid (4 columns max, wraps to new row for 5th product) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredProducts.map((product) => (
-          <div
+    <section className=" py-10 px-4 md:px-20">
+      {/* Product Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8">
+        {filteredProducts.map((product, i) => (
+          <motion.div
             key={product.id}
-            className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-transform transform hover:scale-105"
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05 }}
+            className="group bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
           >
-            <div className="h-40 bg-[var(--color-primary-100)] rounded-md flex items-center justify-center mb-3">
-              <span className="text-[var(--color-primary-400)] font-semibold text-lg text-center px-2">
-                {product.name.length > 20
-                  ? product.name.slice(0, 20) + "..."
-                  : product.name}
+            {/* Image Placeholder */}
+            <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
+              <span className="text-gray-500 text-lg font-semibold">
+                {product.name.slice(0, 1)}
               </span>
+              {product.discount_price && (
+                <span className="absolute top-3 left-3 bg-[var(--color-primary)] text-white text-xs px-2 py-1 rounded-md font-medium">
+                  SALE
+                </span>
+              )}
             </div>
-            <p className="text-sm text-gray-600 mb-1">{product.description}</p>
-            <p className="text-[var(--color-primary-400)] font-bold text-lg">
-              ₹{product.discount_price ?? product.price}
-            </p>
-            <p className="text-xs text-gray-500">Stock: {product.stock}</p>
-          </div>
+
+            {/* Product Info */}
+            <div className="p-4 flex flex-col justify-between h-[180px]">
+              <div>
+                <h3 className="text-base font-semibold text-gray-800 group-hover:text-[var(--color-primary)] transition-colors line-clamp-1">
+                  {product.name}
+                </h3>
+                <p className="text-sm text-gray-500 line-clamp-2 mt-1">
+                  {product.description}
+                </p>
+              </div>
+
+              {/* Price Section */}
+              <div className="mt-3">
+                <div className="flex items-baseline gap-2">
+                  <span className="text-lg font-bold text-[var(--color-primary)]">
+                    ₹{product.discount_price ?? product.price}
+                  </span>
+                  {product.discount_price && (
+                    <span className="text-sm text-gray-400 line-through">
+                      ₹{product.price}
+                    </span>
+                  )}
+                </div>
+                <div className="flex justify-end items-center mt-1">
+                 
+                  <div className="flex text-yellow-400">
+                    {[...Array(4)].map((_, i) => (
+                      <Star key={i} className="w-3 h-3 fill-yellow-400" />
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Add to Cart Button */}
+              <button className="mt-4 bg-[var(--color-primary)] text-white text-sm py-2 rounded-lg hover:bg-[var(--color-primary-dark)] transition-colors">
+                Add to Cart
+              </button>
+            </div>
+          </motion.div>
         ))}
       </div>
 
       {/* Pagination */}
-      <div className="flex justify-center mt-8 space-x-2">
+      <div className="flex justify-center mt-10 space-x-2">
         <button
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
-          className="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+          className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium disabled:opacity-50"
         >
           Prev
         </button>
         <button
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
-          className="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+          className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium disabled:opacity-50"
         >
           Next
         </button>
