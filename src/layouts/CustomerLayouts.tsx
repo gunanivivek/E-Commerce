@@ -1,15 +1,17 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 // import { create } from "zustand";
-import { motion } from "framer-motion";
+import { motion,AnimatePresence  } from "framer-motion";
 import Slider from "react-slick";
 import Header from "../components/ui/Header";
 import Footer from "../components/ui/Footer";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import Hero1 from "../assets/Hero1.jpg";
-import Hero2 from "../assets/Hero2.jpg";
+import Hero1 from "../assets/Hero1.webp";
+import Hero2 from "../assets/Hero2.png";
 import Hero3 from "../assets/Hero3.jpg";
+import { useState } from "react";
+import { ChevronDown } from "lucide-react"; // Assuming Lucide icons; adjust as needed
 import Electronics from "../assets/Electronics.jpg";
 import Fashion from "../assets/Fashion.jpg";
 import Beauty from "../assets/Beauty.jpg";
@@ -91,40 +93,27 @@ const categories: Category[] = [
 ];
 
 const CustomerPage: React.FC = () => {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const { data: testimonials = [] } = useQuery({
     queryKey: ["testimonials"],
     queryFn: fetchTestimonials,
   });
 
   // const { selectedCategory, setCategory } = useCustomerStore();
-
-  const heroSlides = [
+  const faqs = [
     {
-      title: "Shop Smart, Live Better!",
-      subtitle: "Discover exclusive deals and top-rated brands.",
-      image: Hero1,
+      q: "How can I track my order?",
+      a: "Track your order anytime from the 'My Orders' section in your account.",
     },
     {
-      title: "Find Everything You Love in One Place",
-      subtitle: "Shop effortlessly with confidence at Merchant Hub.",
-      image: Hero2,
+      q: "Do you offer international shipping?",
+      a: "Yes, we deliver to 30+ countries with reliable courier partners.",
     },
     {
-      title: "Your Trusted Shopping Destination",
-      subtitle: "Enjoy seamless shopping and unmatched service.",
-      image: Hero3,
+      q: "What if I receive a damaged product?",
+      a: "Contact support within 24 hours for replacement or refund.",
     },
   ];
-
-  const heroSettings = {
-    dots: true,
-    infinite: true,
-    autoplay: true,
-    speed: 100,
-    slidesToShow: 1,
-    slidesToScroll: 1,
-    arrows: false,
-  };
 
   const testimonialSettings = {
     dots: true,
@@ -139,7 +128,16 @@ const CustomerPage: React.FC = () => {
       { breakpoint: 480, settings: { slidesToShow: 1 } },
     ],
   };
+const images = [Hero1, Hero2, Hero3];
+  const [current, setCurrent] = useState(0);
 
+  // Auto change image every 3 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrent((prev) => (prev + 1) % images.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [images.length]);
   return (
     <>
       <Header />
@@ -150,57 +148,60 @@ const CustomerPage: React.FC = () => {
         }}
       >
         {/* Hero Section */}
-        <section className="overflow-hidden cursor-grab bg-[var(--color-primary-100)]">
-          <Slider {...heroSettings}>
-            {heroSlides.map((slide, i) => (
-              <div
-                key={i}
-                className="relative flex items-center justify-center h-[400px] md:h-[575px] text-center md:text-left"
+        <main className="flex-grow">
+      <section className="bg-surface mx-auto px-20 py-16 md:py-24">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          {/* Left: Text */}
+          <div className="text-center md:text-left">
+            <h1 className="font-logo text-white text-5xl lg:text-7xl font-extrabold leading-tight">
+              Discover Your
+              <span className="bg-gradient-to-r from-accent to-accent-dark bg-clip-text text-transparent">
+                {" "}
+                Perfect
+              </span>{" "}
+              Find
+            </h1>
+            <p className="mt-6 text-lg text-[#525252] max-w-lg mx-auto md:mx-0">
+              From fashion to furniture, electronics to everyday essentials.
+              Explore our curated collections and find exactly what you're
+              looking for.
+            </p>
+
+            {/* Buttons */}
+            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+              <a
+                href="#"
+                className="inline-block font-semibold rounded-full py-3 px-8 transition-all duration-250 text-center bg-gradient-to-r from-accent to-accent-dark text-white shadow-[0_4px_14px_0_rgba(255,103,0,0.39)] hover:-translate-y-0.5 hover:shadow-lg"
               >
-                {/* Background Image */}
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.8 }}
-                  className="absolute inset-0"
-                >
-                  <img
-                    src={slide.image}
-                    alt={slide.title}
-                    className="w-auto h-auto object-cover brightness-75 rounded-none"
-                  />
-                </motion.div>
+                Shop Now
+              </a>
+              <a
+                href="#"
+                className="inline-block font-semibold rounded-full py-3 px-8 transition-all duration-250 text-center bg-white text-gray-900 border border-gray-300 hover:bg-gray-100 hover:border-gray-300"
+              >
+                Learn More
+              </a>
+            </div>
+          </div>
 
-                {/* Overlay Gradient for better text visibility */}
-                <div className="absolute inset-0 bg-gradient-to-r from-[var(--color-primary-300)]/60 via-[var(--color-primary-200)]/40 to-transparent rounded-lg"></div>
-
-                {/* Text Content */}
-                <motion.div
-                  initial={{ opacity: 0, x: -30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.8 }}
-                  className="py-40 relative z-10 px-8 md:px-20 max-w-2xl"
-                >
-                  <h1 className="text-4xl md:text-5xl font-bold mb-3 text-[var(--color-primary-100)] drop-shadow-lg">
-                    {slide.title}
-                  </h1>
-                  <p className="text-lg mb-6 text-[var(--color-primary-100)]">
-                    {slide.subtitle}
-                  </p>
-                  <button
-                    className="px-8 py-3 cursor-pointer font-semibold rounded-lg shadow-md transition hover:scale-105"
-                    style={{
-                      background: "var(--color-light)",
-                      color: "#fff",
-                    }}
-                  >
-                    Shop Now
-                  </button>
-                </motion.div>
-              </div>
-            ))}
-          </Slider>
-        </section>
+          {/* Right: Auto Image Slider */}
+          <div className="flex items-center justify-center relative overflow-hidden rounded-xl shadow-xl w-full max-w-md md:max-w-full">
+            <AnimatePresence mode="wait">
+              <motion.img
+                key={images[current]}
+                src={images[current]}
+                alt="Product showcase"
+                className="rounded-xl w-full h-96 object-cover"
+                initial={{ opacity: 0, scale: 1.05 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.8 }}
+              />
+            </AnimatePresence>
+          </div>
+        </div>
+      </section>
+    </main>
 
         {/* Counter Section */}
         <section className="container mx-auto py-12 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
@@ -212,24 +213,40 @@ const CustomerPage: React.FC = () => {
           ].map((stat, i) => (
             <motion.div
               key={i}
-              initial={{ scale: 0.8 }}
-              animate={{ scale: 1 }}
-              transition={{ duration: 0.4, delay: i * 0.2 }}
-              className="p-6 rounded-xl shadow-lg"
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.5, delay: i * 0.15, ease: "easeOut" }}
+              whileHover={{
+                scale: 1.02,
+                y: -4,
+                boxShadow: "var(--shadow-lg)",
+              }}
+              className="p-6 rounded-[var(--radius-lg)] cursor-pointer group"
               style={{
-                background: "var(--color-primary-100)",
-                borderRadius: "var(--radius)",
+                background: "var(--color-white)",
+                border: "1px solid var(--color-gray-200)",
               }}
             >
+              {/* Subtle accent line on hover */}
+              <div
+                className="h-1 w-0 group-hover:w-full transition-all duration-[var(--transition-normal)] mb-4 mx-auto"
+                style={{ background: "var(--color-accent)" }}
+              />
               <h3
-                className="text-3xl font-semibold mb-2"
-                style={{ color: "var(--color-light)" }}
+                className="text-3xl md:text-4xl font-black mb-3 leading-none group-hover:text-[var(--color-accent)] transition-colors duration-[var(--transition-fast)]"
+                style={{
+                  fontFamily: "var(--font-heading)",
+                  color: "var(--color-text-dark)",
+                }}
               >
                 {stat.value}
               </h3>
               <p
-                className="text-sm"
-                style={{ color: "var(--color-primary-400)" }}
+                className="text-sm font-medium uppercase tracking-wide"
+                style={{
+                  color: "var(--color-gray-600)",
+                  fontFamily: "var(--font-body)",
+                }}
               >
                 {stat.label}
               </p>
@@ -260,53 +277,84 @@ const CustomerPage: React.FC = () => {
           ))}
         </div> */}
 
-        <section className="py-14 px-6 md:px-20 bg-[var(--color-background)]">
-          <h2 className="text-3xl font-bold text-center mb-10 text-[var(--color-primary-400)]">
+        <section className="py-20 px-6 md:px-16  ">
+          {/* Heading */}
+          <motion.h2
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-4xl md:text-5xl font-extrabold font-logo text-center mb-14"
+          >
             Browse by Category
-          </h2>
+          </motion.h2>
 
-          <div className="max-w-5xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {categories.map((cat) => (
-              <a
+          {/* Category Grid */}
+          <div className="max-w-6xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {categories.map((cat, i) => (
+              <motion.a
                 key={cat.id}
                 href={cat.link}
-                className="group flex items-center gap-4 p-5 rounded-lg bg-gradient-to-r from-[var(--color-primary-100)] to-[var(--color-primary-200)] shadow-md hover:shadow-xl hover:scale-[1.03] transition-all duration-300"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: i * 0.1 }}
+                viewport={{ once: true }}
+                whileHover={{ scale: 1.03 }}
+                className="relative group rounded-2xl overflow-hidden bg-neutral-900"
               >
-                {/* Category Icon/Image */}
-                <div className="w-16 h-16 flex-shrink-0 overflow-hidden rounded-full border-2 border-[var(--color-light)] bg-white">
-                  <img
-                    src={cat.image}
-                    alt={cat.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                  />
-                </div>
+                {/* Image */}
+                <img
+                  src={cat.image}
+                  alt={cat.name}
+                  className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110 opacity-80"
+                />
 
-                {/* Category Details */}
-                <div className="flex-1">
-                  <h3 className="text-lg font-semibold text-[var(--color-primary-400)] group-hover:text-[var(--color-light)] transition-colors">
+                {/* Overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end justify-between p-6">
+                  <h3 className="text-2xl font-semibold text-white tracking-wide">
                     {cat.name}
                   </h3>
-                  <p className="text-sm text-[var(--color-primary-300)]">
-                    Explore our latest {cat.name.toLowerCase()} products and
-                    offers.
-                  </p>
+                  <motion.span
+                    initial={{ x: 10, opacity: 0 }}
+                    whileHover={{ x: 0, opacity: 1 }}
+                    transition={{ duration: 0.3 }}
+                    className="text-orange-500 text-2xl font-bold"
+                  >
+                    →
+                  </motion.span>
                 </div>
-
-                {/* Arrow Icon */}
-                <div className="text-[var(--color-light)] text-xl group-hover:translate-x-1 transition-transform duration-300">
-                  →
-                </div>
-              </a>
+              </motion.a>
             ))}
           </div>
         </section>
 
-        {/* Customer Journey */}
-        <section className="py-14 px-6 md:px-16">
-          <h2 className="text-3xl font-bold text-center mb-10 text-[var(--color-primary-400)]">
+        <section
+          className="py-16 px-6 md:px-20 relative"
+          style={{ backgroundColor: "var(--color-surface)" }}
+        >
+          {/* Subtle Timeline Connector Background */}
+          <div className="absolute inset-0 opacity-10">
+            <div
+              className="absolute top-1/2 left-0 right-0 h-px bg-[var(--color-accent)]"
+              style={{ transform: "translateY(-50%)" }}
+            />
+          </div>
+
+          <motion.h2
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-4xl md:text-5xl font-black text-center mb-16 leading-tight relative z-10"
+            style={{
+              fontFamily: "var(--font-heading)",
+              color: "var(--color-white)",
+            }}
+          >
             The Customer Journey
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
+          </motion.h2>
+
+          <div className="max-w-4xl mx-auto flex flex-col lg:flex-row lg:items-center lg:space-x-8 space-y-8 lg:space-y-0 relative z-10">
             {[
               { step: "Discover", desc: "Explore our wide range of products." },
               {
@@ -324,30 +372,82 @@ const CustomerPage: React.FC = () => {
             ].map((item, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.2 }}
-                className="p-6 shadow-lg hover:shadow-2xl transition"
+                initial={{ opacity: 0, x: -50 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.6, delay: i * 0.2 }}
+                viewport={{ once: true }}
+                whileHover={{
+                  scale: 1.02,
+                  boxShadow: "var(--shadow-md)",
+                }}
+                className={`flex flex-col items-center text-center p-6 rounded-[var(--radius-lg)] relative ${
+                  i < 3
+                    ? 'lg:after:content-[""] lg:after:absolute lg:after:top-1/2 lg:after:left-full lg:after:w-8 lg:after:h-px lg:after:bg-[var(--color-gray-700)]'
+                    : ""
+                }`}
                 style={{
-                  background: `linear-gradient(90deg, var(--color-light), var(--color-primary-300))`,
-                  color: "#fff",
-                  borderRadius: "var(--radius)",
+                  backgroundColor: "var(--color-surface-light)",
+                  border: "1px solid var(--color-gray-600)",
+                  color: "var(--color-white)",
                 }}
               >
-                <div className="text-5xl mb-4 font-bold">{i + 1}</div>
-                <h3 className="text-xl font-semibold mb-2">{item.step}</h3>
-                <p style={{ color: "var(--color-primary-400)" }}>{item.desc}</p>
+                {/* Number Indicator */}
+                <motion.div
+                  className="w-12 h-12 rounded-full mb-4 flex items-center justify-center text-lg font-bold"
+                  style={{
+                    backgroundColor: "var(--color-accent)",
+                    color: "var(--color-white)",
+                  }}
+                  whileHover={{ scale: 1.1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {i + 1}
+                </motion.div>
+
+                {/* Step Title */}
+                <h3
+                  className="text-xl md:text-2xl font-bold mb-3 leading-tight"
+                  style={{
+                    fontFamily: "var(--font-heading)",
+                    color: "var(--color-white)",
+                  }}
+                >
+                  {item.step}
+                </h3>
+
+                {/* Description */}
+                <p
+                  className="text-sm leading-relaxed max-w-xs"
+                  style={{
+                    color: "var(--color-text-secondary)",
+                    fontFamily: "var(--font-body)",
+                  }}
+                >
+                  {item.desc}
+                </p>
               </motion.div>
             ))}
           </div>
         </section>
 
         {/* Testimonials */}
-        <section className="py-16 bg-[var(--color-primary-200)]">
-          <h2 className="text-3xl font-bold text-center mb-10 text-[var(--color-primary-400)]">
+
+        <section className="py-16 px-6 md:px-20">
+          <motion.h2
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-4xl md:text-5xl font-black text-center mb-12 leading-tight"
+            style={{
+              fontFamily: "var(--font-heading)",
+              
+            }}
+          >
             What Our Customers Say
-          </h2>
-          <div className="px-6 md:px-20">
+          </motion.h2>
+
+          <div className="max-w-4xl mx-auto">
             <Slider {...testimonialSettings}>
               {testimonials.length > 0
                 ? testimonials.map((t) => {
@@ -355,33 +455,72 @@ const CustomerPage: React.FC = () => {
                     return (
                       <motion.div
                         key={t.id}
-                        className="bg-white p-6 rounded-xl shadow-lg mx-3 text-center hover:shadow-2xl transition"
-                        whileHover={{ scale: 1.05 }}
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        viewport={{ once: true }}
+                        whileHover={{
+                          scale: 1.02,
+                          boxShadow: "var(--shadow-md)",
+                        }}
+                        className="relative  bg-[var(--color-surface-light)] p-6 rounded-[var(--radius-xl)] mx-4 text-center border border-[var(--color-gray-700)]"
                       >
-                        {typeof Avatar === "string" ? (
-                          <img
-                            src={Avatar}
-                            alt={t.name}
-                            className="w-20 h-20 rounded-full mx-auto mb-4 object-cover border-2 border-[var(--color-light)]"
-                          />
-                        ) : (
-                          <div className="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-[var(--color-light)] flex items-center justify-center bg-white">
-                            <Avatar className="w-10 h-10 text-[var(--color-primary-400)]" />
-                          </div>
-                        )}
+                        {/* Avatar */}
+                        <div className="mx-auto mb-6 w-16 h-16 rounded-full overflow-hidden border-2 border-[var(--color-accent)]">
+                          {typeof Avatar === "string" ? (
+                            <img
+                              src={Avatar}
+                              alt={t.name}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-[var(--color-gray-700)]">
+                              <Avatar className="w-8 h-8 text-[var(--color-accent)]" />
+                            </div>
+                          )}
+                        </div>
 
-                        <p className="text-[var(--color-primary-300)] italic mb-4">
-                          “{t.message}”
+                        {/* Quote */}
+                        <p
+                          className="text-lg mb-6 leading-relaxed italic"
+                          style={{
+                            color: "var(--color-text-secondary)",
+                            fontFamily: "var(--font-body)",
+                          }}
+                        >
+                          "{t.message}"
                         </p>
-                        <h4 className="text-[var(--color-primary-400)] font-semibold">
+
+                        {/* Name & Location */}
+                        <h4
+                          className="text-xl font-bold mb-1"
+                          style={{
+                            fontFamily: "var(--font-heading)",
+                            color: "var(--color-white)",
+                          }}
+                        >
                           {t.name}
                         </h4>
-                        <p className="text-sm text-[var(--color-primary-300)]">
+                        <p
+                          className="text-sm mb-4"
+                          style={{ color: "var(--color-gray-500)" }}
+                        >
                           {t.location}
                         </p>
-                        <p className="mt-2 text-[var(--color-light)]">
-                          {"★".repeat(t.rating)}
-                        </p>
+
+                        {/* Rating Stars */}
+                        <div className="flex justify-center">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <motion.span
+                              key={i}
+                              className="text-[var(--color-accent)]"
+                              whileHover={{ scale: 1.2 }}
+                              style={{ fontSize: "1.2em" }}
+                            >
+                              ★
+                            </motion.span>
+                          ))}
+                        </div>
                       </motion.div>
                     );
                   })
@@ -408,23 +547,64 @@ const CustomerPage: React.FC = () => {
                     return (
                       <motion.div
                         key={i}
-                        className="bg-white p-6 rounded-xl shadow-lg mx-3 text-center hover:shadow-2xl transition"
+                        initial={{ opacity: 0, y: 20 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: i * 0.2 }}
+                        viewport={{ once: true }}
+                        whileHover={{
+                          scale: 1.02,
+                          boxShadow: "var(--shadow-md)",
+                        }}
+                        className="relative bg-[var(--color-surface-light)] p-6 rounded-[var(--radius-xl)] mx-4 text-center border border-[var(--color-gray-700)]"
                       >
-                        <div className="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-[var(--color-light)] flex items-center justify-center bg-white">
-                          <Avatar className="w-10 h-10 text-[var(--color-primary-400)]" />
+                        {/* Avatar */}
+                        <div className="mx-auto mb-6 w-16 h-16 rounded-full overflow-hidden border-2 border-[var(--color-accent)]">
+                          <div className="w-full h-full flex items-center justify-center bg-[var(--color-gray-700)]">
+                            <Avatar className="w-8 h-8 text-[var(--color-accent)]" />
+                          </div>
                         </div>
-                        <p className="text-[var(--color-primary-300)] italic mb-4">
-                          “{demo.message}”
+
+                        {/* Quote */}
+                        <p
+                          className="text-lg mb-6 leading-relaxed italic"
+                          style={{
+                            color: "var(--color-text-secondary)",
+                            fontFamily: "var(--font-body)",
+                          }}
+                        >
+                          "{demo.message}"
                         </p>
-                        <h4 className="text-[var(--color-primary-400)] font-semibold">
+
+                        {/* Name & Location */}
+                        <h4
+                          className="text-xl font-bold mb-1"
+                          style={{
+                            fontFamily: "var(--font-heading)",
+                            color: "var(--color-white)",
+                          }}
+                        >
                           {demo.name}
                         </h4>
-                        <p className="text-sm text-[var(--color-primary-300)]">
+                        <p
+                          className="text-sm mb-4"
+                          style={{ color: "var(--color-gray-500)" }}
+                        >
                           {demo.location}
                         </p>
-                        <p className="mt-2 text-[var(--color-light)]">
-                          {"★".repeat(demo.rating)}
-                        </p>
+
+                        {/* Rating Stars */}
+                        <div className="flex justify-center">
+                          {Array.from({ length: 5 }).map((_, j) => (
+                            <motion.span
+                              key={j}
+                              className="text-[var(--color-accent)]"
+                              whileHover={{ scale: 1.2 }}
+                              style={{ fontSize: "1.2em" }}
+                            >
+                              ★
+                            </motion.span>
+                          ))}
+                        </div>
                       </motion.div>
                     );
                   })}
@@ -433,69 +613,130 @@ const CustomerPage: React.FC = () => {
         </section>
 
         {/* FAQ */}
-        <section className="py-12 px-6 md:px-20">
-          <h2 className="text-3xl font-bold text-center mb-8 text-[var(--color-primary-400)]">
+        <section
+          className="py-16 px-6 md:px-20"
+          style={{ backgroundColor: "var(--color-surface)" }}
+        >
+          <motion.h2
+            initial={{ opacity: 0, y: -20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+            className="text-4xl md:text-5xl font-black text-center mb-12 leading-tight"
+            style={{
+              fontFamily: "var(--font-heading)",
+              color: "var(--color-white)",
+            }}
+          >
             Customer FAQs
-          </h2>
-          <div className="max-w-3xl mx-auto space-y-4">
-            {[
-              {
-                q: "How can I track my order?",
-                a: "Track your order anytime from the 'My Orders' section in your account.",
-              },
-              {
-                q: "Do you offer international shipping?",
-                a: "Yes, we deliver to 30+ countries with reliable courier partners.",
-              },
-              {
-                q: "What if I receive a damaged product?",
-                a: "Contact support within 24 hours for replacement or refund.",
-              },
-            ].map((faq, i) => (
-              <motion.details
-                key={i}
-                className="p-5 shadow rounded-lg"
-                style={{
-                  background: "var(--color-primary-100)",
-                  borderRadius: "var(--radius)",
-                }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: i * 0.3 }}
-              >
-                <summary className="font-semibold cursor-pointer">
-                  {faq.q}
-                </summary>
-                <p className="mt-2 text-sm text-[var(--color-primary-400)]">
-                  {faq.a}
-                </p>
-              </motion.details>
-            ))}
+          </motion.h2>
+
+          <div className="max-w-3xl mx-auto space-y-2">
+            {faqs.map((faq, i) => {
+              const isOpen = activeIndex === i;
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: i * 0.2 }}
+                  viewport={{ once: true }}
+                  className="overflow-hidden rounded-[var(--radius-lg)] border border-[var(--color-gray-700)]"
+                  style={{ backgroundColor: "var(--color-surface-light)" }}
+                >
+                  <motion.button
+                    onClick={() => setActiveIndex(isOpen ? null : i)}
+                    className="w-full flex items-center justify-between p-6 font-semibold cursor-pointer"
+                    style={{
+                      fontFamily: "var(--font-heading)",
+                      color: "var(--color-white)",
+                    }}
+                    whileHover={{
+                      backgroundColor: "var(--color-gray-700)",
+                    }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <span className="text-lg">{faq.q}</span>
+                    <motion.div
+                      animate={{ rotate: isOpen ? 180 : 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <ChevronDown
+                        size={20}
+                        style={{ color: "var(--color-accent)" }}
+                      />
+                    </motion.div>
+                  </motion.button>
+
+                  {isOpen && (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0, y: -10 }}
+                      animate={{ opacity: 1, height: "auto", y: 0 }}
+                      exit={{ opacity: 0, height: 0, y: -10 }}
+                      transition={{ duration: 0.3 }}
+                      className="px-6 pb-6 text-sm leading-relaxed"
+                      style={{
+                        color: "var(--color-text-secondary)",
+                        fontFamily: "var(--font-body)",
+                      }}
+                    >
+                      {faq.a}
+                    </motion.p>
+                  )}
+                </motion.div>
+              );
+            })}
           </div>
         </section>
 
         {/* CTA */}
-        <section
-          className="py-14 text-center"
-          style={{
-            background: `linear-gradient(90deg, var(--color-light), var(--color-primary-300))`,
-            color: "#fff",
-          }}
-        >
-          <h2 className="text-3xl font-bold mb-3">Join Our Customer Family</h2>
-          <p className="mb-6 opacity-90">
-            Experience seamless shopping and personalized service today.
-          </p>
-          <button
-            className="px-8 py-3 font-semibold rounded-full transition hover:opacity-90"
-            style={{
-              background: "#fff",
-              color: "var(--color-light)",
-              borderRadius: "var(--radius)",
-            }}
+
+        <section className="py-16 px-6 md:px-20 relative">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="text-center max-w-2xl mx-auto"
           >
-            Start Shopping
-          </button>
+            <motion.h2
+              className="text-4xl text-text-dark md:text-2xl font-black mb-4 leading-tight"
+              style={{
+                fontFamily: "var(--font-heading)",
+              }}
+              initial={{ y: -10 }}
+              whileInView={{ y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              viewport={{ once: true }}
+            >
+              Join Our Customer Family
+            </motion.h2>
+            <motion.p
+              className="text-lg mb-8 leading-relaxed"
+              style={{
+                color: "var(--color-text-secondary)",
+                fontFamily: "var(--font-body)",
+              }}
+              initial={{ y: -10 }}
+              whileInView={{ y: 0 }}
+              transition={{ duration: 0.6, delay: 0.4 }}
+              viewport={{ once: true }}
+            >
+              Experience seamless shopping and personalized service today.
+            </motion.p>
+            <motion.button
+              whileHover={{ scale: 1.05, y: -2 }}
+              whileTap={{ scale: 0.98 }}
+              className="px-8 py-3 font-bold rounded-[var(--radius-full)] transition-all duration-[var(--transition-normal)] shadow-[var(--shadow-orange)] hover:shadow-[var(--shadow-xl)]"
+              style={{
+                background: "var(--gradient-orange)",
+                color: "var(--color-white)",
+                border: "none",
+              }}
+            >
+              Start Shopping
+            </motion.button>
+          </motion.div>
         </section>
       </div>
       <Footer />

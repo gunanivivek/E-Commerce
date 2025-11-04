@@ -5,7 +5,6 @@ import RoleBasedRoute from "./routes/RoleBasedRoute";
 import Login from "./pages/Login";
 import CustomerLayouts from "./layouts/CustomerLayouts";
 import Products from "./pages/Customer/Products";
-import ProductsDescription from "./pages/Customer/ProductsDescription";
 import TestDashboard from "./pages/TestDashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import NotFound from "./pages/NotFound";
@@ -26,24 +25,16 @@ import SellerList from "./pages/Admin/SellerList";
 import CustomerList from "./pages/Admin/CustomerList";
 import CategoryList from "./pages/Admin/CategoryList";
 import SellerProfilePage from "./pages/Seller/SellerProfilePage";
+import { useFetchCategories } from "./hooks/useFetchCategories";
+
+
 
 
 function App() {
+   useFetchCategories();
   return (
+    <>
     <Routes>
-      <Route path="/login" element={<Login />} />
-      <Route path="/signup" element={<SignUp />} />
-      <Route path="/forgotPassword" element={<ForgotPassword />} />
-
-      {/* Customer-only routes */}
-      <Route path="/" element={<CustomerLayouts />}>
-        <Route index element={<TestDashboard />} />
-      </Route>
-      <Route path="/about" element={<About />} />
-      <Route path="/contact" element={<Contact />} />
-      <Route path="/product/:id" element={<ProductsDescription />} />
-      <Route path="/products" element={<Products />} />
-
       {/* Public routes (only for guests) */}
       <Route element={<PublicRoute />}>
         <Route path="/login" element={<Login />} />
@@ -56,6 +47,8 @@ function App() {
       <Route element={<OpenCustomerRoute />}>
         <Route path="/" element={<CustomerLayouts />} />
         <Route path="about" element={<About />} />
+        <Route path="/contact" element={<Contact />} />
+        <Route path="/products" element={<Products />} />
       </Route>
 
       {/* Protected routes */}
@@ -73,7 +66,7 @@ function App() {
           </Route>
         </Route>
 
-
+        {/* Seller */}
         <Route element={<RoleBasedRoute allowedRoles={["seller"]} />}>
           <Route path="/seller" element={<SellerLayouts />}>
             <Route index element={<TestDashboard />} />
@@ -96,7 +89,11 @@ function App() {
       {/* ✅ Always show NotFound for missing paths (even if not logged in) */}
       <Route path="*" element={<NotFound />} />
     </Routes>
+    </>
   );
 }
 
 export default App;
+
+
+
