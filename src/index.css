@@ -1,13 +1,94 @@
 @import "tailwindcss";
+@import "@fontsource/montserrat/800.css"; /* Montserrat ExtraBold */
+@import "@fontsource/inter/400.css";      /* Inter Regular */
+@import "@fontsource/poppins/800.css";    /* Poppins ExtraBold */
+
+:root {
+  --font-body: "Inter", sans-serif;
+}
+
+body {
+  font-family: var(--font-body);
+}
 
 @theme {
-  --color-primary-100: #d9e9cf;
-  --color-primary-200: #b6ceb4;
-  --color-primary-300: #96a78d;
-  --color-primary-400: #4e5c46;
-  --color-light: #74a45a;
-  --color-background: #f0f0f0;
-  --radius: 0.5rem;
+ 
+  --color-background: #fff8f0;
+ 
+  /* Black Primary Colors */
+  --color-primary-400: #000000;  
+  --color-primary-300: #4d4d4d;  
+  --color-primary-200: #333333; 
+  --color-primary-100: #1a1a1a;  
+ 
+  /* Orange Accent Colors */
+  --color-light: #ff6700;
+  --color-primary-border: #ff8c42;
+  
+  /* Additional Orange Shades */
+  --color-accent: #ff6700;
+  --color-accent-light: #ff8c42;
+  --color-accent-dark: #e55a00;
+  --color-accent-darker: #cc4f00;
+  
+  /* White and Gray Scale */
+  --color-white: #ffffff;
+  --color-off-white: #fff8f0;
+  --color-gray-100: #f5f5f5;
+  --color-gray-200: #e5e5e5;
+  --color-gray-300: #d4d4d4;
+  --color-gray-400: #a3a3a3;
+  --color-gray-500: #737373;
+  --color-gray-600: #525252;
+  --color-gray-700: #404040;
+  --color-gray-800: #262626;
+  --color-gray-900: #171717;
+  
+  /* Surface Colors */
+  --color-surface: #1a1a1a;
+  --color-surface-light: #333333;
+  
+  /* Text Colors */
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #a3a3a3;
+  --color-text-muted: #737373;
+  --color-text-dark: #000000;
+  
+  /* Border Colors */
+  --color-border: #404040;
+  --color-border-light: #525252;
+  
+  /* Status Colors */
+  --color-success: #22c55e;
+  --color-error: #ef4444;
+  --color-warning: #f59e0b;
+  --color-info: #3b82f6;
+  
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  --shadow-orange: 0 4px 14px 0 rgba(255, 103, 0, 0.39);
+  
+  /* Gradients */
+  --gradient-orange: linear-gradient(135deg, #ff6700 0%, #e55a00 100%);
+  --gradient-dark: linear-gradient(135deg, #1a1a1a 0%, #000000 100%);
+  
+  /* Transitions */
+  --transition-fast: 150ms ease-in-out;
+  --transition-normal: 250ms ease-in-out;
+  --transition-slow: 350ms ease-in-out;
 
-  --color-primary-border: hsl(100 25% 85%);
+  /* Fonts */
+  --font-logo: "Poppins", sans-serif;
+  --font-heading: "Montserrat", sans-serif;
+  
+  /* Border Radius */
+  --radius: 0.5rem;
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
 }
