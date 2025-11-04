@@ -25,13 +25,13 @@ import SellerList from "./pages/Admin/SellerList";
 import CustomerList from "./pages/Admin/CustomerList";
 import CategoryList from "./pages/Admin/CategoryList";
 import SellerProfilePage from "./pages/Seller/SellerProfilePage";
-import { useFetchCategories } from "./hooks/useFetchCategories";
+// import { useFetchCategories } from "./hooks/useFetchCategories";
 
 
 
 
 function App() {
-   useFetchCategories();
+  //  useFetchCategories();
   return (
     <>
     <Routes>

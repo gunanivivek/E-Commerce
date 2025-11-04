@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import Header from "../../components/ui/Header";
 import Footer from "../../components/ui/Footer";
-import ProductsCard from "../../components/ui/ProductsCard";
+import ProductsCard from "../../components/Customer/ProductsCard";
 
 const ProductsPage: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<number | null>(null);
