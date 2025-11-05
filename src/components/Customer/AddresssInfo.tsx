@@ -5,6 +5,21 @@ import type { Address } from "../../types/Address";
 import { useAddresses } from "../../hooks/useAddresses";
 import { useAddressStore } from "../../store/addressStore";
 
+// ✅ Skeleton Component
+const AddressSkeleton = () => {
+  return (
+    <div className="bg-gray-800 border border-gray-700 rounded-xl p-5 animate-pulse">
+      <div className="space-y-3">
+        <div className="h-4 w-36 bg-gray-700 rounded"></div>
+        <div className="h-3 w-28 bg-gray-700 rounded"></div>
+        <div className="h-3 w-52 bg-gray-700 rounded"></div>
+        <div className="h-3 w-44 bg-gray-700 rounded"></div>
+        <div className="h-3 w-24 bg-gray-700 rounded"></div>
+      </div>
+    </div>
+  );
+};
+
 const AddressInfo = () => {
   const {
     addresses,
@@ -15,7 +30,6 @@ const AddressInfo = () => {
   } = useAddresses();
   const { setSelectedAddress } = useAddressStore();
   const [isAdding, setIsAdding] = useState(false);
-
   const [editingId, setEditingId] = useState<number | null>(null);
 
   const { register, handleSubmit, reset } = useForm<Address>({
@@ -32,60 +46,80 @@ const AddressInfo = () => {
     },
   });
 
- const startAdd = () => {
-  setIsAdding(true);
-  setEditingId(null);
-  reset({
-    id: 0,
-    full_name: "",
-    phone_number: "",
-    address_line_1: "",
-    address_line_2: "",
-    city: "",
-    state: "",
-    postal_code: "",
-    country: "India",
-  });
-};
+  const startAdd = () => {
+    setIsAdding(true);
+    setEditingId(null);
+    reset({
+      id: 0,
+      full_name: "",
+      phone_number: "",
+      address_line_1: "",
+      address_line_2: "",
+      city: "",
+      state: "",
+      postal_code: "",
+      country: "India",
+    });
+  };
 
-const startEdit = (address: Address) => {
-  setIsAdding(false);
-  setEditingId(address.id);
-  reset(address);
-};
+  const startEdit = (address: Address) => {
+    setIsAdding(false);
+    setEditingId(address.id);
+    reset(address);
+  };
 
-const cancelForm = () => {
-  reset();
-  setEditingId(null);
-  setIsAdding(false);
-};
-const onSubmit = (data: Address) => {
-  if (editingId) {
-    updateMutation.mutate({ id: editingId, data });
-  } else {
-    createMutation.mutate(data);
-  }
+  const cancelForm = () => {
+    reset();
+    setEditingId(null);
+    setIsAdding(false);
+  };
 
-  cancelForm(); 
-};
-
+  const onSubmit = (data: Address) => {
+    if (editingId) {
+      updateMutation.mutate({ id: editingId, data });
+    } else {
+      createMutation.mutate(data);
+    }
+    cancelForm();
+  };
 
   const onDelete = (id: number) => {
     deleteMutation.mutate(id);
   };
 
-  if (isLoading) return <p className="text-gray-400">Loading addresses...</p>;
+
+  if (isLoading) {
+    return (
+      <div>
+        <h2
+          className="text-3xl font-bold mb-8 leading-tight"
+          style={{
+            fontFamily: "var(--font-heading)",
+            color: "var(--color-white)",
+          }}
+        >
+          Address
+        </h2>
+
+        <div className="space-y-6">
+          {[1].map((i) => (
+            <AddressSkeleton key={i} />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
-     <h2
+      <h2
         className="text-3xl font-bold mb-8 leading-tight"
         style={{
           fontFamily: "var(--font-heading)",
           color: "var(--color-white)",
         }}
       >
-       Address
+        Address
       </h2>
 
       {!editingId && (
@@ -97,7 +131,7 @@ const onSubmit = (data: Address) => {
         </button>
       )}
 
-     {(isAdding || editingId) && (
+      {(isAdding || editingId) && (
         <form
           onSubmit={handleSubmit(onSubmit)}
           className="bg-gray-800 border border-gray-700 rounded-xl p-5 space-y-4 mb-6"
@@ -107,63 +141,21 @@ const onSubmit = (data: Address) => {
           </h3>
 
           <div className="grid grid-cols-2 gap-4 text-white">
-            <input
-              {...register("full_name")}
-              placeholder="Full Name"
-              className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm"
-            />
-            <input
-              {...register("phone_number")}
-              placeholder="Phone Number"
-              className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm"
-            />
-            <input
-              {...register("address_line_1")}
-              placeholder="Address Line 1"
-              className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm"
-            />
-            <input
-              {...register("address_line_2")}
-              placeholder="Address Line 2"
-              className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm"
-            />
-            <input
-              {...register("city")}
-              placeholder="City"
-              className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm"
-            />
-            <input
-              {...register("state")}
-              placeholder="State"
-              className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm"
-            />
-            <input
-              {...register("postal_code")}
-              placeholder="Postal Code"
-              className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm"
-            />
-            <input
-              {...register("country")}
-              placeholder="Country"
-              className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm"
-            />
+            <input {...register("full_name")} placeholder="Full Name" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
+            <input {...register("phone_number")} placeholder="Phone Number" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
+            <input {...register("address_line_1")} placeholder="Address Line 1" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
+            <input {...register("address_line_2")} placeholder="Address Line 2" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
+            <input {...register("city")} placeholder="City" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
+            <input {...register("state")} placeholder="State" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
+            <input {...register("postal_code")} placeholder="Postal Code" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
+            <input {...register("country")} placeholder="Country" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
           </div>
 
           <div className="flex justify-end gap-3">
-            <button
-              type="button"
-              onClick={() => {
-                reset();
-                setEditingId(null);
-              }}
-              className="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition"
-            >
+            <button type="button" onClick={cancelForm} className="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition">
               Cancel
             </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition"
-            >
+            <button type="submit" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition">
               Save
             </button>
           </div>
@@ -172,15 +164,9 @@ const onSubmit = (data: Address) => {
 
       <div className="space-y-6">
         {addresses?.map((address) => (
-          <div
-            key={address.id}
-            className="bg-gray-800 border border-gray-700 rounded-xl p-5"
-          >
+          <div key={address.id} className="bg-gray-800 border border-gray-700 rounded-xl p-5">
             <div className="flex justify-between items-start text-white">
-              <div
-                onClick={() => setSelectedAddress(address)}
-                className="cursor-pointer"
-              >
+              <div onClick={() => setSelectedAddress(address)} className="cursor-pointer">
                 <p className="font-medium">{address.full_name}</p>
                 <p className="text-gray-400 text-sm">{address.phone_number}</p>
                 <p className="text-gray-400 text-sm">
@@ -193,16 +179,10 @@ const onSubmit = (data: Address) => {
               </div>
 
               <div className="flex gap-2">
-                <button
-                  onClick={() => startEdit(address)}
-                  className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg"
-                >
+                <button onClick={() => startEdit(address)} className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg">
                   <Pencil size={16} />
                 </button>
-                <button
-                  onClick={() => onDelete(address.id)}
-                  className="p-2 bg-red-600 hover:bg-red-700 rounded-lg"
-                >
+                <button onClick={() => onDelete(address.id)} className="p-2 bg-red-600 hover:bg-red-700 rounded-lg">
                   <Trash2 size={16} />
                 </button>
               </div>
