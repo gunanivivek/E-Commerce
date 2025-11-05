@@ -34,6 +34,7 @@ import Orders from "./components/Customer/Orders";
 import ChangePassword from "./components/Customer/ChangePassword";
 import SellerOrders from "./pages/Seller/SellerOrders";
 import AddresssInfo from "./components/Customer/AddresssInfo";
+import AdminOrderList from "./pages/Admin/AdminOrderList";
 
 
 function App() {
@@ -71,6 +72,7 @@ function App() {
               <Route path="customers" element={<CustomerList />} />
               <Route path="coupons" element={<Test />} />
               <Route path="profile" element={<AdminProfile />} />
+                <Route path="orders" element={<AdminOrderList />} />
             </Route>
           </Route>
 

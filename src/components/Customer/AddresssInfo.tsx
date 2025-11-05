@@ -87,7 +87,6 @@ const AddressInfo = () => {
     deleteMutation.mutate(id);
   };
 
-
   if (isLoading) {
     return (
       <div>
@@ -141,21 +140,73 @@ const AddressInfo = () => {
           </h3>
 
           <div className="grid grid-cols-2 gap-4 text-white">
-            <input {...register("full_name")} placeholder="Full Name" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
-            <input {...register("phone_number")} placeholder="Phone Number" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
-            <input {...register("address_line_1")} placeholder="Address Line 1" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
-            <input {...register("address_line_2")} placeholder="Address Line 2" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
-            <input {...register("city")} placeholder="City" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
-            <input {...register("state")} placeholder="State" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
-            <input {...register("postal_code")} placeholder="Postal Code" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
-            <input {...register("country")} placeholder="Country" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
+            <input
+              {...register("full_name")}
+              placeholder="Full Name"
+              className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm"
+            />
+            <input
+              {...register("phone_number")}
+              placeholder="Phone Number"
+              className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm"
+              onChange={(e) => {
+                let val = e.target.value;
+
+                val = val.replace(/[^\d+]/g, "");
+
+                if (!val.startsWith("+91")) {
+                  val = "+91" + val.replace(/^(\+|91)/, "");
+                }
+
+                val = val.replace(/[^+0-9]/g, "");
+
+                e.target.value = val;
+              }}
+            />
+            <input
+              {...register("address_line_1")}
+              placeholder="Address Line 1"
+              className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm"
+            />
+            <input
+              {...register("address_line_2")}
+              placeholder="Address Line 2"
+              className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm"
+            />
+            <input
+              {...register("city")}
+              placeholder="City"
+              className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm"
+            />
+            <input
+              {...register("state")}
+              placeholder="State"
+              className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm"
+            />
+            <input
+              {...register("postal_code")}
+              placeholder="Postal Code"
+              className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm"
+            />
+            <input
+              {...register("country")}
+              placeholder="Country"
+              className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm"
+            />
           </div>
 
           <div className="flex justify-end gap-3">
-            <button type="button" onClick={cancelForm} className="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition">
+            <button
+              type="button"
+              onClick={cancelForm}
+              className="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition"
+            >
               Cancel
             </button>
-            <button type="submit" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition">
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition"
+            >
               Save
             </button>
           </div>
@@ -164,9 +215,15 @@ const AddressInfo = () => {
 
       <div className="space-y-6">
         {addresses?.map((address) => (
-          <div key={address.id} className="bg-gray-800 border border-gray-700 rounded-xl p-5">
+          <div
+            key={address.id}
+            className="bg-gray-800 border border-gray-700 rounded-xl p-5"
+          >
             <div className="flex justify-between items-start text-white">
-              <div onClick={() => setSelectedAddress(address)} className="cursor-pointer">
+              <div
+                onClick={() => setSelectedAddress(address)}
+                className="cursor-pointer"
+              >
                 <p className="font-medium">{address.full_name}</p>
                 <p className="text-gray-400 text-sm">{address.phone_number}</p>
                 <p className="text-gray-400 text-sm">
@@ -179,10 +236,16 @@ const AddressInfo = () => {
               </div>
 
               <div className="flex gap-2">
-                <button onClick={() => startEdit(address)} className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg">
+                <button
+                  onClick={() => startEdit(address)}
+                  className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg"
+                >
                   <Pencil size={16} />
                 </button>
-                <button onClick={() => onDelete(address.id)} className="p-2 bg-red-600 hover:bg-red-700 rounded-lg">
+                <button
+                  onClick={() => onDelete(address.id)}
+                  className="p-2 bg-red-600 hover:bg-red-700 rounded-lg"
+                >
                   <Trash2 size={16} />
                 </button>
               </div>
