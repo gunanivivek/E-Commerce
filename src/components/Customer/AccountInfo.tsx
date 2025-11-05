@@ -1,0 +1,285 @@
+import { useState, useRef, useEffect } from "react";
+import { User as UserIcon } from "lucide-react";
+import { useAuthStore } from "../../store/authStore";
+import { useUploadProfilePicture } from "../../hooks/useUploadProfilePicture";
+import { useMutation } from "@tanstack/react-query";
+import { updateCustomerProfile } from "../../api/customerApi";
+import { toast } from "react-toastify";
+
+const AccountInfo = () => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [isEditingImage, setIsEditingImage] = useState(false);
+  const [profilePreview, setProfilePreview] = useState<string | null>(null);
+  const [previousProfileImage, setPreviousProfileImage] = useState<string | null>(null);
+  const [formData, setFormData] = useState({ full_name: "", phone: "" });
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const { user, updateUser } = useAuthStore();
+  const { mutate: uploadImage } = useUploadProfilePicture();
+
+  const { mutate: updateProfile, isPending: isUpdating } = useMutation({
+    mutationFn: (data: { full_name: string; phone: string }) =>
+      updateCustomerProfile(String(user?.id ?? 0), data),
+
+    onMutate: () => toast.loading("Updating profile..."),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onSuccess: (data: any) => {
+  toast.dismiss();
+  toast.success("Profile updated successfully!");
+
+  // Merge updated fields safely
+  updateUser(data);
+
+  setIsEditing(false);
+},
+
+    onError: () => {
+      toast.dismiss();
+      toast.error("Failed to update profile.");
+    },
+  });
+
+  useEffect(() => {
+    if (user) {
+      setFormData({
+        full_name: user.full_name || "",
+        phone: user.phone || "",
+      });
+      setProfilePreview(user.profile_picture || null);
+      setPreviousProfileImage(user.profile_picture || null);
+    }
+  }, [user]);
+
+  // ---------- 🖼 Handle Image Upload ----------
+  const handleAddProfileClick = () => fileInputRef.current?.click();
+
+  const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const localPreview = URL.createObjectURL(file);
+    setProfilePreview(localPreview);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    uploadImage(formData, {
+      onSuccess: (data) => {
+        setProfilePreview(data.image_url);
+        setPreviousProfileImage(data.image_url);
+        toast.success("Profile image updated!");
+      },
+      onError: () => {
+        toast.error("Failed to upload image");
+        setProfilePreview(previousProfileImage);
+      },
+    });
+
+    setIsEditingImage(false);
+  };
+
+ 
+  const formatPhoneDisplay = (phone: string) => {
+    const digits = phone.replace(/\D/g, "");
+    const main = digits.startsWith("91") ? digits.slice(2) : digits;
+    return `+91 ${main.slice(0, 5)} ${main.slice(5, 10)}`;
+  };
+
+
+  const handleSave = () => updateProfile(formData);
+  const handleCancel = () => {
+    setFormData({ full_name: user?.full_name || "", phone: user?.phone || "" });
+    setIsEditing(false);
+  };
+
+  // ---------- 🧩 UI ----------
+  return (
+    <div
+      className="rounded-[var(--radius-xl)] shadow-[var(--shadow-md)] "
+    
+    >
+      <h2
+        className="text-3xl font-bold mb-8 leading-tight"
+        style={{
+          fontFamily: "var(--font-heading)",
+          color: "var(--color-white)",
+        }}
+      >
+        Personal Information
+      </h2>
+
+      {/* Profile Image Section */}
+      <div className="flex items-center gap-4 mb-8">
+        <div className="w-20 h-20 rounded-full border border-[var(--color-gray-700)] overflow-hidden flex items-center justify-center bg-[var(--color-gray-800)]">
+          {profilePreview ? (
+            <img src={profilePreview} alt="Profile" className="w-full h-full object-cover" />
+          ) : (
+            <UserIcon className="w-8 h-8 text-[var(--color-gray-500)]" />
+          )}
+        </div>
+
+        {!isEditingImage ? (
+          <button
+            type="button"
+            onClick={() => setIsEditingImage(true)}
+            className="px-4 py-2 rounded-[var(--radius-md)] border border-[var(--color-gray-700)] text-sm font-medium hover:bg-[var(--color-gray-700)] transition-all"
+            style={{
+              color: "var(--color-text-secondary)",
+              backgroundColor: "var(--color-surface-light)",
+            }}
+          >
+            Change Image
+          </button>
+        ) : (
+          <>
+            <button
+              type="button"
+              onClick={handleAddProfileClick}
+              className="px-4 py-2 rounded-[var(--radius-md)] text-sm font-medium transition-all"
+              style={{
+                background: "var(--gradient-orange)",
+                color: "var(--color-white)",
+              }}
+            >
+              Choose Image
+            </button>
+            <input
+              type="file"
+              accept="image/*"
+              ref={fileInputRef}
+              onChange={handleProfileImageChange}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => setIsEditingImage(false)}
+              className="px-4 py-2 rounded-[var(--radius-md)] border border-[var(--color-gray-700)] text-sm font-medium hover:bg-[var(--color-gray-700)] transition-all"
+              style={{
+                color: "var(--color-text-secondary)",
+                backgroundColor: "var(--color-surface-light)",
+              }}
+            >
+              Cancel
+            </button>
+          </>
+        )}
+      </div>
+
+      {/* Info Fields */}
+      <div className="grid md:grid-cols-2 gap-6">
+        <InputField
+          label="Full Name"
+          value={formData.full_name}
+          readOnly={!isEditing}
+          onChange={(e) => setFormData((p) => ({ ...p, full_name: e.target.value }))}
+        />
+
+        <InputField
+          label="Mobile Number"
+          value={formatPhoneDisplay(formData.phone)}
+          readOnly={!isEditing}
+          onChange={(e) => {
+            let val = e.target.value.replace(/[^\d+]/g, "");
+            if (!val.startsWith("+91")) val = "+91" + val.replace(/^91/, "");
+            setFormData((p) => ({ ...p, phone: val }));
+          }}
+        />
+
+        <div className="md:col-span-2 space-y-2">
+          <label
+            className="text-sm font-medium"
+            style={{
+              color: "var(--color-white)",
+              fontFamily: "var(--font-body)",
+            }}
+          >
+            Email
+          </label>
+          <input
+            type="email"
+            value={user?.email || ""}
+            readOnly
+            className="w-full px-4 py-3 rounded-[var(--radius-md)] bg-[var(--color-surface-light)] border border-[var(--color-gray-600)] text-[var(--color-white)]"
+          />
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="mt-8 flex gap-4">
+        {!isEditing ? (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="px-6 py-3 font-semibold rounded-[var(--radius-md)] transition-all"
+            style={{
+              background: "var(--gradient-orange)",
+              color: "var(--color-white)",
+              boxShadow: "var(--shadow-orange)",
+            }}
+          >
+            Edit Details
+          </button>
+        ) : (
+          <>
+            <button
+              onClick={handleSave}
+              disabled={isUpdating}
+              className="px-6 py-3 font-semibold rounded-[var(--radius-md)] transition-all disabled:opacity-70"
+              style={{
+                background: "var(--gradient-orange)",
+                color: "var(--color-white)",
+              }}
+            >
+              {isUpdating ? "Saving..." : "Save Changes"}
+            </button>
+            <button
+              onClick={handleCancel}
+              className="px-6 py-3 rounded-[var(--radius-md)] border border-[var(--color-gray-600)] font-medium transition-all hover:bg-[var(--color-gray-700)]"
+              style={{
+                color: "var(--color-text-secondary)",
+                backgroundColor: "var(--color-surface-light)",
+              }}
+            >
+              Cancel
+            </button>
+          </>
+        )}
+      </div>
+
+      
+    </div>
+  );
+};
+
+
+const InputField = ({
+  label,
+  value,
+  readOnly,
+  onChange,
+}: {
+  label: string;
+  value: string;
+  readOnly: boolean;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+}) => (
+  <div className="space-y-2">
+    <label
+      className="text-sm font-medium"
+      style={{
+        color: "var(--color-white)",
+        fontFamily: "var(--font-body)",
+      }}
+    >
+      {label}
+    </label>
+    <input
+      type="text"
+      value={value}
+      readOnly={readOnly}
+      onChange={onChange}
+      className="w-full px-4 py-3 rounded-[var(--radius-md)] border border-[var(--color-gray-600)] text-[var(--color-white)] bg-[var(--color-surface-light)] focus:ring-2 focus:outline-none"
+    />
+  </div>
+);
+
+export default AccountInfo;

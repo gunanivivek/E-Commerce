@@ -1,6 +1,8 @@
 import { useForm } from "react-hook-form";
 import { useLogin } from "../hooks/useLogin";
 import { useNavigate } from "react-router";
+import Footer from "../components/ui/Footer";
+import Header from "../components/ui/Header";
 
 interface LoginForm {
   email: string;
@@ -37,6 +39,8 @@ export default function Login() {
   };
 
   return (
+    <>
+    <Header/>
     <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 md:px-8 relative overflow-hidden">
       {/* Subtle Unique Pattern Overlay */}
       <div className="absolute inset-0 opacity-5">
@@ -177,5 +181,7 @@ export default function Login() {
         </p>
       </div>
     </div>
+    <Footer/>
+    </>
   );
 }
