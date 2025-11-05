@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Package, XCircle, FileDown } from "lucide-react";
+import { XCircle, FileDown } from "lucide-react";
 import { toast } from "react-toastify";
 
 interface Product {
@@ -59,10 +59,9 @@ const Orders = () => {
     },
   ]);
 
-  // 🔹 Cancel Order (for in-progress only)
+  
   const handleCancel = async (orderId: string) => {
     try {
-      // Example API call: await axios.post(`/api/orders/${orderId}/cancel`);
       setOrders((prev) =>
         prev.map((o) =>
           o.id === orderId ? { ...o, status: "cancelled" } : o
@@ -76,12 +75,11 @@ const Orders = () => {
     }
   };
 
-  // 🔹 Download invoice (for delivered orders only)
+
   const handleDownloadInvoice = async (orderId: string) => {
     try {
       toast.info("Preparing invoice...");
 
-      // Example API call — change to your endpoint
       const response = await fetch(`/api/orders/${orderId}/invoice`, {
         method: "GET",
       });
@@ -119,9 +117,14 @@ const Orders = () => {
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold text-white mb-6 flex items-center gap-2">
-        <Package className="text-accent" />
-        My Orders
+    <h2
+        className="text-3xl font-bold mb-8 leading-tight"
+        style={{
+          fontFamily: "var(--font-heading)",
+          color: "var(--color-white)",
+        }}
+      >
+       My Orders
       </h2>
 
       {orders.length === 0 ? (

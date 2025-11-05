@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 // import { create } from "zustand";
-import { motion,AnimatePresence  } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Slider from "react-slick";
 import Header from "../components/ui/Header";
 import Footer from "../components/ui/Footer";
@@ -12,13 +12,8 @@ import Hero2 from "../assets/Hero2.png";
 import Hero3 from "../assets/Hero3.jpg";
 import { useState } from "react";
 import { ChevronDown } from "lucide-react"; // Assuming Lucide icons; adjust as needed
-import Electronics from "../assets/Electronics.jpg";
-import Fashion from "../assets/Fashion.jpg";
-import Beauty from "../assets/Beauty.jpg";
-import Sports from "../assets/Sports.jpg";
-import Toys from "../assets/Toys.jpg";
-import Home from "../assets/Home.jpg";
 import { User2, User2Icon, type LucideProps } from "lucide-react";
+import { useCategoryStore } from "../store/categoryStore";
 
 interface Testimonial {
   id?: number;
@@ -30,76 +25,20 @@ interface Testimonial {
   location: string;
 }
 
-interface Category {
-  id: number;
-  name: string;
-  image: string;
-  link: string;
-}
-
-// interface CustomerState {
-//   selectedCategory: string;
-//   setCategory: (category: string) => void;
-// }
-
-// const useCustomerStore = create<CustomerState>((set) => ({
-//   selectedCategory: "all",
-//   setCategory: (category) => set({ selectedCategory: category }),
-// }));
-
 const fetchTestimonials = async (): Promise<Testimonial[]> => {
   const res = await fetch("/data/testimonials.json");
   if (!res.ok) throw new Error("Failed to fetch testimonials");
   return res.json();
 };
 
-const categories: Category[] = [
-  {
-    id: 1,
-    name: "Electronics",
-    image: Electronics,
-    link: "/categories/electronics",
-  },
-  {
-    id: 2,
-    name: "Fashion",
-    image: Fashion,
-    link: "/categories/fashion",
-  },
-  {
-    id: 3,
-    name: "Home",
-    image: Home,
-    link: "/categories/home",
-  },
-  {
-    id: 4,
-    name: "Beauty",
-    image: Beauty,
-    link: "/categories/beauty",
-  },
-  {
-    id: 5,
-    name: "Sports",
-    image: Sports,
-    link: "/categories/sports",
-  },
-  {
-    id: 6,
-    name: "Toys",
-    image: Toys,
-    link: "/categories/toys",
-  },
-];
-
 const CustomerPage: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+    const categories = useCategoryStore((state) => state.categories);
   const { data: testimonials = [] } = useQuery({
     queryKey: ["testimonials"],
     queryFn: fetchTestimonials,
   });
 
-  // const { selectedCategory, setCategory } = useCustomerStore();
   const faqs = [
     {
       q: "How can I track my order?",
@@ -119,7 +58,6 @@ const CustomerPage: React.FC = () => {
     dots: true,
     infinite: true,
     autoplay: true,
-    // speed: 700,
     slidesToShow: 1,
     slidesToScroll: 1,
     responsive: [
@@ -128,7 +66,7 @@ const CustomerPage: React.FC = () => {
       { breakpoint: 480, settings: { slidesToShow: 1 } },
     ],
   };
-const images = [Hero1, Hero2, Hero3];
+  const images = [Hero1, Hero2, Hero3];
   const [current, setCurrent] = useState(0);
 
   // Auto change image every 3 seconds
@@ -138,6 +76,7 @@ const images = [Hero1, Hero2, Hero3];
     }, 3000);
     return () => clearInterval(interval);
   }, [images.length]);
+
   return (
     <>
       <Header />
@@ -149,59 +88,59 @@ const images = [Hero1, Hero2, Hero3];
       >
         {/* Hero Section */}
         <main className="flex-grow">
-      <section className="bg-surface mx-auto px-20 py-16 md:py-24">
-        <div className="grid md:grid-cols-2 gap-12 items-center">
-          {/* Left: Text */}
-          <div className="text-center md:text-left">
-            <h1 className="font-logo text-white text-5xl lg:text-7xl font-extrabold leading-tight">
-              Discover Your
-              <span className="bg-gradient-to-r from-accent to-accent-dark bg-clip-text text-transparent">
-                {" "}
-                Perfect
-              </span>{" "}
-              Find
-            </h1>
-            <p className="mt-6 text-lg text-[#525252] max-w-lg mx-auto md:mx-0">
-              From fashion to furniture, electronics to everyday essentials.
-              Explore our curated collections and find exactly what you're
-              looking for.
-            </p>
+          <section className="bg-surface mx-auto px-20 py-16 md:py-24">
+            <div className="grid md:grid-cols-2 gap-12 items-center">
+              {/* Left: Text */}
+              <div className="text-center md:text-left">
+                <h1 className="font-logo text-white text-5xl lg:text-7xl font-extrabold leading-tight">
+                  Discover Your
+                  <span className="bg-gradient-to-r from-accent to-accent-dark bg-clip-text text-transparent">
+                    {" "}
+                    Perfect
+                  </span>{" "}
+                  Find
+                </h1>
+                <p className="mt-6 text-lg text-[#525252] max-w-lg mx-auto md:mx-0">
+                  From fashion to furniture, electronics to everyday essentials.
+                  Explore our curated collections and find exactly what you're
+                  looking for.
+                </p>
 
-            {/* Buttons */}
-            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
-              <a
-                href="#"
-                className="inline-block font-semibold rounded-full py-3 px-8 transition-all duration-250 text-center bg-gradient-to-r from-accent to-accent-dark text-white shadow-[0_4px_14px_0_rgba(255,103,0,0.39)] hover:-translate-y-0.5 hover:shadow-lg"
-              >
-                Shop Now
-              </a>
-              <a
-                href="#"
-                className="inline-block font-semibold rounded-full py-3 px-8 transition-all duration-250 text-center bg-white text-gray-900 border border-gray-300 hover:bg-gray-100 hover:border-gray-300"
-              >
-                Learn More
-              </a>
+                {/* Buttons */}
+                <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                  <a
+                    href="#"
+                    className="inline-block font-semibold rounded-full py-3 px-8 transition-all duration-250 text-center bg-gradient-to-r from-accent to-accent-dark text-white shadow-[0_4px_14px_0_rgba(255,103,0,0.39)] hover:-translate-y-0.5 hover:shadow-lg"
+                  >
+                    Shop Now
+                  </a>
+                  <a
+                    href="#"
+                    className="inline-block font-semibold rounded-full py-3 px-8 transition-all duration-250 text-center bg-white text-gray-900 border border-gray-300 hover:bg-gray-100 hover:border-gray-300"
+                  >
+                    Learn More
+                  </a>
+                </div>
+              </div>
+
+              {/* Right: Auto Image Slider */}
+              <div className="flex items-center justify-center relative overflow-hidden rounded-xl shadow-xl w-full max-w-md md:max-w-full">
+                <AnimatePresence mode="wait">
+                  <motion.img
+                    key={images[current]}
+                    src={images[current]}
+                    alt="Product showcase"
+                    className="rounded-xl w-full h-96 object-cover"
+                    initial={{ opacity: 0, scale: 1.05 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.8 }}
+                  />
+                </AnimatePresence>
+              </div>
             </div>
-          </div>
-
-          {/* Right: Auto Image Slider */}
-          <div className="flex items-center justify-center relative overflow-hidden rounded-xl shadow-xl w-full max-w-md md:max-w-full">
-            <AnimatePresence mode="wait">
-              <motion.img
-                key={images[current]}
-                src={images[current]}
-                alt="Product showcase"
-                className="rounded-xl w-full h-96 object-cover"
-                initial={{ opacity: 0, scale: 1.05 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.8 }}
-              />
-            </AnimatePresence>
-          </div>
-        </div>
-      </section>
-    </main>
+          </section>
+        </main>
 
         {/* Counter Section */}
         <section className="container mx-auto py-12 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
@@ -294,7 +233,7 @@ const images = [Hero1, Hero2, Hero3];
             {categories.map((cat, i) => (
               <motion.a
                 key={cat.id}
-                href={cat.link}
+                href={cat.name}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: i * 0.1 }}
@@ -304,7 +243,7 @@ const images = [Hero1, Hero2, Hero3];
               >
                 {/* Image */}
                 <img
-                  src={cat.image}
+                  src={cat.image_url}
                   alt={cat.name}
                   className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110 opacity-80"
                 />
@@ -441,7 +380,6 @@ const images = [Hero1, Hero2, Hero3];
             className="text-4xl md:text-5xl font-black text-center mb-12 leading-tight"
             style={{
               fontFamily: "var(--font-heading)",
-              
             }}
           >
             What Our Customers Say
