@@ -32,7 +32,8 @@ import Profile from "./pages/Customer/CustomerProfile";
 import AccountInfo from "./components/Customer/AccountInfo";
 import Orders from "./components/Customer/Orders";
 import ChangePassword from "./components/Customer/ChangePassword";
-// import { useFetchCategories } from "./hooks/useFetchCategories";
+import AddresssInfo from "./components/Customer/AddresssInfo";
+import { useFetchCategories } from "./hooks/useFetchCategories";
 
 function App() {
    useFetchCategories();
@@ -87,6 +88,7 @@ function App() {
             <Route path="profile" element={<Profile />}>
               <Route index element={<AccountInfo />} />
               <Route path="orders" element={<Orders />} />
+                <Route path="address" element={<AddresssInfo />} />
               <Route path="change-password" element={<ChangePassword />} />
             </Route>
           </Route>
