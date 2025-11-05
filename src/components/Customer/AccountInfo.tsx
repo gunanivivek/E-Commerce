@@ -88,10 +88,10 @@ const AccountInfo = () => {
     setIsEditing(false);
   };
 
-  // ---------- 🧩 UI ----------
+
   return (
     <div
-      className="rounded-[var(--radius-xl)] shadow-[var(--shadow-md)] "
+      className=" "
     
     >
       <h2
