@@ -79,11 +79,7 @@ const AccountInfo = () => {
   };
 
  
-  const formatPhoneDisplay = (phone: string) => {
-    const digits = phone.replace(/\D/g, "");
-    const main = digits.startsWith("91") ? digits.slice(2) : digits;
-    return `+91 ${main.slice(0, 5)} ${main.slice(5, 10)}`;
-  };
+
 
 
   const handleSave = () => updateProfile(formData);
@@ -174,16 +170,26 @@ const AccountInfo = () => {
           onChange={(e) => setFormData((p) => ({ ...p, full_name: e.target.value }))}
         />
 
-        <InputField
-          label="Mobile Number"
-          value={formatPhoneDisplay(formData.phone)}
-          readOnly={!isEditing}
-          onChange={(e) => {
-            let val = e.target.value.replace(/[^\d+]/g, "");
-            if (!val.startsWith("+91")) val = "+91" + val.replace(/^91/, "");
-            setFormData((p) => ({ ...p, phone: val }));
-          }}
-        />
+    <InputField
+  label="Mobile Number"
+  value={formData.phone}
+  readOnly={!isEditing}
+  onChange={(e) => {
+    let val = e.target.value.replace(/[^\d]/g, ""); 
+
+    
+    if (val === "") {
+      setFormData((p) => ({ ...p, phone: "" }));
+      return;
+    }
+    if (!val.startsWith("91")) {
+      val = "91" + val;
+    }
+
+    setFormData((p) => ({ ...p, phone: `+${val}` }));
+  }}
+/>
+
 
         <div className="md:col-span-2 space-y-2">
           <label

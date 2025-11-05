@@ -12,7 +12,7 @@ const CustomerProfileLayout = () => {
   const menuItems = [
     { label: "My Account", icon: User2, path: "" },
     { label: "My Orders", icon: Package, path: "orders" },
-    { label: "Returns & Cancel", icon: RefreshCw, path: "returns" },
+    { label: "Address", icon: RefreshCw, path: "address" },
     { label: "Change Password", icon: Lock, path: "change-password" },
   ];
 
