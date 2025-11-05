@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { useCartStore } from "./cartStore";
 
 export interface Product {
   id: number;
@@ -7,6 +8,7 @@ export interface Product {
   price: number;
   discount_price?: number | null;
   stock: number;
+  images?: string[];
   slug: string;
   image: string;
   is_active: boolean;
@@ -27,11 +29,24 @@ export const useProductStore = create<ProductStore>((set) => ({
   cart: [],
   wishlist: [],
   addToCart: (product) =>
-    set((state) =>
-      state.cart.some((p) => p.id === product.id)
+    set((state) => {
+      // also add to the centralized cartStore used by the Cart page
+      try {
+        useCartStore.getState().addItem({
+          id: product.id,
+          name: product.name,
+          price: product.discount_price ?? product.price,
+          quantity: 1,
+          image: product.image,
+        });
+      } catch {
+        // ignore if cartStore not available for some reason
+      }
+
+      return state.cart.some((p) => p.id === product.id)
         ? state
-        : { cart: [...state.cart, product] }
-    ),
+        : { cart: [...state.cart, product] };
+    }),
   removeFromCart: (id) =>
     set((state) => ({ cart: state.cart.filter((p) => p.id !== id) })),
   addToWishlist: (product) =>
