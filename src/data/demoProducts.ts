@@ -13,7 +13,7 @@ export const DEMO_PRODUCTS = [
             "Experience the power of the A17 Pro chip and titanium design with the new iPhone 15 Pro. Stunning performance and pro-level camera system.",
           price: 134999,
           discount_price: 124999,
-          stock: 20,
+          stock: 0,
           category: "Electronics",
           rating: 4.9,
           slug: "apple-iphone-15-pro",
@@ -46,9 +46,9 @@ export const DEMO_PRODUCTS = [
           image:
             "https://static.nike.com/a/images/t_web_pdp_936_v2/f_auto/f91a5813-295d-4043-9d43-7e4f226c1238/NIKE+AIR+ZOOM+PEGASUS+40+PRM.png",
           images: [
-            "https://static.nike.com/a/images/t_default/5d8f8b4e-02f4-44c1-9186-20a3fcb471a5/air-zoom-pegasus-40-road-running-shoes-ml1rXk.png",
-            "https://picsum.photos/seed/nike-3/800/800",
-            "https://picsum.photos/seed/nike-b-3/800/800",
+            "https://static.nike.com/a/images/t_web_pdp_936_v2/f_auto/f91a5813-295d-4043-9d43-7e4f226c1238/NIKE+AIR+ZOOM+PEGASUS+40+PRM.png",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUfdU7iYSQg8X0inWiVa9EKJ0lgPMBal-SszYX_d8CHcLCcmqiumhlxtJA8t6po3pj1to&usqp=CAU",
+            "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTPs-BDudQk-ESzX7lJA7wYl_MbUEZOiKKj-lhqbCr1wl-QQ0JL0s0X8exm9isGA8qFTj4&usqp=CAU",
           ],
           description:
             "A lightweight running shoe designed for comfort and speed. Breathable upper with cushioned midsole for daily runs.",
