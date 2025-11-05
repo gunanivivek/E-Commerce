@@ -29,6 +29,7 @@ import Profile from "./pages/Customer/CustomerProfile";
 import AccountInfo from "./components/Customer/AccountInfo";
 import Orders from "./components/Customer/Orders";
 import ChangePassword from "./components/Customer/ChangePassword";
+import SellerOrders from "./pages/Seller/SellerOrders";
 // import { useFetchCategories } from "./hooks/useFetchCategories";
 
 function App() {
@@ -72,6 +73,7 @@ function App() {
             <Route path="/seller" element={<SellerLayouts />}>
               <Route index element={<TestDashboard />} />
               <Route path="products" element={<SellerProductList />} />
+              <Route path="orders" element={<SellerOrders />} />
               <Route path="coupons" element={<Test />} />
               <Route path=":sellerId" element={<SellerProfilePage />} />
             </Route>

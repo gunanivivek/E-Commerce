@@ -32,7 +32,7 @@ const navConfig: Record<string, NavItem[]> = {
   ],
   seller: [
     { name: "Dashboard", href: "/seller", icon: LayoutDashboard },
-    { name: "Sellers", href: "/seller/sellers", icon: Users },
+    { name: "Orders", href: "/seller/orders", icon: Users },
     { name: "Products", href: "/seller/products", icon: Package },
     { name: "Coupons", href: "/seller/coupons", icon: Ticket },
   ],
