@@ -12,7 +12,7 @@ const CustomerProfileLayout = () => {
   const menuItems = [
     { label: "My Account", icon: User2, path: "" },
     { label: "My Orders", icon: Package, path: "orders" },
-    { label: "Returns & Cancel", icon: RefreshCw, path: "returns" },
+    { label: "Address", icon: RefreshCw, path: "address" },
     { label: "Change Password", icon: Lock, path: "change-password" },
   ];
 
@@ -23,7 +23,7 @@ const CustomerProfileLayout = () => {
       <main className="flex-grow container  mx-auto px-6 md:px-12 py-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
        
-          <aside className="rounded-xl p-6 border border-gray-700 bg-surface h-auto md:h-[calc(100vh-120px)]">
+          <aside className="rounded-xl p-6 border border-gray-700 bg-surface-light h-auto md:h-[calc(100vh-120px)]">
             <div className="text-center mb-6">
               <img
                 src={user?.profile_picture || ""}
@@ -57,7 +57,7 @@ const CustomerProfileLayout = () => {
           </aside>
 
           {/* Main content */}
-          <section className="md:col-span-3 bg-surface border border-gray-700 rounded-xl p-8">
+          <section className="md:col-span-3 bg-surface-light border border-gray-700 rounded-xl p-8">
             <Outlet />
           </section>
         </div>
