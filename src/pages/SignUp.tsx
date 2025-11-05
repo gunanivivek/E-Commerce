@@ -7,6 +7,8 @@ import type {
   SellerSignupRequest,
 } from "../types/auth";
 import { useNavigate } from "react-router";
+import Header from "../components/ui/Header";
+import Footer from "../components/ui/Footer";
 
 type UserType = "customer" | "seller";
 
@@ -37,6 +39,8 @@ export default function Signup() {
   };
 
   return (
+    <>
+    <Header/>
     <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 md:px-8 relative overflow-hidden">
     
       <div className="absolute inset-0 opacity-5">
@@ -426,5 +430,7 @@ export default function Signup() {
         </p>
       </div>
     </div>
+    <Footer/>
+    </>
   );
 }
