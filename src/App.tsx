@@ -25,73 +25,75 @@ import SellerList from "./pages/Admin/SellerList";
 import CustomerList from "./pages/Admin/CustomerList";
 import CategoryList from "./pages/Admin/CategoryList";
 import SellerProfilePage from "./pages/Seller/SellerProfilePage";
+import Profile from "./pages/Customer/CustomerProfile";
+import AccountInfo from "./components/Customer/AccountInfo";
+import Orders from "./components/Customer/Orders";
+import ChangePassword from "./components/Customer/ChangePassword";
 // import { useFetchCategories } from "./hooks/useFetchCategories";
-
-
-
 
 function App() {
   //  useFetchCategories();
   return (
     <>
-    <Routes>
-      {/* Public routes (only for guests) */}
-      <Route element={<PublicRoute />}>
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/forgotPassword" element={<ForgotPassword />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
-      </Route>
+      <Routes>
+        {/* Public routes (only for guests) */}
+        <Route element={<PublicRoute />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/forgotPassword" element={<ForgotPassword />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+        </Route>
 
-      {/* Open Customer Routes (accessible to everyone) */}
-      <Route element={<OpenCustomerRoute />}>
-        <Route path="/" element={<CustomerLayouts />} />
-        <Route path="about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/products" element={<Products />} />
-      </Route>
+        {/* Open Customer Routes (accessible to everyone) */}
+        <Route element={<OpenCustomerRoute />}>
+          <Route path="/" element={<CustomerLayouts />} />
+          <Route path="about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/products" element={<Products />} />
+        </Route>
 
-      {/* Protected routes */}
-      <Route element={<ProtectedRoute />}>
-        {/* Admin */}
-        <Route element={<RoleBasedRoute allowedRoles={["admin"]} />}>
-          <Route path="/admin" element={<AdminLayouts />}>
-            <Route index element={<TestDashboard />} />
-            <Route path="sellers" element={<SellerList />} />
-            <Route path="products" element={<AdminProductList />} />
-            <Route path="category" element={<CategoryList />} />
-            <Route path="customers" element={<CustomerList />} />
-            <Route path="coupons" element={<Test />} />
-            <Route path="profile" element={<AdminProfile />} />
+        {/* Protected routes */}
+        <Route element={<ProtectedRoute />}>
+          {/* Admin */}
+          <Route element={<RoleBasedRoute allowedRoles={["admin"]} />}>
+            <Route path="/admin" element={<AdminLayouts />}>
+              <Route index element={<TestDashboard />} />
+              <Route path="sellers" element={<SellerList />} />
+              <Route path="products" element={<AdminProductList />} />
+              <Route path="category" element={<CategoryList />} />
+              <Route path="customers" element={<CustomerList />} />
+              <Route path="coupons" element={<Test />} />
+              <Route path="profile" element={<AdminProfile />} />
+            </Route>
           </Route>
-        </Route>
 
-        {/* Seller */}
-        <Route element={<RoleBasedRoute allowedRoles={["seller"]} />}>
-          <Route path="/seller" element={<SellerLayouts />}>
-            <Route index element={<TestDashboard />} />
-            <Route path="products" element={<SellerProductList />} />
-            <Route path="coupons" element={<Test />} />
-            <Route path=":sellerId" element={<SellerProfilePage />} />
+          {/* Seller */}
+          <Route element={<RoleBasedRoute allowedRoles={["seller"]} />}>
+            <Route path="/seller" element={<SellerLayouts />}>
+              <Route index element={<TestDashboard />} />
+              <Route path="products" element={<SellerProductList />} />
+              <Route path="coupons" element={<Test />} />
+              <Route path=":sellerId" element={<SellerProfilePage />} />
+            </Route>
           </Route>
+
+          {/* Customer private pages */}
+          <Route element={<RoleBasedRoute allowedRoles={["customer"]} />}>
+            <Route path="profile" element={<Profile />}>
+              <Route index element={<AccountInfo />} />
+              <Route path="orders" element={<Orders />} />
+              <Route path="change-password" element={<ChangePassword />} />
+            </Route>
+          </Route>
+
+          <Route path="/unauthorized" element={<Unauthorized />} />
         </Route>
 
-        {/* Customer private pages */}
-        <Route element={<RoleBasedRoute allowedRoles={["customer"]} />}>
-    
-        </Route>
-
-        <Route path="/unauthorized" element={<Unauthorized />} />
-      </Route>
-
-      {/* ✅ Always show NotFound for missing paths (even if not logged in) */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+        {/*  Always show NotFound for missing paths (even if not logged in) */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
     </>
   );
 }
 
 export default App;
-
-
-
