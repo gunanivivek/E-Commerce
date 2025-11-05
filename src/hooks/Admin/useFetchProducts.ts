@@ -1,43 +1,18 @@
+// hooks/admin/useFetchProducts.ts
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getAllProducts } from "../../api/adminApi";
-import { useAdminStore } from "../../store/adminStore";
-import type { AxiosError } from "axios";
-import type { Product } from "../../types/admin";
+
+import { toast } from "react-toastify";
+import { useAdminProductStore } from "../../store/Admin/adminProductStore";
+
 
 export const useFetchProducts = () => {
-  const { setError, setLoading } = useAdminStore();
+  const { setProducts, setError, setLoading } = useAdminProductStore();
 
-  const query = useQuery<Product[], AxiosError>({
+  const query = useQuery({
     queryKey: ["products"],
-    queryFn: async () => {
-      try {
-        const products = await getAllProducts();
-        return products;
-      } catch (err: unknown) {
-        let errorMessage = "Failed to fetch products";
-
-        const axiosError = err as AxiosError<{
-          detail?: string | { msg?: string }[];
-        }>;
-
-        if (axiosError.response?.data?.detail) {
-          const { detail } = axiosError.response.data;
-
-          if (Array.isArray(detail)) {
-            // FastAPI validation error → extract readable message
-            errorMessage = detail[0]?.msg || errorMessage;
-          } else if (typeof detail === "string") {
-            // Simple string message
-            errorMessage = detail;
-          }
-        } else if (err instanceof Error) {
-          errorMessage = err.message;
-        }
-
-        throw new Error(errorMessage);
-      }
-    },
+    queryFn: getAllProducts,
     retry: false,
   });
 
@@ -45,38 +20,16 @@ export const useFetchProducts = () => {
     setLoading(query.isFetching);
 
     if (query.isSuccess && query.data) {
-      // If you later add products to store, you can do: setProducts(query.data)
+      setProducts(query.data);
       setError(null);
-    } else if (query.isError && query.error) {
-      const axiosError = query.error as AxiosError<{
-        detail?: string | { msg?: string }[];
-      }>;
-
-      let errorMessage = "Failed to fetch products";
-
-      if (axiosError.response?.data?.detail) {
-        const { detail } = axiosError.response.data;
-
-        if (Array.isArray(detail)) {
-          errorMessage = detail[0]?.msg || errorMessage;
-        } else if (typeof detail === "string") {
-          errorMessage = detail;
-        }
-      } else if (axiosError.message) {
-        errorMessage = axiosError.message;
-      }
-
-      setError(errorMessage);
     }
-  }, [
-    query.isFetching,
-    query.isSuccess,
-    query.isError,
-    query.data,
-    query.error,
-    setError,
-    setLoading,
-  ]);
+
+    if (query.isError && query.error) {
+      const message = query.error.message || "Failed to fetch products";
+      setError(message);
+      toast.error(message);
+    }
+  }, [query.isFetching, query.isSuccess, query.data, query.isError, query.error]);
 
   return query;
 };
