@@ -25,13 +25,15 @@ import SellerList from "./pages/Admin/SellerList";
 import CustomerList from "./pages/Admin/CustomerList";
 import CategoryList from "./pages/Admin/CategoryList";
 import SellerProfilePage from "./pages/Seller/SellerProfilePage";
-// import { useFetchCategories } from "./hooks/useFetchCategories";
+import { useFetchCategories } from "./hooks/useFetchCategories";
+import ProductsDescription from "./pages/Customer/ProductsDescription";
+import Cart from "./pages/Customer/Cart";
 
 
 
 
 function App() {
-  //  useFetchCategories();
+   useFetchCategories();
   return (
     <>
     <Routes>
@@ -49,6 +51,8 @@ function App() {
         <Route path="about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/products" element={<Products />} />
+        <Route path="/product/:productId" element={<ProductsDescription />} />
+        <Route path="/cart" element={<Cart />} />
       </Route>
 
       {/* Protected routes */}
