@@ -33,7 +33,7 @@ import AccountInfo from "./components/Customer/AccountInfo";
 import Orders from "./components/Customer/Orders";
 import ChangePassword from "./components/Customer/ChangePassword";
 import AddresssInfo from "./components/Customer/AddresssInfo";
-import { useFetchCategories } from "./hooks/useFetchCategories";
+
 
 function App() {
    useFetchCategories();
