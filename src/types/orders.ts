@@ -15,11 +15,14 @@ export interface Order {
   customer_name: string;
   customer_address: string;
   created_at: string;
+  total_amount: number;
+  payment_status: "paid" | "failed";
+  status: "pending" | "shipped" | "delivered" | "cancelled";
   items: OrderItem[];
 }
 
 export interface UpdateOrderItemStatusRequest {
   order_id: number;
   item_id: number;
-  status: "pending" | "shipped" | "delivered" | "cancelled";
+  new_status: "pending" | "shipped" | "delivered" | "cancelled";
 }

@@ -13,90 +13,30 @@ import type { Row } from "@tanstack/react-table";
 import type { Order } from "../../types/orders";
 import TableRowSkeleton from "../../components/TableRowSkeleton";
 import OrderDetailModel from "../../components/Seller/OrderDetailModel";
+import { getSellerOrders } from "../../api/sellerOrderApi";
+import { useQuery } from "@tanstack/react-query";
 
 const columnHelper = createColumnHelper<Order>();
 
-const demoOrders: Order[] = [
-  {
-    id: 1,
-    order_number: "ORD-1001",
-    customer_name: "Amit Sharma",
-    customer_address: "123, Green Park, Delhi",
-    created_at: "2025-11-01T09:45:00",
-    items: [
-      {
-        id: 11,
-        product_id: 1,
-        product_name: "Bluetooth Headphones",
-        quantity: 2,
-        price: 1200,
-        total_price: 2400,
-        status: "shipped",
-        payment_status: "success",
-      },
-      {
-        id: 12,
-        product_id: 2,
-        product_name: "Smartwatch",
-        quantity: 1,
-        price: 3000,
-        total_price: 3000,
-        status: "pending",
-        payment_status: "success",
-      },
-    ],
-  },
-  {
-    id: 2,
-    order_number: "ORD-1002",
-    customer_name: "Priya Patel",
-    customer_address: "B-45, Andheri, Mumbai",
-    created_at: "2025-11-03T12:30:00",
-    items: [
-      {
-        id: 13,
-        product_id: 3,
-        product_name: "Laptop Stand",
-        quantity: 1,
-        price: 1500,
-        total_price: 1500,
-        status: "delivered",
-        payment_status: "success",
-      },
-    ],
-  },
-  {
-    id: 3,
-    order_number: "ORD-1003",
-    customer_name: "Rahul Mehta",
-    customer_address: "12/A, Satellite, Ahmedabad",
-    created_at: "2025-10-28T18:15:00",
-    items: [
-      {
-        id: 14,
-        product_id: 4,
-        product_name: "Wireless Mouse",
-        quantity: 1,
-        price: 600,
-        total_price: 600,
-        status: "cancelled",
-        payment_status: "failed",
-      },
-    ],
-  },
-];
-
 const SellerOrders: React.FC = () => {
-  const [orders] = useState<Order[]>(demoOrders);
-  const [loading] = useState(false);
-
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const {
+    data: orders = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["sellerOrders"],
+    queryFn: getSellerOrders,
+    staleTime: 1000 * 60 * 5,
+    refetchOnWindowFocus: false,
+  });
 
   const filteredData = useMemo(() => {
     let filtered = orders.filter(
@@ -146,6 +86,12 @@ const SellerOrders: React.FC = () => {
         header: "Items",
         cell: (info) => <span>{info.getValue().length}</span>,
       }),
+      columnHelper.accessor("total_amount", {
+        header: "Total Amount",
+        cell: (info) => (
+          <span className="text-primary-400"> ₹{Number(info.getValue()).toLocaleString("en-IN")}</span>
+        ),
+      }),
       columnHelper.accessor("created_at", {
         header: "Date",
         cell: (info) => {
@@ -167,19 +113,39 @@ const SellerOrders: React.FC = () => {
         cell: ({ row }: { row: Row<Order> }) => {
           const items = row.original.items;
           const allDelivered = items.every((i) => i.status === "delivered");
-          const anyCancelled = items.some((i) => i.status === "cancelled");
-
+          const anyPending = items.some((i) => i.status === "pending");
           const displayStatus = allDelivered
             ? "Delivered"
-            : anyCancelled
-            ? "Cancelled"
-            : "Processing";
+            : anyPending
+            ? "Pending"
+            : "Shipped";
 
           const colorClass = allDelivered
             ? "bg-green-100 text-green-700"
-            : anyCancelled
-            ? "bg-red-100 text-red-700"
-            : "bg-yellow-100 text-yellow-700";
+            : anyPending
+            ? "bg-gray-300 text-muted"
+            : "bg-accent-light text-primary";
+
+          return (
+            <span
+              className={`px-4 py-1 rounded-full text-xs font-medium ${colorClass}`}
+            >
+              {displayStatus}
+            </span>
+          );
+        },
+      }),
+      columnHelper.display({
+        id: "payment",
+        header: "Payment Status",
+        cell: ({ row }: { row: Row<Order> }) => {
+          const paymentStatus = row.original.payment_status;
+
+          const displayStatus = paymentStatus === "paid" ? "Success" : "Failed";
+          const colorClass =
+            paymentStatus === "paid"
+              ? "bg-green-100 text-green-700"
+              : "bg-red-300 text-white";
 
           return (
             <span
@@ -340,8 +306,10 @@ const SellerOrders: React.FC = () => {
               ))}
             </thead>
             <tbody>
-              {loading ? (
-                <TableRowSkeleton rows={5} columns={6} />
+              {isLoading ? (
+                <TableRowSkeleton rows={5} columns={8} />
+              ) : isError ? (
+                <div>Failed to load orders.</div>
               ) : (
                 table.getRowModel().rows.map((row) => (
                   <tr

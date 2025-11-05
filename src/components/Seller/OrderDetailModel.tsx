@@ -1,7 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { X } from "lucide-react";
 import type { Order } from "../../types/orders";
+import OrderStatusCell from "./OrderStatusCell";
 
 interface OrderDetailModelProps {
   isOpen: boolean;
@@ -16,11 +16,6 @@ const OrderDetailModel: React.FC<OrderDetailModelProps> = ({
 }) => {
   if (!isOpen) return null;
 
-  const totalAmount = order.items.reduce(
-    (sum, item) => sum + item.total_price,
-    0
-  );
-
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
       <div className="bg-white rounded-xl shadow-lg w-full max-w-3xl p-6 relative">
@@ -32,15 +27,18 @@ const OrderDetailModel: React.FC<OrderDetailModelProps> = ({
           <X size={20} />
         </button>
 
-        {/* Header */}
         <h2 className="text-2xl font-semibold text-gray-800 mb-2">
           Order #{order.order_number}
         </h2>
         <p className="text-sm text-gray-500 mb-6">
-          Placed on: {new Date(order.created_at).toLocaleDateString()}
+          Placed on:{" "}
+          {new Date(order.created_at).toLocaleDateString("en-IN", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })}
         </p>
 
-        {/* Customer Info */}
         <div className="mb-6">
           <h3 className="font-semibold text-gray-700 mb-2">Customer Details</h3>
           <p className="text-gray-600">
@@ -72,22 +70,10 @@ const OrderDetailModel: React.FC<OrderDetailModelProps> = ({
                   <td className="p-3">{item.quantity}</td>
                   <td className="p-3">₹{item.price.toLocaleString()}</td>
                   <td className="p-3 font-medium text-green-600">
-                    ₹{item.total_price.toLocaleString()}
+                    ₹{item.total_price}
                   </td>
                   <td className="p-3 capitalize">
-                    <span
-                      className={`px-2 py-1 rounded text-xs font-medium ${
-                        item.status === "delivered"
-                          ? "bg-green-100 text-green-700"
-                          : item.status === "shipped"
-                          ? "bg-blue-100 text-blue-700"
-                          : item.status === "pending"
-                          ? "bg-yellow-100 text-yellow-700"
-                          : "bg-red-100 text-red-700"
-                      }`}
-                    >
-                      {item.status}
-                    </span>
+                    <OrderStatusCell orderId={order.id} itemId={item.id} initialStatus={item.status} /> 
                   </td>
                   <td className="p-3">
                     <span
@@ -97,7 +83,7 @@ const OrderDetailModel: React.FC<OrderDetailModelProps> = ({
                           : "bg-red-100 text-red-700"
                       }`}
                     >
-                      {item.payment_status}
+                      {order.payment_status.toLocaleUpperCase()}
                     </span>
                   </td>
                 </tr>
@@ -110,9 +96,7 @@ const OrderDetailModel: React.FC<OrderDetailModelProps> = ({
         <div className="mt-6 text-right">
           <p className="text-lg font-semibold text-gray-800">
             Total Amount:{" "}
-            <span className="text-green-600">
-              ₹{totalAmount.toLocaleString()}
-            </span>
+            <span className="text-green-600">₹{order.total_amount}</span>
           </p>
         </div>
       </div>
