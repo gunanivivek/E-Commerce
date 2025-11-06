@@ -17,8 +17,7 @@ export default function Login() {
   const onSubmit = (data: LoginForm) => {
     loginMutation.mutate(data, {
       onSuccess: (res) => {
-        reset(); // reset form
-
+        reset();
         const role = res.user.role;
 
         switch (role) {
@@ -32,7 +31,7 @@ export default function Login() {
             navigate("/");
             break;
           default:
-            navigate("/"); 
+            navigate("/");
         }
       },
     });
@@ -40,148 +39,128 @@ export default function Login() {
 
   return (
     <>
-    <Header/>
-    <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 md:px-8 relative overflow-hidden">
-      {/* Subtle Unique Pattern Overlay */}
-      <div className="absolute inset-0 opacity-5">
-        <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_20%_80%,var(--color-accent)_0%,transparent_50%)]"></div>
-        <div className="absolute bottom-0 right-0 w-full h-full bg-[radial-gradient(circle_at_80%_20%,var(--color-accent)_0%,transparent_50%)]"></div>
-      </div>
-      
-      <div 
-        className="relative rounded-[var(--radius-xl)] p-6 sm:p-8 w-full max-w-md sm:max-w-lg text-center shadow-[var(--shadow-xl)] border border-[var(--color-gray-700)] backdrop-blur-sm"
-        style={{ 
-          backgroundColor: 'rgba(26, 26, 26, 0.8)', // Semi-transparent for subtle glassmorphism
-          backdropFilter: 'blur(10px)'
-        }}
-      >
-        {/* Unique Icon Header */}
-  <div className="mx-auto font-logo text-text-primary text-3xl mb-4 w-16 h-16 rounded-[var(--radius-full)] flex items-center justify-center" style={{ backgroundColor: 'var(--color-accent)/10' }}>
-          Cartify
-        </div>
-
-       
-        <p 
-          className="text-base sm:text-lg mb-6 leading-relaxed"
-          style={{ 
-            color: 'var(--color-text-secondary)',
-            fontFamily: 'var(--font-body)'
-          }}
+      <Header />
+      <div className="min-h-screen flex items-center justify-center px-4 sm:px-6 md:px-8 bg-background text-primary">
+        <div
+          className="
+            relative rounded-xl
+            p-6 sm:p-8 w-full max-w-md sm:max-w-lg text-center
+            shadow-xl border border-[var(--color-border)]
+            bg-background backdrop-blur-sm
+          "
         >
-          Manage your store with ease
-        </p>
-
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-left">
-          <div>
-            <label 
-              htmlFor="email"
-              className="block text-sm mb-1 font-medium"
-              style={{ 
-                color: 'var(--color-white)',
-                fontFamily: 'var(--font-body)'
-              }}
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              placeholder="adam@example.com"
-              {...register("email", { required: true })}
-              className="w-full rounded-[var(--radius-md)] px-3 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] transition-all duration-[var(--transition-fast)] placeholder:text-[var(--color-gray-500)]"
-              style={{
-                backgroundColor: 'var(--color-surface)',
-                border: '1px solid var(--color-gray-600)',
-                color: 'var(--color-white)'
-              }}
-            />
+          {/* Logo Header */}
+          <div
+            className="
+              mx-auto font-logo font-stretch-expanded text-5xl mb-1 
+               flex items-center justify-center
+               text-accent-darker
+            "
+          >
+            Cartify
           </div>
 
-          <div>
-            <label 
-              htmlFor="password"
-              className="block text-sm mb-1 font-medium"
-              style={{ 
-                color: 'var(--color-white)',
-                fontFamily: 'var(--font-body)'
-              }}
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              placeholder="Enter your password"
-              {...register("password", { required: true })}
-              className="w-full rounded-[var(--radius-md)] px-3 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)] transition-all duration-[var(--transition-fast)] placeholder:text-[var(--color-gray-500)]"
-              style={{
-                backgroundColor: 'var(--color-surface)',
-                border: '1px solid var(--color-gray-600)',
-                color: 'var(--color-white)'
-              }}
-            />
-          </div>
-
-          <p className="text-sm sm:text-base mt-4 text-right">
-            <a
-              href="/forgotPassword"
-              className="hover:underline transition-colors duration-[var(--transition-fast)] font-medium"
-              style={{ 
-                color: 'var(--color-accent)'
-              }}
-            >
-              Forgot Password?
-            </a>
+          <p className="text-base sm:text-lg mb-6 leading-relaxed text-[var(--color-text-secondary)] font-body">
+            Manage your store with ease
           </p>
 
-          <button
-            type="submit"
-            disabled={loginMutation.isPending}
-            className={`w-full py-3 rounded-[var(--radius-lg)] font-semibold transition-all duration-[var(--transition-normal)] disabled:opacity-70 disabled:cursor-not-allowed ${loginMutation.isPending ? '' : 'hover:scale-105'}`}
-            style={{
-              background: 'var(--gradient-orange)',
-              color: 'var(--color-white)',
-              border: 'none',
-              boxShadow: 'var(--shadow-orange)'
-            }}
-          >
-            {loginMutation.isPending ? "Logging in..." : "Sign In"}
-          </button>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 text-left">
+            <div>
+              <label
+                htmlFor="email"
+                className="block text-sm mb-1 font-medium text-text-primary font-body"
+              >
+                Email*
+              </label>
+              <input
+                id="email"
+                type="email"
+                placeholder="adam@example.com"
+                {...register("email", { required: true })}
+                className="
+                  w-full rounded-[var(--radius-md)] px-3 py-3
+                  bg-[var(--color-surface-light)]
+                  border border-[var(--color-border)]
+                  text-[var(--color-text-primary)]
+                  placeholder:text-[var(--color-gray-500)]
+                  focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]
+                  transition-all duration-[var(--transition-fast)]
+                "
+              />
+            </div>
 
-          {loginMutation.isError && (
-            <p 
-              className="text-sm mt-2 text-center"
-              style={{ 
-                color: 'var(--color-error)',
-                fontFamily: 'var(--font-body)'
-              }}
-            >
-              {(loginMutation.error as Error).message}
+            <div>
+              <label
+                htmlFor="password"
+                className="block text-sm mb-1 font-medium text-text-primary font-body"
+              >
+                Password*
+              </label>
+              <input
+                id="password"
+                type="password"
+                placeholder="Enter your password"
+                {...register("password", { required: true })}
+                className="
+                  w-full rounded-[var(--radius-md)] px-3 py-3
+                  bg-[var(--color-surface-light)]
+                  border border-[var(--color-border)]
+                  text-[var(--color-text-primary)]
+                  placeholder:text-[var(--color-gray-500)]
+                  focus:outline-none focus:ring-2 focus:ring-[var(--color-accent)]
+                  transition-all duration-[var(--transition-fast)]
+                "
+              />
+            </div>
+
+            <p className="text-sm sm:text-base mt-4 text-right">
+              <button
+                onClick={() => navigate("/forgotPassword")}
+                className="
+                  hover:underline hover:cursor-pointer transition-colors duration-[var(--transition-fast)]
+                  font-medium text-text-secondary
+                "
+              >
+                Forgot Password?
+              </button>
             </p>
-          )}
-        </form>
 
-        <p 
-          className="text-base sm:text-lg leading-relaxed mt-4"
-          style={{ 
-            color: 'var(--color-text-secondary)',
-            fontFamily: 'var(--font-body)'
-          }}
-        >
-          New here?{" "}
-          <button
-            onClick={() => navigate("/signup")}
-            className="hover:underline transition-colors duration-[var(--transition-fast)] font-medium"
-            style={{ 
-              color: 'var(--color-accent)'
-            }}
-          >
-            Sign up
-          </button>
-        </p>
+            <button
+              type="submit"
+              disabled={loginMutation.isPending}
+              className={`
+                w-full py-3 rounded-lg font-bold text-lg
+                transition-all duration-[var(--transition-normal)]
+                bg-accent-dark text-primary-100
+                hover:bg-accent-light hover:cursor-pointer border-primary-border border-2
+                hover:scale-102 disabled:opacity-70 disabled:cursor-not-allowed
+              `}
+            >
+              {loginMutation.isPending ? "Logging in..." : "Sign In"}
+            </button>
+
+            {loginMutation.isError && (
+              <p className="text-sm mt-2 text-center text-[var(--color-error)] font-body">
+                {(loginMutation.error as Error).message}
+              </p>
+            )}
+          </form>
+
+          <p className="text-base sm:text-lg leading-relaxed mt-4 text-text-secondary font-body">
+            New here?{" "}
+            <button
+              onClick={() => navigate("/signup")}
+              className="
+                hover:underline hover:cursor-pointer transition-colors duration-[var(--transition-fast)]
+                font-medium text-[var(--color-accent-dark)]
+              "
+            >
+              Sign up
+            </button>
+          </p>
+        </div>
       </div>
-    </div>
-    <Footer/>
+      <Footer />
     </>
   );
 }
