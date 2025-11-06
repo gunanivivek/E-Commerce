@@ -140,11 +140,7 @@ export default function Login() {
               {loginMutation.isPending ? "Logging in..." : "Sign In"}
             </button>
 
-            {loginMutation.isError && (
-              <p className="text-sm mt-2 text-center text-[var(--color-error)] font-body">
-                {(loginMutation.error as Error).message}
-              </p>
-            )}
+            
           </form>
 
           <p className="text-base sm:text-lg leading-relaxed mt-4 text-text-secondary font-body">
