@@ -13,7 +13,6 @@ import { useStore } from "../../store/headerStore";
 import { useAuthStore } from "../../store/authStore";
 import { toast } from "react-toastify";
 
-
 const Header = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
@@ -39,31 +38,36 @@ const Header = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-black  border-orange-500">
+    <header className="sticky top-0 z-50 w-full bg-background  border-orange-500">
       <div className="flex h-16 items-center justify-between">
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-1"> {/* Reduced the gap from 4 to 1 -> By Vivek */}
           <button className="md:hidden p-2 text-white hover:text-orange-500">
             <Menu className="h-5 w-5" />
           </button>
           <a href="/" className="flex items-center space-x-4">
-         
-            <span className="hidden font-logo ml-8 font-bold text-2xl md:inline-block text-white">
-            Cartify
+            <span className="hidden font-logo ml-8 font-bold text-3xl md:inline-block tracking-wider text-accent-darker">
+              Cartify
             </span>
           </a>
           <nav className="hidden md:flex gap-6 px-20">
-            <a
-              href="/products"
-              className="text font-semibold text-white transition-colors hover:text-orange-500"
+            <button
+              type="button"
+              onClick={() => {
+                navigate("/products");
+              }}
+              className="text-lg font-semibold font-logo text-accent-dark hover:cursor-pointer transition-colors hover:text-light"
             >
               Products
-            </a>
-            <a
-              href="/categories"
-              className="text font-semibold text-white transition-colors hover:text-orange-500"
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                navigate("/categories");
+              }}
+              className="text-lg font-semibold font-logo text-accent-dark hover:cursor-pointer transition-colors hover:text-light"
             >
               Categories
-            </a>
+            </button>
           </nav>
         </div>
 
@@ -76,7 +80,7 @@ const Header = () => {
             <input
               type="search"
               placeholder="Search products..."
-              className="pl-10 border bg-white rounded-md py-2 px-4 w-full   placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500"
+              className="pl-10 border bg-white rounded-md py-2 px-4 w-full placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-border focus:border-none"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -88,7 +92,7 @@ const Header = () => {
             <>
               <button
                 onClick={() => navigate("/wishlist")}
-                className="p-2 text-white hover:text-orange-500"
+                className="p-2 hover:cursor-pointer text-accent-dark hover:text-light"
                 aria-label="Wishlist"
               >
                 <Heart className="h-5 w-5 cursor-pointer" />
@@ -96,7 +100,7 @@ const Header = () => {
 
               <button
                 onClick={() => navigate("/profile")}
-                className="p-2 text-white hover:text-orange-500"
+                className="p-2 hover:cursor-pointer text-accent-dark hover:text-light"
                 aria-label="Profile"
               >
                 <User className="h-5 w-5 cursor-pointer" />
@@ -104,12 +108,12 @@ const Header = () => {
 
               <button
                 onClick={() => navigate("/cart")}
-                className="relative p-2 cursor-pointer text-white hover:text-orange-500"
+                className="relative p-2 hover:cursor-pointer text-accent-dark hover:text-light"
                 aria-label="Cart"
               >
                 <ShoppingCart className="h-5 w-5" />
                 {cartCount > 0 && (
-                  <div className="cursor-pointer absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-orange-500 text-white text-xs rounded-full">
+                  <div className="cursor-pointer absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-accent-dark hover:text-light text-xs rounded-full">
                     {cartCount}
                   </div>
                 )}
@@ -117,7 +121,7 @@ const Header = () => {
 
               <button
                 onClick={handleLogout}
-                className="p-2 cursor-pointer text-white font-bold hover:text-orange-500"
+                className="p-2 hover:cursor-pointer font-bold text-accent-dark hover:text-light"
                 aria-label="Logout"
               >
                 <LogOut className="h-5 w-5" />
@@ -126,7 +130,7 @@ const Header = () => {
           ) : (
             <button
               onClick={() => navigate("/login")}
-              className="p-2 cursor-pointer text-white font-bold hover:text-orange-500"
+              className="p-2 hover:cursor-pointer text-accent-dark hover:text-light"
               aria-label="Login"
             >
               <LogIn className="h-5 w-5" />
