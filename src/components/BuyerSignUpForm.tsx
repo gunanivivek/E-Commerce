@@ -52,15 +52,22 @@ export default function BuyerSignupForm() {
       {/* Phone (optional) */}
       <div>
         <label className="block text-sm mb-1 font-medium text-text-primary">
-          Phone Number
+          Phone Number<span className="text-error">*</span>
         </label>
         <input
           type="tel"
           placeholder="+91XXXXXXXXXX"
-          {...register("phone")}
-          className="w-full rounded-md px-3 py-3 focus:outline-none bg-background border border-border text-text-primary placeholder:text-gray-500 focus:ring-2 focus:ring-accent"
+          {...register("phone", { required: "Phone number is required" })}
+          className={`w-full rounded-md px-3 py-3 bg-background border text-text-primary placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-accent transition-all duration-200 ${
+            errors.phone ? "border-error" : "border-border"
+          }`}
         />
+        {errors.phone && (
+          <p className="text-sm mt-1 text-error">{errors.phone.message}</p>
+        )}
       </div>
+
+    
 
       {/* Email */}
       <div>

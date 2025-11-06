@@ -3,6 +3,7 @@ import type { LoginRequest, LoginResponse } from "../types/auth";
 import { loginUser } from "../api/authApi";
 import { useAuthStore } from "../store/authStore";
 import type { AxiosError } from "axios";
+import { toast } from "react-toastify";
 
 export const useLogin = () => {
   const setAuthUser = useAuthStore((state) => state.setUser);
@@ -34,12 +35,14 @@ export const useLogin = () => {
         user: data.user,
         message: data.message || "Login successful",
       });
+      toast.success("Login successful!");
     },
 
     onError: (error) => {
+      toast.error(error.message); 
       setAuthUser({
         user: null,
-        message: error.message,
+        message: null, 
       });
     },
   });
