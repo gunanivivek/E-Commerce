@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import React, { useState, useMemo, useCallback, useEffect } from "react";
+import React, { useState, useMemo, useCallback } from "react";
 import {
   Search,
   Eye,
@@ -18,12 +18,17 @@ import {
   createColumnHelper,
 } from "@tanstack/react-table";
 import type { Row } from "@tanstack/react-table";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import BulkUploadModal from "../../components/Seller/BulkUploadModal";
 import AddProductModal from "../../components/Seller/AddProductModal";
 import UpdateProductForm from "../../components/Seller/UpdateProductForm";
 import DeleteProductModal from "../../components/Seller/DeleteProductModal";
 import type { Product, ViewProduct } from "../../types/seller";
-import { deleteProduct, getProductById, getSellerProducts } from "../../api/sellerApi";
+import {
+  deleteProduct,
+  getProductById,
+  getSellerProducts,
+} from "../../api/sellerApi";
 import { useAuthStore } from "../../store/authStore";
 import { toast } from "react-toastify";
 import TableRowSkeleton from "../../components/TableRowSkeleton";
@@ -54,7 +59,8 @@ const SellerProductList: React.FC = () => {
     name: string;
   } | null>(null);
 
-  const [selectedViewProduct, setSelectedViewProduct] = useState<ViewProduct | null>(null);
+  const [selectedViewProduct, setSelectedViewProduct] =
+    useState<ViewProduct | null>(null);
 
   const user = useAuthStore((state) => state.user);
 
@@ -66,63 +72,51 @@ const SellerProductList: React.FC = () => {
   const [priceMin, setPriceMin] = useState<number | "">("");
   const [priceMax, setPriceMax] = useState<number | "">("");
 
-  const [data, setData] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      const products = await getSellerProducts(String(user?.id));
-      setData(products);
-    } catch (err: any) {
-      console.error("Error fetching products:", err);
-      setError(err.message || "Failed to fetch products");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (user?.id) fetchData();
-  }, [user?.id]);
+  const {
+    data: products = [],
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["products", user?.id], 
+    queryFn: () => getSellerProducts(String(user?.id)),
+    enabled: !!user?.id, 
+  });
 
   const uniqueCategories = useMemo(() => {
-    const categories = (data ?? [])
+    const categories = (products ?? [])
       .map((p) => p.category)
       .filter((c): c is string => !!c);
 
     return Array.from(new Set(categories)).sort();
-  }, [data]);
+  }, [products]);
 
-  const handleView = useCallback( async(ProductId: number) => {
-     const data = await getProductById(ProductId);
-     setSelectedViewProduct(data); 
-     setIsViewProdOpen(true);
+  const handleView = useCallback(async (ProductId: number) => {
+    const data = await getProductById(ProductId);
+    setSelectedViewProduct(data);
+    setIsViewProdOpen(true);
   }, []);
 
-  const handleDelete = useCallback(
-    async (ProductId: number) => {
-      const prevData = data;
-      setData((prev) => prev.filter((p) => p.id !== ProductId));
-      try {
-        const res = await deleteProduct(ProductId);
-        toast.success(res.message || "Product deleted successfully");
-      } catch (error: any) {
-        setData(prevData);
-        toast.error(
-          error.response?.data?.message || "Failed to delete product"
-        );
-      } finally {
-        setIsDeleteOpen(false);
-        setSelectedProduct(null);
-      }
+  const deleteProductMutation = useMutation({
+    mutationFn: (productId: number) => deleteProduct(productId),
+    onSuccess: (res) => {
+      toast.success(res.message || "Product deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["products", user?.id] });
     },
-    [data, setData]
-  );
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to delete product");
+    },
+  });
+
+  const handleDelete = (productId: number) => {
+    deleteProductMutation.mutate(productId);
+    setIsDeleteOpen(false);
+    setSelectedProduct(null);
+  };
 
   const filteredData = useMemo(() => {
-    let filtered = data.filter(
+    let filtered = products.filter(
       (product) =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         product.category.includes(searchTerm.toLowerCase())
@@ -154,7 +148,7 @@ const SellerProductList: React.FC = () => {
 
     return filtered;
   }, [
-    data,
+    products,
     searchTerm,
     categoryFilter,
     statusFilter,
@@ -168,11 +162,17 @@ const SellerProductList: React.FC = () => {
     () => [
       columnHelper.accessor("name", {
         header: "Product Name",
-        cell: (info) => (
-          <span className="font-medium text-primary-400">
-            {info.getValue()}
-          </span>
-        ),
+        cell: (info) => {
+          const name = info.getValue() as string;
+          const truncatedName =
+            name.length > 10 ? `${name.slice(0, 20)}...` : name;
+
+          return (
+            <span className="font-medium text-primary-400" title={name}>
+              {truncatedName}
+            </span>
+          );
+        },
       }),
       columnHelper.accessor("category", {
         header: "Category",
@@ -187,7 +187,7 @@ const SellerProductList: React.FC = () => {
           const value =
             typeof rawValue === "number"
               ? rawValue
-              : parseFloat(String(rawValue)); // ✅ safely handle both number/string
+              : parseFloat(String(rawValue)); 
 
           return (
             <span className="text-primary-400">
@@ -200,7 +200,7 @@ const SellerProductList: React.FC = () => {
         header: "Status",
         cell: (info) => {
           const status = info.getValue() as Product["status"] | undefined;
-          const colorClass = getStatusColor(status ?? "pending"); // fallback color
+          const colorClass = getStatusColor(status ?? "pending"); 
 
           return (
             <span
@@ -274,8 +274,6 @@ const SellerProductList: React.FC = () => {
       },
     },
   });
-
-  if (error) return <div>{error}</div>;
 
   return (
     <div className="min-h-screen py-4 sm:py-6">
@@ -493,8 +491,12 @@ const SellerProductList: React.FC = () => {
                 ))}
               </thead>
               <tbody>
-                {loading ? (
-                  <TableRowSkeleton rows={5} columns={5} />
+                {isLoading ? (
+                  <TableRowSkeleton rows={5} columns={6} />
+                ) : isError ? (
+                  <div className="text-red-500 text-sm">
+                    Failed to fetch products.
+                  </div>
                 ) : (
                   table.getRowModel().rows.map((row) => (
                     <tr
@@ -547,7 +549,9 @@ const SellerProductList: React.FC = () => {
       <BulkUploadModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        fetchData={fetchData}
+        onSuccess={() =>
+          queryClient.invalidateQueries({ queryKey: ["products", user?.id] })
+        }
       />
       <AddProductModal
         isOpen={isAddModelOpen}

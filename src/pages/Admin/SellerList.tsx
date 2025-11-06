@@ -281,7 +281,7 @@ const SellerList: React.FC = () => {
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    initialState: { pagination: { pageSize: 8 } },
+    initialState: { pagination: { pageSize: 7 } },
   });
 
   if (error) return <p className="p-4 text-red-500">Error: {error}</p>;

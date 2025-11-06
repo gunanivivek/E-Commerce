@@ -6,13 +6,13 @@ import BulkUploadForm from "./BulkUploadForm";
 interface BulkUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  fetchData: () => Promise<void>;
+   onSuccess: () => void;
 }
 
 const BulkUploadModal: React.FC<BulkUploadModalProps> = ({
   isOpen,
   onClose,
-  fetchData,
+  onSuccess,
 }) => {
   if (!isOpen) return null;
 
@@ -36,9 +36,7 @@ const BulkUploadModal: React.FC<BulkUploadModalProps> = ({
 
         <BulkUploadForm
           onClose={onClose}
-          onSuccess={async () => {
-            await fetchData();
-          }}
+          onSuccess={onSuccess}
         />
       </div>
     </div>,
