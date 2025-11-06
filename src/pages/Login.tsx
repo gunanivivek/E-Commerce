@@ -115,6 +115,7 @@ export default function Login() {
 
             <p className="text-sm sm:text-base mt-4 text-right">
               <button
+              type="button"
                 onClick={() => navigate("/forgotPassword")}
                 className="
                   hover:underline hover:cursor-pointer transition-colors duration-[var(--transition-fast)]
