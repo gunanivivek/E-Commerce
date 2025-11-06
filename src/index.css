@@ -53,10 +53,12 @@ body {
   --color-text-secondary: #a3a3a3;
   --color-text-muted: #737373;
   --color-text-dark: #000000;
+  --color-text-orange: #ff6700;
   
   /* Border Colors */
   --color-border: #404040;
   --color-border-light: #525252;
+  --color-border-orange: #ff8c42;
   
   /* Status Colors */
   --color-success: #22c55e;

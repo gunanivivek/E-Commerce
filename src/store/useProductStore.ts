@@ -32,13 +32,8 @@ export const useProductStore = create<ProductStore>((set) => ({
     set((state) => {
       // also add to the centralized cartStore used by the Cart page
       try {
-        useCartStore.getState().addItem({
-          id: product.id,
-          name: product.name,
-          price: product.discount_price ?? product.price,
-          quantity: 1,
-          image: product.image,
-        });
+        // call cartStore.addItem with minimal payload (cartStore will call API)
+        useCartStore.getState().addItem({ id: product.id, quantity: 1 });
       } catch {
         // ignore if cartStore not available for some reason
       }

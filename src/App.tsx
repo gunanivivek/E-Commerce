@@ -33,6 +33,7 @@ import AccountInfo from "./components/Customer/AccountInfo";
 import Orders from "./components/Customer/Orders";
 import ChangePassword from "./components/Customer/ChangePassword";
 import AddresssInfo from "./components/Customer/AddresssInfo";
+import WishlistPage from "./pages/Customer/WishlistPage";
 
 
 function App() {
@@ -56,6 +57,7 @@ function App() {
         <Route path="/products" element={<Products />} />
         <Route path="/product/:productId" element={<ProductsDescription />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/wishlist" element={<WishlistPage />} />
       </Route>
 
         {/* Protected routes */}
