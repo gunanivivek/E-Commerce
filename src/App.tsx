@@ -34,6 +34,7 @@ import Orders from "./components/Customer/Orders";
 import ChangePassword from "./components/Customer/ChangePassword";
 import SellerOrders from "./pages/Seller/SellerOrders";
 import AddresssInfo from "./components/Customer/AddresssInfo";
+import WishlistPage from "./pages/Customer/WishlistPage";
 import AdminOrderList from "./pages/Admin/AdminOrderList";
 
 
@@ -58,6 +59,7 @@ function App() {
         <Route path="/products" element={<Products />} />
         <Route path="/product/:productId" element={<ProductsDescription />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/wishlist" element={<WishlistPage />} />
       </Route>
 
         {/* Protected routes */}
