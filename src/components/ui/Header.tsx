@@ -7,7 +7,7 @@ import {
   LogIn,
   LogOut,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useStore } from "../../store/headerStore";
 import { useAuthStore } from "../../store/authStore";
@@ -45,25 +45,25 @@ const Header = () => {
           <button className="md:hidden p-2 text-white hover:text-orange-500">
             <Menu className="h-5 w-5" />
           </button>
-          <a href="/" className="flex items-center space-x-4">
+          <Link to="/" className="flex items-center space-x-4">
          
             <span className="hidden font-logo ml-8 font-bold text-2xl md:inline-block text-white">
             Cartify
             </span>
-          </a>
+          </Link>
           <nav className="hidden md:flex gap-6 px-20">
-            <a
-              href="/products"
+            <Link
+              to="/products"
               className="text font-semibold text-white transition-colors hover:text-orange-500"
             >
               Products
-            </a>
-            <a
-              href="/categories"
+            </Link>
+            <Link
+              to="/categories"
               className="text font-semibold text-white transition-colors hover:text-orange-500"
             >
               Categories
-            </a>
+            </Link>
           </nav>
         </div>
 

@@ -1,4 +1,3 @@
-// import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import * as productsApi from "../../api/productsApi";
@@ -10,6 +9,7 @@ import ProductImageGallery from "../../components/Customer/ProductImageGallery";
 import { Star } from "lucide-react";
 import Header from "../../components/ui/Header";
 import Footer from "../../components/ui/Footer";
+import { Link } from "react-router-dom";
 
 const SingleProductPage: React.FC = () => {
   // route is defined as /product/:productId in App.tsx, so read productId here
@@ -105,23 +105,23 @@ const SingleProductPage: React.FC = () => {
     <>
       <Header />
       {/* Breadcrumb */}
-      <div className="px-6 md:px-20 mt-10 mb-5 bg-[var(--color-primary-50)] text-md">
+      <div className="px-6 md:px-20 pt-5 pb-5 bg-[var(--color-white)] text-md">
         <nav className="flex items-center gap-2 justify-center">
-          <a
-            href="/"
-            className="text-[var(--color-text-dark)] hover:text-[var(--color-accent)] transition"
+          <Link
+            to="/"
+            className="text-[var(--color-accent-light)] hover:text-[var(--color-accent-darker)] transition"
           >
             Home
-          </a>
+          </Link>
           <span>/</span>
-          <a
-            href="/products"
-            className="text-[var(--color-text-dark)] hover:text-[var(--color-accent)] transition"
+          <Link
+            to="/products"
+            className="text-[var(--color-accent-light)] hover:text-[var(--color-accent-darker)] transition"
           >
             Products
-          </a>
+          </Link>
           <span>/</span>
-          <span className="text-[var(--color-text-orange)]">
+          <span className="text-[var(--color-accent-darker)]">
             {product.name.length > 20
               ? product.name.slice(0, 20) + "..."
               : product.name}
@@ -130,10 +130,10 @@ const SingleProductPage: React.FC = () => {
       </div>
 
       {/* Main section */}
-      <section className="min-h-screen bg-[var(--color-background)] pb-8 px-6 md:px-20">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 bg-[var(--color-primary-100)] p-6 rounded-xl shadow-md">
+      <section className="min-h-screen pb-8 px-6 md:px-20">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 bg-[var(--color-background)] p-6 rounded-xl shadow-md">
           {/* Left - Images */}
-          <div className="p-4 bg-white rounded-lg shadow-sm">
+          <div className="p-4">
             <ProductImageGallery
               image={primaryImage ?? ""}
               images={imagesUrls}
@@ -141,28 +141,20 @@ const SingleProductPage: React.FC = () => {
           </div>
 
           {/* Right - Product Info */}
-          <div className="bg-white rounded-lg p-6 shadow-md">
+          <div className="p-6">
             {/* Product Info */}
-            <h1 className="text-xl md:text-2xl font-semibold text-gray-800 mb-1">
+            <h1 className="text-lg md:text-xl font-semibold text-gray-800 mb-1">
               {product.name}
             </h1>
-            <p className="text-[var(--color-text-muted)] mb-2">
+            <p className="text-[var(--color-text-muted)] text-md mb-1">
               {product.description}
             </p>
 
-            {/* category details */}
-            <div className="flex items-center mb-4 justify-between">
-              <p className="w-50 flex justify-center bg-[var(--color-accent-light)] py-2 px-2 rounded-xl">
-                Category: {product.category?.name ?? "Uncategorized"}
-              </p>
-              {/* Seller */}
-              <p className="text-sm text-gray-600 top-0">
-                Seller:{" "}
-                <span className="font-semibold text-gray-800">
-                  Indiflashmart
-                </span>
-              </p>
-            </div>
+            {/* Seller */}
+            <p className="text-sm text-gray-600 mb-4">
+              Seller:
+              <span className="font-semibold text-gray-800">Indiflashmart</span>
+            </p>
 
             {/* Rating */}
             <div className="flex items-center mb-3">
