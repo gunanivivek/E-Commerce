@@ -25,7 +25,7 @@ const OrderStatusCell: React.FC<StatusCellProps> = ({ orderId, itemId, initialSt
     },
     onError: (err: any) => {
       console.error(err);
-      toast.error("Failed to update order status");
+      toast.error(err.response?.data?.detail ?? "Failed to update order status");
       setIsEditing(false);
     },
   });
