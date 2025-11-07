@@ -1,10 +1,11 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import * as productsApi from "../../api/productsApi";
 import type { ProductResponse } from "../../types/product";
 import { useProductStore } from "../../store/useProductStore";
 import type { Product } from "../../store/useProductStore";
 import { useCartStore } from "../../store/cartStore";
+import { useAuthStore } from "../../store/authStore";
 import ProductImageGallery from "../../components/Customer/ProductImageGallery";
 import { Star } from "lucide-react";
 import Header from "../../components/ui/Header";
@@ -31,6 +32,8 @@ const SingleProductPage: React.FC = () => {
 
   const { addToCart, addToWishlist } = useProductStore();
   const { cartItems, updateQuantity, removeItem } = useCartStore();
+  const user = useAuthStore((s) => s.user);
+  const location = useLocation();
   // const [activeTab, setActiveTab] = useState("description");
 
   if (isLoading)
@@ -227,7 +230,10 @@ const SingleProductPage: React.FC = () => {
                 })()
               ) : (
                 <button
-                  onClick={() => addToCart(storeProduct as Product)}
+                  onClick={() => {
+                      if (!user) return navigate("/login", { state: { from: location.pathname + location.search } });
+                      addToCart(storeProduct as Product);
+                  }}
                   disabled={product.stock === 0}
                   className={`flex-1 py-3 rounded-lg font-semibold transition-all duration-150 shadow-sm ${
                     product.stock === 0
@@ -240,7 +246,10 @@ const SingleProductPage: React.FC = () => {
               )}
 
               <button
-                onClick={() => addToWishlist(storeProduct as Product)}
+                onClick={() => {
+                  if (!user) return navigate("/login", { state: { from: location.pathname + location.search } });
+                  addToWishlist(storeProduct as Product);
+                }}
                 className="flex-1 py-3 rounded-lg font-semibold transition-all duration-150 border border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-black"
               >
                 WISHLIST

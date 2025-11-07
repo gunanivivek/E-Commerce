@@ -6,6 +6,12 @@ export const getUserOrders = async () => {
   return res.data;
 };
 
+// Place order (create)
+export const createOrder = async (payload: unknown) => {
+  const res = await API.post("/user/orders", payload);
+  return res.data;
+};
+
 // Cancel order (only when status = pending)
 export const cancelOrder = async (orderId: number) => {
   const res = await API.patch(`/user/orders/${orderId}/cancel`);

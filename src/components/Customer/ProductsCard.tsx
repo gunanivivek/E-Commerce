@@ -1,5 +1,6 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import { useProductStore } from "../../store/useProductStore";
 import { useWishlistStore } from "../../store/wishlistStore";
@@ -20,6 +21,7 @@ import {
 } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Product } from "../../store/useProductStore";
+import LoadingState from "../LoadingState";
 
 // local product type extended with category for filtering
 type LocalProduct = Product & { category?: string | null };
@@ -203,6 +205,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   const user = useAuthStore((s) => s.user);
   const { addToCart } = useProductStore();
   const { addToWishlist } = useWishlistStore();
+  const location = useLocation();
   const { cartItems, updateQuantity, removeItem } = useCartStore();
 
   const filteredProducts = table
@@ -211,7 +214,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
 
   // show loading only if we're actually loading AND have no cached products to show
   const hasProducts = Array.isArray(apiProducts) && apiProducts.length > 0;
-  if (isLoading && !hasProducts) return <p>Loading products...</p>;
+  if (isLoading && !hasProducts) return <LoadingState message="Loading products..." />;
 
   if (!filteredProducts.length) return <p>No products available right now.</p>;
 
@@ -231,14 +234,16 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
             e.stopPropagation();
             // don't add if out of stock
             if (stock === 0) return;
-            // add via product store which already syncs to cartStore
-            addToCart(product as Product);
+                    // require login to add to cart
+                    if (!user) return navigate("/login", { state: { from: location.pathname + location.search } });
+                    // add via product store which already syncs to cartStore
+                    addToCart(product as Product);
           };
 
           const handleWishlist = (e: React.MouseEvent) => {
             e.stopPropagation();
             // require login to add to wishlist
-            if (!user) return navigate("/login");
+            if (!user) return navigate("/login", { state: { from: location.pathname + location.search } });
             addToWishlist(product as Product);
           };
 

@@ -7,17 +7,27 @@ import Footer from "../../components/ui/Footer";
 import ConfirmModal from "../../components/Customer/ConfirmModal";
 
 const Cart: React.FC = () => {
-  const { cartItems, removeItem, updateQuantity, applyCoupon, subtotal: storeSubtotal, discount: storeDiscount, total: storeTotal } = useCartStore();
+  const {
+    cartItems,
+    removeItem,
+    updateQuantity,
+    applyCoupon,
+    subtotal: storeSubtotal,
+    discount: storeDiscount,
+    total: storeTotal,
+  } = useCartStore();
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [pendingDelete, setPendingDelete] = React.useState<number | null>(null);
   const [couponCode, setCouponCode] = React.useState("");
 
   // tax is zero by default
 
-  const subtotal = storeSubtotal || cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const subtotal =
+    storeSubtotal ||
+    cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const shipping = 0;
-  const tax = 0; 
-  const discount = storeDiscount ?? 0; 
+  const tax = 0;
+  const discount = storeDiscount ?? 0;
   const total = storeTotal ?? subtotal + shipping + tax - discount;
 
   if (cartItems.length === 0) {
@@ -87,6 +97,8 @@ const Cart: React.FC = () => {
           <span className="text-[var(--color-text-orange)]">My Cart</span>
         </nav>
       </div>
+
+      {/* Main section */}
       <section className="min-h-screen bg-[var(--color-background)] py-12 px-6 md:px-20">
         <h1 className="text-3xl font-bold text-[var(--color-primary-100)] mb-8">
           Shopping Cart
@@ -198,7 +210,8 @@ const Cart: React.FC = () => {
                     alert("Coupon applied successfully");
                   } catch (err) {
                     console.error(err);
-                    const msg = err instanceof Error ? err.message : String(err);
+                    const msg =
+                      err instanceof Error ? err.message : String(err);
                     alert(msg || "Failed to apply coupon");
                   }
                 }}
@@ -208,9 +221,9 @@ const Cart: React.FC = () => {
               </button>
             </div>
 
-            <button className="w-full bg-[var(--color-accent)] text-white mt-4 py-3 rounded-lg font-medium hover:bg-[var(--color-accent-dark)] transition">
+            <Link to="/checkout" className="w-full bg-[var(--color-accent)] text-white mt-4 py-3 rounded-lg font-medium hover:bg-[var(--color-accent-dark)] transition">
               Proceed to Checkout
-            </button>
+            </Link>
           </div>
         </div>
       </section>

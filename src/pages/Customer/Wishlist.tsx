@@ -9,7 +9,7 @@ const WishlistPage: React.FC = () => {
     <>
       <Header />
       {/* Breadcrumb */}
-      <div className="px-6 md:px-20 mt-10 mb-5 bg-[var(--color-primary-50)] text-md">
+      <div className="px-6 md:px-20 mt-5 mb-5 bg-[var(--color-primary-50)] text-md">
         <nav className="flex items-center gap-2 justify-center">
           <Link
             to="/"
@@ -33,7 +33,7 @@ const WishlistPage: React.FC = () => {
         </nav>
       </div>
 
-      <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-text)]">
+      <div className="min-h-screen bg-white text-[var(--color-text)]">
         <WishlistCard />
       </div>
       <Footer />
