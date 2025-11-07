@@ -167,7 +167,7 @@ export default function SellerSignupForm() {
       <button
         type="submit"
         disabled={signupMutation.isPending}
-        className="w-full py-3 rounded-lg font-semibold bg-accent hover:bg-accent-light text-white shadow-accent hover:scale-[1.02] transition-all disabled:opacity-70"
+        className="w-full py-3 rounded-lg font-semibold hover:cursor-pointer bg-accent hover:bg-accent-light text-white shadow-accent transition-all disabled:opacity-70"
       >
         {signupMutation.isPending ? "Signing up..." : "Sign Up"}
       </button>

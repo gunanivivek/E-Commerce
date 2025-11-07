@@ -89,7 +89,10 @@ const SellerOrders: React.FC = () => {
       columnHelper.accessor("total_amount", {
         header: "Total Amount",
         cell: (info) => (
-          <span className="text-primary-400"> ₹{Number(info.getValue()).toLocaleString("en-IN")}</span>
+          <span className="text-primary-400">
+            {" "}
+            ₹{Number(info.getValue()).toLocaleString("en-IN")}
+          </span>
         ),
       }),
       columnHelper.accessor("created_at", {
@@ -167,7 +170,7 @@ const SellerOrders: React.FC = () => {
                 setSelectedOrder(order);
                 setIsModalOpen(true);
               }}
-              className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+              className="p-1.5 bg-blue-50 hover:cursor-pointer text-blue-600 hover:bg-blue-100 rounded transition-colors"
               title="View Order"
             >
               <Eye className="w-4 h-4" />
@@ -267,10 +270,7 @@ const SellerOrders: React.FC = () => {
           <table className="w-full min-w-max">
             <thead>
               {table.getHeaderGroups().map((headerGroup) => (
-                <tr
-                  key={headerGroup.id}
-                  className="rounded-xl"
-                >
+                <tr key={headerGroup.id} className="rounded-xl">
                   {headerGroup.headers.map((header) => (
                     <th
                       key={header.id}
@@ -312,10 +312,7 @@ const SellerOrders: React.FC = () => {
                 <div>Failed to load orders.</div>
               ) : (
                 table.getRowModel().rows.map((row) => (
-                  <tr
-                    key={row.id}
-                    className=" hover:bg-primary-400/5"
-                  >
+                  <tr key={row.id} className=" hover:bg-primary-400/5">
                     {row.getVisibleCells().map((cell) => (
                       <td
                         key={cell.id}
@@ -332,6 +329,28 @@ const SellerOrders: React.FC = () => {
               )}
             </tbody>
           </table>
+        </div>
+        <div className="flex flex-col sm:flex-row items-center justify-between mt-4 sm:mt-2 border-t border-primary-400/10 pt-2 gap-2 sm:gap-0">
+          <div className="text-xs sm:text-sm text-primary-400">
+            Page {table.getState().pagination.pageIndex + 1} of{" "}
+            {table.getPageCount()}
+          </div>
+          <div className="flex space-x-1 sm:space-x-2 w-full sm:w-auto justify-center sm:justify-end">
+            <button
+              onClick={() => table.previousPage()}
+              disabled={!table.getCanPreviousPage()}
+              className="px-2 sm:px-3 py-1 hover:cursor-pointer border border-primary-400/20 text-xs sm:text-sm text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex-1 sm:flex-none"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => table.nextPage()}
+              disabled={!table.getCanNextPage()}
+              className="px-2 sm:px-3 py-1 hover:cursor-pointer border border-primary-400/20 text-xs sm:text-sm text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex-1 sm:flex-none"
+            >
+              Next
+            </button>
+          </div>
         </div>
       </div>
 
