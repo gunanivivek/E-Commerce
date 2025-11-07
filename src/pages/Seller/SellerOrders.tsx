@@ -123,8 +123,8 @@ const SellerOrders: React.FC = () => {
           const colorClass = allDelivered
             ? "bg-green-100 text-green-700"
             : anyPending
-            ? "bg-gray-300 text-muted"
-            : "bg-accent-light text-primary";
+            ? "bg-primary-100 text-muted"
+            : "bg-blue-100 text-blue-700";
 
           return (
             <span
@@ -197,10 +197,10 @@ const SellerOrders: React.FC = () => {
       <div className="px-4 sm:px-8">
         <div className="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-primary-400">
+            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-accent-dark">
               Orders
             </h1>
-            <p className="text-primary-400 text-xs sm:text-sm">
+            <p className="text-primary-300 text-sm sm:text-base">
               Review and manage customer orders
             </p>
           </div>
@@ -210,13 +210,13 @@ const SellerOrders: React.FC = () => {
         {/* Search Bar - on its own line */}
         <div className="mb-3 w-full sm:w-96">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-400/50 w-4 h-4 sm:w-5 sm:h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-300 w-4 h-4 sm:w-5 sm:h-5" />
             <input
               type="text"
               placeholder="Search by order or customer..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 w-full border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+              className="pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 w-full border border-border-light rounded-lg bg-primary-100/30 text-primary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
             />
           </div>
         </div>
@@ -225,11 +225,11 @@ const SellerOrders: React.FC = () => {
         <div className="flex flex-wrap items-end gap-3 mb-4">
           {/* Status Filter */}
           <div className="flex flex-col min-w-[120px]">
-            <label className="text-xs text-primary-400 mb-1">Status</label>
+            <label className="text-sm text-primary-300 mb-1">Status</label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
             >
               <option value="">All</option>
               <option value="pending">Pending</option>
@@ -241,40 +241,40 @@ const SellerOrders: React.FC = () => {
 
           {/* From Date Filter */}
           <div className="flex flex-col min-w-[130px]">
-            <label className="text-xs text-primary-400 mb-1">From Date</label>
+            <label className="text-sm text-primary-300 mb-1">From Date</label>
             <input
               type="date"
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
-              className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
             />
           </div>
 
           {/* To Date Filter */}
           <div className="flex flex-col min-w-[130px]">
-            <label className="text-xs text-primary-400 mb-1">To Date</label>
+            <label className="text-sm text-primary-300 mb-1">To Date</label>
             <input
               type="date"
               value={dateTo}
               onChange={(e) => setDateTo(e.target.value)}
-              className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
             />
           </div>
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-lg shadow-sm p-4 overflow-x-auto">
+        <div className="rounded-lg shadow-xl p-4 overflow-x-auto">
           <table className="w-full min-w-max">
             <thead>
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr
                   key={headerGroup.id}
-                  className="border-b border-primary-400/10"
+                  className="rounded-xl"
                 >
                   {headerGroup.headers.map((header) => (
                     <th
                       key={header.id}
-                      className={`text-left py-2 px-4 text-primary-400 font-semibold text-xs sm:text-sm ${
+                      className={`text-left py-2 px-4 border-b-2 border-border text-accent-dark font-semibold text-xs sm:text-sm ${
                         header.column.getCanSort() ? "cursor-pointer" : ""
                       }`}
                       onClick={
@@ -314,12 +314,12 @@ const SellerOrders: React.FC = () => {
                 table.getRowModel().rows.map((row) => (
                   <tr
                     key={row.id}
-                    className="border-b border-primary-400/5 hover:bg-primary-400/5"
+                    className=" hover:bg-primary-400/5"
                   >
                     {row.getVisibleCells().map((cell) => (
                       <td
                         key={cell.id}
-                        className="py-2 px-4 text-xs sm:text-sm text-primary-400"
+                        className="py-2 px-4 text-xs sm:text-sm text-primary-300"
                       >
                         {flexRender(
                           cell.column.columnDef.cell,
