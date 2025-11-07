@@ -23,24 +23,24 @@ import BulkUploadModal from "../../components/Seller/BulkUploadModal";
 import AddProductModal from "../../components/Seller/AddProductModal";
 import UpdateProductForm from "../../components/Seller/UpdateProductForm";
 import DeleteProductModal from "../../components/Seller/DeleteProductModal";
-import type { Product, ViewProduct } from "../../types/seller";
+import type { Product } from "../../types/seller";
 import {
   deleteProduct,
-  getProductById,
   getSellerProducts,
 } from "../../api/sellerApi";
 import { useAuthStore } from "../../store/authStore";
 import { toast } from "react-toastify";
 import TableRowSkeleton from "../../components/TableRowSkeleton";
+import { usePrefetchProduct } from "../../hooks/Seller/usePrefetchProduct";
 
 const columnHelper = createColumnHelper<Product>();
 
 const getStatusColor = (status: Product["status"]) => {
   switch (status) {
     case "approved":
-      return "bg-primary-300 text-white";
+      return "bg-green-100 text-green-700";
     case "pending":
-      return "bg-light/60 text-primary-400";
+      return "bg-primary-100 text-muted";
     case "rejected":
       return "bg-red-200 text-red-800";
     default:
@@ -58,9 +58,7 @@ const SellerProductList: React.FC = () => {
     id: number;
     name: string;
   } | null>(null);
-
-  const [selectedViewProduct, setSelectedViewProduct] =
-    useState<ViewProduct | null>(null);
+    const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
 
   const user = useAuthStore((state) => state.user);
 
@@ -71,6 +69,8 @@ const SellerProductList: React.FC = () => {
   const [dateTo, setDateTo] = useState("");
   const [priceMin, setPriceMin] = useState<number | "">("");
   const [priceMax, setPriceMax] = useState<number | "">("");
+
+  const prefetchProduct = usePrefetchProduct();
 
   const queryClient = useQueryClient();
 
@@ -92,11 +92,10 @@ const SellerProductList: React.FC = () => {
     return Array.from(new Set(categories)).sort();
   }, [products]);
 
-  const handleView = useCallback(async (ProductId: number) => {
-    const data = await getProductById(ProductId);
-    setSelectedViewProduct(data);
-    setIsViewProdOpen(true);
-  }, []);
+  const handleView = useCallback((ProductId: number) => {
+  setSelectedProductId(ProductId);
+  setIsViewProdOpen(true);
+}, []);
 
   const deleteProductMutation = useMutation({
     mutationFn: (productId: number) => deleteProduct(productId),
@@ -191,7 +190,7 @@ const SellerProductList: React.FC = () => {
 
           return (
             <span className="text-primary-400">
-              {isNaN(value) ? "—" : `$${value.toFixed(2)}`}
+              {isNaN(value) ? "—" : `₹${value.toFixed(2)}`}
             </span>
           );
         },
@@ -236,7 +235,8 @@ const SellerProductList: React.FC = () => {
             <div className="flex gap-1">
               <button
                 onClick={() => handleView(product.id)}
-                className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                onMouseEnter={() => prefetchProduct(product.id)}
+                className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:cursor-pointer rounded transition-colors"
                 title="View Product"
               >
                 <Eye className="w-3.5 h-3.5" />
@@ -249,7 +249,7 @@ const SellerProductList: React.FC = () => {
                   });
                   setIsDeleteOpen(true);
                 }}
-                className="p-1.5 bg-blue-50 text-red-600 hover:bg-blue-100 rounded transition-colors"
+                className="p-1.5 bg-blue-50 text-red-600 hover:bg-blue-100 hover:cursor-pointer rounded transition-colors"
                 title="View Product"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -259,7 +259,7 @@ const SellerProductList: React.FC = () => {
         },
       }),
     ],
-    [handleView]
+    [handleView, prefetchProduct]
   );
 
   const table = useReactTable({
@@ -282,10 +282,10 @@ const SellerProductList: React.FC = () => {
         <div className="mb-4 flex flex-col sm:flex-row items-start sm:items-center justify-between">
           {/* Left side — title and subtitle */}
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-primary-400">
+            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-accent-dark">
               Product Management
             </h1>
-            <p className="text-primary-400 text-xs sm:text-sm">
+            <p className="text-primary-300 text-sm sm:text-base">
               Upload and review all your products from here.
             </p>
           </div>
@@ -337,7 +337,7 @@ const SellerProductList: React.FC = () => {
         </div>
 
         {/* Main Content Card */}
-        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4">
+        <div className="bg-white rounded-lg shadow-xl p-3 sm:p-4">
           {/* Controls Section */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3 sm:gap-0">
             <h2 className="text-primary-400 font-semibold text-base sm:text-lg">
@@ -345,13 +345,13 @@ const SellerProductList: React.FC = () => {
             </h2>
 
             <div className="relative w-full sm:w-80">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-400/50 w-4 h-4 sm:w-5 sm:h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-300 w-4 h-4 sm:w-5 sm:h-5" />
               <input
                 type="text"
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 w-full border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                className="pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 w-full border border-border-light rounded-lg bg-primary-100/30 text-primary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
               />
             </div>
           </div>
@@ -359,11 +359,11 @@ const SellerProductList: React.FC = () => {
           {/* Filters Section */}
           <div className="flex flex-wrap items-end gap-2 mb-4">
             <div className="flex flex-col min-w-[120px]">
-              <label className="text-xs text-primary-400 mb-1">Category</label>
+              <label className="text-xs text-primary-300 mb-1">Category</label>
               <select
                 value={categoryFilter}
                 onChange={(e) => setCategoryFilter(e.target.value)}
-                className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
               >
                 <option value="">All Categories</option>
                 {uniqueCategories.map((cat) => (
@@ -375,11 +375,11 @@ const SellerProductList: React.FC = () => {
             </div>
 
             <div className="flex flex-col min-w-[100px]">
-              <label className="text-xs text-primary-400 mb-1">Status</label>
+              <label className="text-xs text-primary-300 mb-1">Status</label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
               >
                 <option value="">All Status</option>
                 <option value="approved">Approved</option>
@@ -389,27 +389,27 @@ const SellerProductList: React.FC = () => {
             </div>
 
             <div className="flex flex-col min-w-[130px]">
-              <label className="text-xs text-primary-400 mb-1">From Date</label>
+              <label className="text-xs text-primary-300 mb-1">From Date</label>
               <input
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
               />
             </div>
 
             <div className="flex flex-col min-w-[130px]">
-              <label className="text-xs text-primary-400 mb-1">To Date</label>
+              <label className="text-xs text-primary-300 mb-1">To Date</label>
               <input
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
               />
             </div>
 
             <div className="flex flex-col min-w-[100px]">
-              <label className="text-xs text-primary-400 mb-1">Min Price</label>
+              <label className="text-xs text-primary-300 mb-1">Min Price</label>
               <input
                 type="number"
                 min="0"
@@ -421,12 +421,12 @@ const SellerProductList: React.FC = () => {
                   )
                 }
                 placeholder="0.00"
-                className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
               />
             </div>
 
             <div className="flex flex-col min-w-[100px]">
-              <label className="text-xs text-primary-400 mb-1">Max Price</label>
+              <label className="text-xs text-primary-300 mb-1">Max Price</label>
               <input
                 type="number"
                 min="0"
@@ -438,7 +438,7 @@ const SellerProductList: React.FC = () => {
                   )
                 }
                 placeholder="100.00"
-                className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
               />
             </div>
           </div>
@@ -450,12 +450,12 @@ const SellerProductList: React.FC = () => {
                 {table.getHeaderGroups().map((headerGroup) => (
                   <tr
                     key={headerGroup.id}
-                    className="border-b border-primary-400/10"
+                    className="border-b-2 border-border"
                   >
                     {headerGroup.headers.map((header) => (
                       <th
                         key={header.id}
-                        className={`text-left py-2 sm:py-4 px-2 sm:px-4 text-primary-400 font-semibold text-xs sm:text-sm ${
+                        className={`text-left py-2 sm:py-4 px-2 sm:px-4 text-accent-dark font-semibold text-xs sm:text-sm ${
                           header.column.getCanSort()
                             ? "cursor-pointer select-none"
                             : ""
@@ -501,12 +501,12 @@ const SellerProductList: React.FC = () => {
                   table.getRowModel().rows.map((row) => (
                     <tr
                       key={row.id}
-                      className="border-b border-primary-400/5 hover:bg-primary-400/5"
+                      className="hover:bg-primary-400/5"
                     >
                       {row.getVisibleCells().map((cell) => (
                         <td
                           key={cell.id}
-                          className="py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm text-primary-400"
+                          className="py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm text-primary-300"
                         >
                           {flexRender(
                             cell.column.columnDef.cell,
@@ -560,7 +560,7 @@ const SellerProductList: React.FC = () => {
       <UpdateProductForm
         isOpen={isViewProdOpen}
         onClose={() => setIsViewProdOpen(false)}
-        product={selectedViewProduct}
+        productId={selectedProductId}
       />
 
       <DeleteProductModal

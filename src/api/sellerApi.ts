@@ -80,7 +80,7 @@ export const getSellerProducts = async (
   return res.data.map((p: any) => ({
     id: p.id,
     name: p.name,
-    category: p.category?.name, // ✅ safe fallback
+    category: p.category?.name, 
     price: p.price,
     status: p.status,
     addedDate: p.created_at,
@@ -93,18 +93,21 @@ export const getProductById = async (ProductId: number): Promise<ViewProduct> =>
 
   const product: ViewProduct = {
     id: item.id,
-    name: item.name,
-    category: item.category?.name || "Unknown",
-    price: Number(item.price),
-    stock: item.stock,
-    description: item.description,
-    status: item.status,
+    name: item.name ?? "Unnamed Product",
+    description: item.description ?? "",
+    stock: Number(item.stock ?? 0),
+    category: item.category?.name ?? "Unknown",
+    price: Number(item.price ?? 0),
+    status:
+      item.status === "approved" || item.status === "pending" || item.status === "rejected"
+        ? item.status
+        : "pending", 
   };
 
   return product;
 };
 
-// ✅ Update product
+// Update product
 export const updateProduct = async (
   id: number,
   data: CreateProductRequest
