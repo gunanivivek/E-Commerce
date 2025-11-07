@@ -23,7 +23,7 @@ const getErrorMessage = (error: unknown): string => {
   return "Something went wrong. Please try again.";
 };
 
-// ✅ Create Category Hook
+
 export const useCreateCategory = () => {
   const queryClient = useQueryClient();
 
@@ -58,7 +58,7 @@ export const useCreateCategory = () => {
   });
 };
 
-// ✅ Delete Category Hook
+
 export const useDeleteCategory = () => {
   const queryClient = useQueryClient();
 
