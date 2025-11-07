@@ -3,6 +3,7 @@ import type { SellerSignupRequest, SignupRequest, SignupResponse } from "../type
 import { signupUser, signupSeller } from "../api/authApi";
 import { useAuthStore } from "../store/authStore";
 import type { AxiosError } from "axios";
+import { toast } from "react-toastify";
 
 export const useSignUp = () => {
   const setUser = useAuthStore((state) => state.setUser);
@@ -10,7 +11,6 @@ export const useSignUp = () => {
   return useMutation<SignupResponse, Error, SignupRequest>({
     mutationFn: async (data) => {
       try {
-        // Choose correct API based on role
         if (data.role === "customer") {
           return await signupUser(data);
         } else {
@@ -29,32 +29,36 @@ export const useSignUp = () => {
           const { message, detail } = axiosError.response.data;
 
           if (message) {
-            // Case: custom backend message
             errorMessage = message;
           } else if (Array.isArray(detail)) {
-            // Case: FastAPI validation error (detail is an array)
-            // Example: [{ msg: "value is not a valid phone number", loc: ["body","phone"] }]
             errorMessage = detail[0]?.msg || errorMessage;
           } else if (typeof detail === "string") {
-            // Case: simple string detail
             errorMessage = detail;
           }
-        } else if (err instanceof Error) {
-          errorMessage = err.message;
         }
 
         throw new Error(errorMessage);
       }
     },
 
-    onSuccess: (data) => {
+    onSuccess: (data, variables) => {
+   
+      if (variables.role === "seller") {
+        toast.info("Your account is under approval. You will receive an email once approved.");
+      } else {
+        toast.success(data.message || "Signup successful!");
+      }
+
+   
       setUser({
         user: data.user,
-        message: data.message || "Signup successful!",
+        message: "",
       });
     },
 
     onError: (error) => {
+    
+      toast.error(error.message);
       setUser({
         user: null,
         message: error.message,

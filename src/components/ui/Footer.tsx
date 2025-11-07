@@ -1,7 +1,8 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Facebook, Twitter, Instagram, Mail } from "lucide-react";
 
 const Footer = () => {
+  const navigate = useNavigate()
   return (
     <footer className="bg-[var(--color-surface)] text-[var(--color-text-secondary)] border-t border-[var(--color-border-light)]">
       <div className="max-w-7xl mx-auto px-6 md:px-12 py-16">
@@ -9,22 +10,24 @@ const Footer = () => {
           {/* Brand */}
           <div>
             <div className="flex items-center space-x-2 mb-4">
-              <span className="font-logo text-2xl font-extrabold text-[var(--color-accent)]">
+              <span className="hidden font-logo font-bold text-3xl md:inline-block tracking-wider text-accent-darker">
                 Cartify
               </span>
             </div>
             <p className="text-[var(--color-text-secondary)] text-base mb-6 leading-relaxed">
-              Your trusted destination for premium products at unbeatable prices.
+              Your trusted destination for premium products at unbeatable
+              prices.
             </p>
             <div className="flex gap-4">
               {[Facebook, Twitter, Instagram].map((Icon, i) => (
-                <a
+                <button
                   key={i}
-                  href="#"
-                  className="p-2 rounded-full bg-[var(--color-surface-light)] hover:bg-[var(--color-accent)] transition-all duration-200"
+                  onClick={() => navigate("/")}
+                  disabled
+                  className="p-2 rounded-full hover:cursor-pointer  hover:bg-surface transition-all duration-200"
                 >
                   <Icon className="h-4 w-4 text-[var(--color-text-primary)]" />
-                </a>
+                </button>
               ))}
             </div>
           </div>
@@ -91,7 +94,7 @@ const Footer = () => {
                 placeholder="Your email"
                 className="flex-1 bg-[var(--color-surface-light)] text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] border border-[var(--color-border)] rounded-md p-2 focus:ring-2 focus:ring-[var(--color-accent)] outline-none"
               />
-              <button className="p-3 rounded-md bg-[var(--gradient-orange)] text-[var(--color-white)] hover:opacity-90 transition-all">
+              <button className="p-3 rounded-md bg-primary-100 border border-accent-darker text-accent-darker hover:cursor-pointer hover:opacity-90 transition-all">
                 <Mail className="h-5 w-5" />
               </button>
             </div>

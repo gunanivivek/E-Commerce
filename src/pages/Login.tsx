@@ -115,6 +115,7 @@ export default function Login() {
 
             <p className="text-sm sm:text-base mt-4 text-right">
               <button
+              type="button"
                 onClick={() => navigate("/forgotPassword")}
                 className="
                   hover:underline hover:cursor-pointer transition-colors duration-[var(--transition-fast)]
@@ -139,11 +140,7 @@ export default function Login() {
               {loginMutation.isPending ? "Logging in..." : "Sign In"}
             </button>
 
-            {loginMutation.isError && (
-              <p className="text-sm mt-2 text-center text-[var(--color-error)] font-body">
-                {(loginMutation.error as Error).message}
-              </p>
-            )}
+            
           </form>
 
           <p className="text-base sm:text-lg leading-relaxed mt-4 text-text-secondary font-body">
