@@ -28,10 +28,9 @@ const navConfig: Record<string, NavItem[]> = {
     { name: "Sellers", href: "/admin/sellers", icon: Users },
     { name: "Customers", href: "/admin/customers", icon: User },
     { name: "Products", href: "/admin/products", icon: Package },
-     { name: "Categories", href: "/admin/category", icon: ChartColumnStacked  },
-      { name: "Orders", href: "/admin/orders", icon: Package2 },
+    { name: "Categories", href: "/admin/category", icon: ChartColumnStacked },
+    { name: "Orders", href: "/admin/orders", icon: Package2 },
     { name: "Coupons", href: "/admin/coupons", icon: Ticket },
-    
   ],
   seller: [
     { name: "Dashboard", href: "/seller", icon: LayoutDashboard },
@@ -98,17 +97,17 @@ const DashboardSidebar = () => {
         ${isOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
       >
         {/* Header */}
-        <div className="p-6 border-b border-primary-border">
+        <div className="p-6 border-b border-border">
           <div className="flex items-center gap-3 justify-between">
             <div className="flex items-center gap-3 flex-1 min-w-0">
-              <div className="w-10 h-10 rounded-full bg-primary-300 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-full bg-primary-100 flex items-center justify-center flex-shrink-0">
                 <Package className="w-5 h-5 text-white" />
               </div>
-              <div className="text-primary-400 min-w-0">
-                <h1 className="font-bold text-lg text-sidebar-foreground truncate">
-                  Merchant Hub
+              <div className="min-w-0">
+                <h1 className="font-bold text-3xl text-accent-darker font-logo text-sidebar-foreground truncate">
+                  Cartify
                 </h1>
-                <p className="text-xs font-semibold text-muted-foreground truncate">
+                <p className="text-xs font-semibold text-primary-300 text-muted-foreground truncate">
                   {user.role.charAt(0).toUpperCase() + user.role.slice(1)}{" "}
                   Dashboard
                 </p>
@@ -130,7 +129,7 @@ const DashboardSidebar = () => {
 
         {/* Navigation */}
         <div className="flex flex-col flex-1 p-4 space-y-1 overflow-y-auto">
-          <h3 className="text-sm pb-1 text-primary-400 px-3 font-semibold">
+          <h3 className="text-xl pb-1 text-accent-dark font-heading px-3 font-semibold">
             Navigation
           </h3>
           <nav className="flex flex-col space-y-1">
@@ -142,8 +141,8 @@ const DashboardSidebar = () => {
                 className={({ isActive }) =>
                   `w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     isActive
-                      ? "bg-primary-200/60 text-primary-400"
-                      : "text-primary-400 hover:bg-primary-200/30"
+                      ? "bg-accent-dark text-primary-100 font-heading"
+                      : "text-primary-300 hover:bg-primary-200/30"
                   }`
                 }
                 onClick={closeSidebar}
@@ -157,31 +156,31 @@ const DashboardSidebar = () => {
 
         {/* Footer */}
         <div className="p-4 border-t border-primary-border">
-         <NavLink
-    to={user.role === "admin" ? "/admin/profile" : `/seller/${user.id}`}
-    className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-primary-200/20 rounded-lg"
-    onClick={closeSidebar}
-  >
-    <div className="w-8 h-8 rounded-full bg-primary-100/50 flex items-center justify-center">
-      <span className="font-semibold text-xs">
-        {user.full_name
-          .split(" ")
-          .map((n) => n[0])
-          .join("")}
-      </span>
-    </div>
-    <div className="flex-1 min-w-0">
-      <p className="font-semibold text-primary-400 truncate">
-        {user.email}
-      </p>
-      <p className="text-xs text-primary-400">
-        {user.role.charAt(0).toUpperCase() + user.role.slice(1)} Account
-      </p>
-    </div>
-  </NavLink>
+          <NavLink
+            to={user.role === "admin" ? "/admin/profile" : `/seller/${user.id}`}
+            className="flex items-center gap-3 px-3 py-2 text-sm hover:bg-primary-200/20 rounded-lg"
+            onClick={closeSidebar}
+          >
+            <div className="w-8 h-8 rounded-full bg-primary-100 text-accent-dark flex items-center justify-center">
+              <span className="font-semibold text-xs">
+                {user.full_name
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")}
+              </span>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-base text-primary-400 truncate">
+                {user.email}
+              </p>
+              <p className="text-sm text-primary-300">
+                {user.role.charAt(0).toUpperCase() + user.role.slice(1)} Account
+              </p>
+            </div>
+          </NavLink>
           <button
             onClick={handleLogout}
-            className="w-full mt-2 flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium text-primary-400 hover:bg-sidebar-accent/50 transition-colors"
+            className="w-full mt-2 flex items-center gap-2 px-3 py-2 hover:cursor-pointer rounded-lg text-base font-semibold text-primary-300 hover:bg-primary-200/20 transition-colors"
           >
             <LogOut className="w-4 h-4" />
             Sign Out
