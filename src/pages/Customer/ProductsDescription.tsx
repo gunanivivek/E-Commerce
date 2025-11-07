@@ -11,6 +11,7 @@ import { Star } from "lucide-react";
 import Header from "../../components/ui/Header";
 import Footer from "../../components/ui/Footer";
 import { Link } from "react-router-dom";
+import LoadingState from "../../components/LoadingState";
 
 const SingleProductPage: React.FC = () => {
   // route is defined as /product/:productId in App.tsx, so read productId here
@@ -41,7 +42,7 @@ const SingleProductPage: React.FC = () => {
       <>
         <Header />
         <div className="flex items-center justify-center min-h-screen">
-          <p>Loading product details...</p>
+          <LoadingState message="Loading product details..." />
         </div>
         <Footer />
       </>
@@ -231,8 +232,11 @@ const SingleProductPage: React.FC = () => {
               ) : (
                 <button
                   onClick={() => {
-                      if (!user) return navigate("/login", { state: { from: location.pathname + location.search } });
-                      addToCart(storeProduct as Product);
+                    if (!user)
+                      return navigate("/login", {
+                        state: { from: location.pathname + location.search },
+                      });
+                    addToCart(storeProduct as Product);
                   }}
                   disabled={product.stock === 0}
                   className={`flex-1 py-3 rounded-lg font-semibold transition-all duration-150 shadow-sm ${
@@ -247,7 +251,10 @@ const SingleProductPage: React.FC = () => {
 
               <button
                 onClick={() => {
-                  if (!user) return navigate("/login", { state: { from: location.pathname + location.search } });
+                  if (!user)
+                    return navigate("/login", {
+                      state: { from: location.pathname + location.search },
+                    });
                   addToWishlist(storeProduct as Product);
                 }}
                 className="flex-1 py-3 rounded-lg font-semibold transition-all duration-150 border border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-black"

@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
 import type { Address as UserAddress } from "../../types/Address";
 import type { CartItem as StoreCartItem } from "../../store/cartStore";
+import LoadingState from "../../components/LoadingState";
 
 // Use real API createOrder via react-query
 
@@ -51,7 +52,7 @@ const Checkout: React.FC = () => {
       const id = toast.loading("Placing order...");
       return id;
     },
-    onSuccess: async (data, _vars, context) => {
+    onSuccess: async (_data, _vars, context) => {
       // 👈 ADD 'async' HERE
       if (context) {
         toast.update(context, {
@@ -106,7 +107,7 @@ const Checkout: React.FC = () => {
 
   // use the mutation's mutate function in UI
   const placeOrderHandler = (data: unknown) => placeOrderMutation.mutate(data);
-  const isPlacingOrder = placeOrderMutation.isLoading;
+  const isPlacingOrder = placeOrderMutation.isPending;
 
   // Use totals directly from cart store — do not recalculate here. Fallback to 0 when missing.
   const subtotal = typeof storeSubtotal === "number" ? storeSubtotal : 0;
@@ -156,7 +157,9 @@ const Checkout: React.FC = () => {
   if (isLoadingAddresses) {
     return (
       <div className="min-h-screen bg-[var(--color-background)] py-12 text-center text-[var(--color-text-primary)]">
-        Loading addresses...
+      <Header />
+      <LoadingState message="Loading addresses..." />
+      <Footer />
       </div>
     );
   }

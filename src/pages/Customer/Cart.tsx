@@ -221,8 +221,10 @@ const Cart: React.FC = () => {
               </button>
             </div>
 
-            <Link to="/checkout" className="w-full bg-[var(--color-accent)] text-white mt-4 py-3 rounded-lg font-medium hover:bg-[var(--color-accent-dark)] transition">
-              Proceed to Checkout
+            <Link to="/checkout">
+              <button className="w-full cursor-pointer bg-[var(--color-accent)] text-white mt-5 py-3 rounded-lg font-medium hover:bg-[var(--color-accent-dark)] transition">
+                Proceed to Checkout
+              </button>
             </Link>
           </div>
         </div>
