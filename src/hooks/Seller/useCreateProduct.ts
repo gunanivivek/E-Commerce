@@ -9,7 +9,7 @@ export const useCreateProduct = (onSuccess?: () => void) => {
   return useMutation({
     mutationFn: createProduct,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onSuccess: (data) => {
+    onSuccess: (_data) => {
       toast.success("Product created successfully!");
 
       queryClient.invalidateQueries({ queryKey: ["products"] });
