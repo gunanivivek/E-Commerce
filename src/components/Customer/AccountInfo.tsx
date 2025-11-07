@@ -23,15 +23,15 @@ const AccountInfo = () => {
 
     onMutate: () => toast.loading("Updating profile..."),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  onSuccess: (data: any) => {
-  toast.dismiss();
-  toast.success("Profile updated successfully!");
+    onSuccess: (data: any) => {
+      toast.dismiss();
+      toast.success("Profile updated successfully!");
 
-  // Merge updated fields safely
-  updateUser(data);
+      // Merge updated fields safely
+      updateUser(data);
 
-  setIsEditing(false);
-},
+      setIsEditing(false);
+    },
 
     onError: () => {
       toast.dismiss();
@@ -67,7 +67,7 @@ const AccountInfo = () => {
       onSuccess: (data) => {
         setProfilePreview(data.image_url);
         setPreviousProfileImage(data.image_url);
-        toast.success("Profile image updated!");
+       
       },
       onError: () => {
         toast.error("Failed to upload image");
@@ -78,39 +78,25 @@ const AccountInfo = () => {
     setIsEditingImage(false);
   };
 
- 
-
-
-
   const handleSave = () => updateProfile(formData);
   const handleCancel = () => {
     setFormData({ full_name: user?.full_name || "", phone: user?.phone || "" });
     setIsEditing(false);
   };
 
-  // ---------- 🧩 UI ----------
   return (
-    <div
-      className="rounded-[var(--radius-xl)] shadow-[var(--shadow-md)] "
-    
-    >
-      <h2
-        className="text-3xl font-bold mb-8 leading-tight"
-        style={{
-          fontFamily: "var(--font-heading)",
-          color: "var(--color-white)",
-        }}
-      >
+    <section className="bg-[var(--color-background)] py-5 px-6 md:px-6">
+      <h2 className="text-3xl font-bold mb-8 leading-tight text-[var(--color-primary-400)]">
         Personal Information
       </h2>
 
       {/* Profile Image Section */}
       <div className="flex items-center gap-4 mb-8">
-        <div className="w-20 h-20 rounded-full border border-[var(--color-gray-700)] overflow-hidden flex items-center justify-center bg-[var(--color-gray-800)]">
+        <div className="w-20 h-20 rounded-full border border-gray-300 overflow-hidden flex items-center justify-center bg-gray-100">
           {profilePreview ? (
             <img src={profilePreview} alt="Profile" className="w-full h-full object-cover" />
           ) : (
-            <UserIcon className="w-8 h-8 text-[var(--color-gray-500)]" />
+            <UserIcon className="w-8 h-8 text-gray-500" />
           )}
         </div>
 
@@ -118,11 +104,7 @@ const AccountInfo = () => {
           <button
             type="button"
             onClick={() => setIsEditingImage(true)}
-            className="px-4 py-2 rounded-[var(--radius-md)] border border-[var(--color-gray-700)] text-sm font-medium hover:bg-[var(--color-gray-700)] transition-all"
-            style={{
-              color: "var(--color-text-secondary)",
-              backgroundColor: "var(--color-surface-light)",
-            }}
+            className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-all"
           >
             Change Image
           </button>
@@ -131,10 +113,10 @@ const AccountInfo = () => {
             <button
               type="button"
               onClick={handleAddProfileClick}
-              className="px-4 py-2 rounded-[var(--radius-md)] text-sm font-medium transition-all"
+              className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
               style={{
-                background: "var(--gradient-orange)",
-                color: "var(--color-white)",
+                backgroundColor: "var(--color-accent)",
+                color: "black",
               }}
             >
               Choose Image
@@ -149,11 +131,7 @@ const AccountInfo = () => {
             <button
               type="button"
               onClick={() => setIsEditingImage(false)}
-              className="px-4 py-2 rounded-[var(--radius-md)] border border-[var(--color-gray-700)] text-sm font-medium hover:bg-[var(--color-gray-700)] transition-all"
-              style={{
-                color: "var(--color-text-secondary)",
-                backgroundColor: "var(--color-surface-light)",
-              }}
+              className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-all"
             >
               Cancel
             </button>
@@ -170,34 +148,28 @@ const AccountInfo = () => {
           onChange={(e) => setFormData((p) => ({ ...p, full_name: e.target.value }))}
         />
 
-    <InputField
-  label="Mobile Number"
-  value={formData.phone}
-  readOnly={!isEditing}
-  onChange={(e) => {
-    let val = e.target.value.replace(/[^\d]/g, ""); 
+        <InputField
+          label="Mobile Number"
+          value={formData.phone}
+          readOnly={!isEditing}
+          onChange={(e) => {
+            let val = e.target.value.replace(/[^\d]/g, ""); 
 
-    
-    if (val === "") {
-      setFormData((p) => ({ ...p, phone: "" }));
-      return;
-    }
-    if (!val.startsWith("91")) {
-      val = "91" + val;
-    }
+            if (val === "") {
+              setFormData((p) => ({ ...p, phone: "" }));
+              return;
+            }
+            if (!val.startsWith("91")) {
+              val = "91" + val;
+            }
 
-    setFormData((p) => ({ ...p, phone: `+${val}` }));
-  }}
-/>
-
+            setFormData((p) => ({ ...p, phone: `+${val}` }));
+          }}
+        />
 
         <div className="md:col-span-2 space-y-2">
           <label
-            className="text-sm font-medium"
-            style={{
-              color: "var(--color-white)",
-              fontFamily: "var(--font-body)",
-            }}
+            className="text-sm font-medium text-gray-700"
           >
             Email
           </label>
@@ -205,7 +177,7 @@ const AccountInfo = () => {
             type="email"
             value={user?.email || ""}
             readOnly
-            className="w-full px-4 py-3 rounded-[var(--radius-md)] bg-[var(--color-surface-light)] border border-[var(--color-gray-600)] text-[var(--color-white)]"
+            className="w-full px-4 py-3 rounded-lg bg-white border border-gray-300 text-gray-900 focus:ring-2 focus:outline-none focus:ring-[var(--color-accent)]"
           />
         </div>
       </div>
@@ -215,11 +187,10 @@ const AccountInfo = () => {
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
-            className="px-6 py-3 font-semibold rounded-[var(--radius-md)] transition-all"
+            className="px-6 py-3 font-semibold rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
             style={{
-              background: "var(--gradient-orange)",
-              color: "var(--color-white)",
-              boxShadow: "var(--shadow-orange)",
+              backgroundColor: "var(--color-accent)",
+              color: "black",
             }}
           >
             Edit Details
@@ -229,33 +200,26 @@ const AccountInfo = () => {
             <button
               onClick={handleSave}
               disabled={isUpdating}
-              className="px-6 py-3 font-semibold rounded-[var(--radius-md)] transition-all disabled:opacity-70"
+              className="px-6 py-3 font-semibold rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
               style={{
-                background: "var(--gradient-orange)",
-                color: "var(--color-white)",
+                backgroundColor: "var(--color-accent)",
+                color: "black",
               }}
             >
               {isUpdating ? "Saving..." : "Save Changes"}
             </button>
             <button
               onClick={handleCancel}
-              className="px-6 py-3 rounded-[var(--radius-md)] border border-[var(--color-gray-600)] font-medium transition-all hover:bg-[var(--color-gray-700)]"
-              style={{
-                color: "var(--color-text-secondary)",
-                backgroundColor: "var(--color-surface-light)",
-              }}
+              className="px-6 py-3 rounded-lg border border-gray-300 font-medium transition-all hover:bg-gray-50"
             >
               Cancel
             </button>
           </>
         )}
       </div>
-
-      
-    </div>
+    </section>
   );
 };
-
 
 const InputField = ({
   label,
@@ -270,11 +234,7 @@ const InputField = ({
 }) => (
   <div className="space-y-2">
     <label
-      className="text-sm font-medium"
-      style={{
-        color: "var(--color-white)",
-        fontFamily: "var(--font-body)",
-      }}
+      className="text-sm font-medium text-gray-700"
     >
       {label}
     </label>
@@ -283,7 +243,7 @@ const InputField = ({
       value={value}
       readOnly={readOnly}
       onChange={onChange}
-      className="w-full px-4 py-3 rounded-[var(--radius-md)] border border-[var(--color-gray-600)] text-[var(--color-white)] bg-[var(--color-surface-light)] focus:ring-2 focus:outline-none"
+      className="w-full px-4 py-3 rounded-lg border border-gray-300 text-gray-900 bg-white focus:ring-2 focus:outline-none focus:ring-[var(--color-accent)]"
     />
   </div>
 );

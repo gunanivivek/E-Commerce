@@ -1,4 +1,4 @@
-import { Navigate, Outlet } from "react-router";
+import { Navigate, Outlet, useLocation } from "react-router";
 import { useAuthStore } from "../store/authStore";
 
 type UserRole = "admin" | "seller" | "customer";
@@ -8,10 +8,11 @@ interface RoleBasedRouteProps {
 }
 
 const RoleBasedRoute: React.FC<RoleBasedRouteProps> = ({ allowedRoles }) => {
+  const location = useLocation();
   const user = useAuthStore((state) => state.user);
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" state={{ from: location.pathname + location.search }} replace />;
   }
 
  

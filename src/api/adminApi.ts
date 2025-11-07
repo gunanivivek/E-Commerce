@@ -1,5 +1,5 @@
 import API from "./axiosInstance";
-import type { Seller, Customer,Product } from "../types/admin";
+import type { Seller, Customer,Product, Order } from "../types/admin";
 
 // Fetch all sellers
 export const getAllSellers = async (): Promise<Seller[]> => {
@@ -38,3 +38,27 @@ export const getAllProducts = async (): Promise<Product[]> => {
   const res = await API.get("https://e-commerce-backend-4-p9d1.onrender.com/products/");
   return res.data;
 };
+
+export const updateProductStatus = async (
+  product_id: number,
+  status: "approved" | "rejected"
+) => {
+  const formData = new URLSearchParams();
+  formData.append("status", status);
+
+  const res = await API.patch(
+    `/products/${product_id}/status`,
+    formData,
+    {
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    }
+  );
+  
+  return res.data;
+};
+
+export const getAllOrders = async (): Promise<Order[]> => {
+  const res = await API.get("/admin/orders");
+  return res.data;
+};
+

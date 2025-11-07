@@ -1,9 +1,7 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { createProduct } from "../../api/sellerApi";
 import { useCategoryStore } from "../../store/categoryStore";
-import { toast } from "react-toastify";
+import { useCreateProduct } from "../../hooks/Seller/useCreateProduct";
 
 interface ProductFormValues {
   productName: string;
@@ -30,6 +28,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose }) => {
   const imageFile = watch("image");
 
   const categories = useCategoryStore((state) => state.categories);
+  const { mutate: createProductMutation, isPending } = useCreateProduct(onClose);
 
   React.useEffect(() => {
     if (imageFile && imageFile.length > 0) {
@@ -41,7 +40,6 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose }) => {
   }, [imageFile]);
 
   const onSubmit = async (data: ProductFormValues) => {
-    try {
       const productData = {
         name: data.productName,
         description: data.description,
@@ -51,13 +49,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose }) => {
         images: Array.from(data.image), // take the actual File
       };
 
-      const response = await createProduct(productData);
-      console.log(response.data)
-      toast.success("Product Created successfully")
-      onClose();
-    } catch (error: any) {
-      toast.error(error);
-    }
+     createProductMutation(productData);
   };
 
   return (
@@ -199,9 +191,10 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose }) => {
       {/* Submit Button */}
       <button
         type="submit"
+        disabled={isPending}
         className="w-full bg-primary-400 hover:bg-primary-300 text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg"
       >
-        Submit Product
+         {isPending ? "Submitting..." : "Submit Product"}
       </button>
     </form>
   );

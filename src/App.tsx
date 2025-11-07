@@ -32,7 +32,11 @@ import Profile from "./pages/Customer/CustomerProfile";
 import AccountInfo from "./components/Customer/AccountInfo";
 import Orders from "./components/Customer/Orders";
 import ChangePassword from "./components/Customer/ChangePassword";
+import SellerOrders from "./pages/Seller/SellerOrders";
 import AddresssInfo from "./components/Customer/AddresssInfo";
+import Wishlist from "./pages/Customer/Wishlist";
+import AdminOrderList from "./pages/Admin/AdminOrderList";
+import Checkout from "./pages/Customer/Checkout";
 
 
 function App() {
@@ -56,6 +60,8 @@ function App() {
         <Route path="/products" element={<Products />} />
         <Route path="/product/:productId" element={<ProductsDescription />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/checkout" element={<Checkout />} />
       </Route>
 
         {/* Protected routes */}
@@ -70,6 +76,7 @@ function App() {
               <Route path="customers" element={<CustomerList />} />
               <Route path="coupons" element={<Test />} />
               <Route path="profile" element={<AdminProfile />} />
+                <Route path="orders" element={<AdminOrderList />} />
             </Route>
           </Route>
 
@@ -78,6 +85,7 @@ function App() {
             <Route path="/seller" element={<SellerLayouts />}>
               <Route index element={<TestDashboard />} />
               <Route path="products" element={<SellerProductList />} />
+              <Route path="orders" element={<SellerOrders />} />
               <Route path="coupons" element={<Test />} />
               <Route path=":sellerId" element={<SellerProfilePage />} />
             </Route>

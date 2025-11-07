@@ -14,7 +14,7 @@ const LoadingState: React.FC<LoadingStateProps> = ({ message = "Loading..." }) =
         </div>
         <div className="text-primary-400 min-w-0">
           <h1 className="font-bold text-lg text-sidebar-foreground truncate">
-            Merchant Hub
+            Cartify
           </h1>
           <p className="text-xs font-semibold text-muted-foreground truncate">
             {message}

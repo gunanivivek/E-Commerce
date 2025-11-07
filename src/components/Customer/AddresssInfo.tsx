@@ -8,13 +8,13 @@ import { useAddressStore } from "../../store/addressStore";
 // ✅ Skeleton Component
 const AddressSkeleton = () => {
   return (
-    <div className="bg-gray-800 border border-gray-700 rounded-xl p-5 animate-pulse">
+    <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-md animate-pulse">
       <div className="space-y-3">
-        <div className="h-4 w-36 bg-gray-700 rounded"></div>
-        <div className="h-3 w-28 bg-gray-700 rounded"></div>
-        <div className="h-3 w-52 bg-gray-700 rounded"></div>
-        <div className="h-3 w-44 bg-gray-700 rounded"></div>
-        <div className="h-3 w-24 bg-gray-700 rounded"></div>
+        <div className="h-4 w-36 bg-gray-200 rounded"></div>
+        <div className="h-3 w-28 bg-gray-200 rounded"></div>
+        <div className="h-3 w-52 bg-gray-200 rounded"></div>
+        <div className="h-3 w-44 bg-gray-200 rounded"></div>
+        <div className="h-3 w-24 bg-gray-200 rounded"></div>
       </div>
     </div>
   );
@@ -87,17 +87,10 @@ const AddressInfo = () => {
     deleteMutation.mutate(id);
   };
 
-
   if (isLoading) {
     return (
-      <div>
-        <h2
-          className="text-3xl font-bold mb-8 leading-tight"
-          style={{
-            fontFamily: "var(--font-heading)",
-            color: "var(--color-white)",
-          }}
-        >
+      <section className="bg-[var(--color-background)] py-5 px-6 md:px-20">
+        <h2 className="text-3xl font-bold mb-8 leading-tight text-[var(--color-primary-400)]">
           Address
         </h2>
 
@@ -106,26 +99,24 @@ const AddressInfo = () => {
             <AddressSkeleton key={i} />
           ))}
         </div>
-      </div>
+      </section>
     );
   }
 
   return (
-    <div>
-      <h2
-        className="text-3xl font-bold mb-8 leading-tight"
-        style={{
-          fontFamily: "var(--font-heading)",
-          color: "var(--color-white)",
-        }}
-      >
+    <section className="bg-[var(--color-background)] py-5 px-6 md:px-6">
+      <h2 className="text-3xl font-bold mb-8 leading-tight text-[var(--color-primary-400)]">
         Address
       </h2>
 
       {!editingId && (
         <button
           onClick={startAdd}
-          className="flex items-center gap-2 bg-accent px-4 py-2 rounded-lg font-medium mb-5"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium mb-5 transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+          style={{
+            backgroundColor: "var(--color-accent)",
+            color: "black",
+          }}
         >
           <Plus size={18} /> Add New Address
         </button>
@@ -134,28 +125,84 @@ const AddressInfo = () => {
       {(isAdding || editingId) && (
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="bg-gray-800 border border-gray-700 rounded-xl p-5 space-y-4 mb-6"
+          className="bg-white border border-gray-200 rounded-lg p-5 space-y-4 mb-6 shadow-md"
         >
-          <h3 className="text-white text-lg font-medium">
+          <h3 className="text-[var(--color-primary-400)] text-lg font-semibold">
             {editingId ? "Edit Address" : "Add Address"}
           </h3>
 
-          <div className="grid grid-cols-2 gap-4 text-white">
-            <input {...register("full_name")} placeholder="Full Name" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
-            <input {...register("phone_number")} placeholder="Phone Number" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
-            <input {...register("address_line_1")} placeholder="Address Line 1" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
-            <input {...register("address_line_2")} placeholder="Address Line 2" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
-            <input {...register("city")} placeholder="City" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
-            <input {...register("state")} placeholder="State" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
-            <input {...register("postal_code")} placeholder="Postal Code" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
-            <input {...register("country")} placeholder="Country" className="bg-gray-700 border border-gray-600 rounded-lg px-3 py-2 text-sm" />
+          <div className="grid grid-cols-2 gap-4">
+            <input
+              {...register("full_name")}
+              placeholder="Full Name"
+              className="bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:outline-none focus:ring-[var(--color-accent)]"
+            />
+            <input
+              {...register("phone_number")}
+              placeholder="Phone Number"
+              className="bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:outline-none focus:ring-[var(--color-accent)]"
+              onChange={(e) => {
+                let val = e.target.value;
+
+                val = val.replace(/[^\d+]/g, "");
+
+                if (!val.startsWith("+91")) {
+                  val = "+91" + val.replace(/^(\+|91)/, "");
+                }
+
+                val = val.replace(/[^+0-9]/g, "");
+
+                e.target.value = val;
+              }}
+            />
+            <input
+              {...register("address_line_1")}
+              placeholder="Address Line 1"
+              className="bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:outline-none focus:ring-[var(--color-accent)]"
+            />
+            <input
+              {...register("address_line_2")}
+              placeholder="Address Line 2"
+              className="bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:outline-none focus:ring-[var(--color-accent)]"
+            />
+            <input
+              {...register("city")}
+              placeholder="City"
+              className="bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:outline-none focus:ring-[var(--color-accent)]"
+            />
+            <input
+              {...register("state")}
+              placeholder="State"
+              className="bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:outline-none focus:ring-[var(--color-accent)]"
+            />
+            <input
+              {...register("postal_code")}
+              placeholder="Postal Code"
+              className="bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:outline-none focus:ring-[var(--color-accent)]"
+            />
+            <input
+              {...register("country")}
+              placeholder="Country"
+              className="bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:outline-none focus:ring-[var(--color-accent)]"
+            />
           </div>
 
           <div className="flex justify-end gap-3">
-            <button type="button" onClick={cancelForm} className="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600 transition">
+            <button
+              type="button"
+              onClick={cancelForm}
+              className="px-4 py-2 rounded-lg border border-gray-300 font-medium transition-all hover:bg-gray-50"
+            >
               Cancel
             </button>
-            <button type="submit" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition">
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+              style={{
+                backgroundColor: "var(--color-accent)",
+                color: "black",
+              }}
+            >
               Save
             </button>
           </div>
@@ -164,25 +211,41 @@ const AddressInfo = () => {
 
       <div className="space-y-6">
         {addresses?.map((address) => (
-          <div key={address.id} className="bg-gray-800 border border-gray-700 rounded-xl p-5">
-            <div className="flex justify-between items-start text-white">
-              <div onClick={() => setSelectedAddress(address)} className="cursor-pointer">
-                <p className="font-medium">{address.full_name}</p>
-                <p className="text-gray-400 text-sm">{address.phone_number}</p>
-                <p className="text-gray-400 text-sm">
+          <div
+            key={address.id}
+            className="bg-white border border-gray-200 rounded-lg p-5 shadow-md hover:shadow-lg transition-transform transform"
+          >
+            <div className="flex justify-between items-start">
+              <div
+                onClick={() => setSelectedAddress(address)}
+                className="cursor-pointer flex-1"
+              >
+                <p className="text-[var(--color-primary-400)] font-semibold">{address.full_name}</p>
+                <p className="text-gray-600 text-sm">{address.phone_number}</p>
+                <p className="text-gray-600 text-sm">
                   {address.address_line_1}, {address.address_line_2}
                 </p>
-                <p className="text-gray-400 text-sm">
+                <p className="text-gray-600 text-sm">
                   {address.city}, {address.state} - {address.postal_code}
                 </p>
-                <p className="text-gray-400 text-sm">{address.country}</p>
+                <p className="text-gray-600 text-sm">{address.country}</p>
               </div>
 
-              <div className="flex gap-2">
-                <button onClick={() => startEdit(address)} className="p-2 bg-blue-600 hover:bg-blue-700 rounded-lg">
+              <div className="flex gap-2 ml-4">
+                <button
+                  onClick={() => startEdit(address)}
+                  className="p-2 rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+                  style={{
+                    backgroundColor: "var(--color-accent)",
+                    color: "black",
+                  }}
+                >
                   <Pencil size={16} />
                 </button>
-                <button onClick={() => onDelete(address.id)} className="p-2 bg-red-600 hover:bg-red-700 rounded-lg">
+                <button
+                  onClick={() => onDelete(address.id)}
+                  className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+                >
                   <Trash2 size={16} />
                 </button>
               </div>
@@ -190,11 +253,11 @@ const AddressInfo = () => {
           </div>
         ))}
 
-        {addresses?.length === 0 && (
-          <p className="text-gray-400">No address added yet.</p>
+        {addresses?.length === 0 && !isAdding && !editingId && (
+          <p className="text-gray-500 text-center py-12">No address added yet.</p>
         )}
       </div>
-    </div>
+    </section>
   );
 };
 

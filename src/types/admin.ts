@@ -98,3 +98,52 @@ export interface ProductsResponse {
 export interface ErrorResponse {
   detail: string;
 }
+
+// ------------------- Order Address Type -------------------
+export interface OrderAddress {
+  id: number;
+  full_name: string;
+  phone_number: string;
+  address_line_1: string;
+  address_line_2: string | null;
+  city: string;
+  state: string;
+  postal_code: string;
+  country: string;
+}
+
+// ------------------- Order Item Product (Minimal Product Reference) -------------------
+export interface OrderItemProduct {
+  name: string;
+  sku: string | null;
+}
+
+// ------------------- Order Item Type -------------------
+export interface OrderItem {
+  id: number;
+  product: OrderItemProduct;
+  seller_id: number;
+  quantity: number;
+  unit_price: number;
+  total_price: number;
+  status: string;
+}
+
+// ------------------- Order Type -------------------
+export interface Order {
+  id: number;
+  user_id: number;
+  total_amount: number;
+  status: "pending" | "confirmed" | "shipped" | "delivered" | "cancelled";
+  payment_status: "pending" | "paid" | "failed" | "refunded";
+  payment_method: "cod" | "online";
+  created_at: string;
+  updated_at: string | null;
+  address: OrderAddress;
+  items: OrderItem[];
+}
+
+// ------------------- Orders Response Type -------------------
+export interface OrdersResponse {
+  orders: Order[];
+}

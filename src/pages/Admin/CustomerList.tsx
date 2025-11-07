@@ -182,7 +182,7 @@ const handleBlockToggle = useCallback(
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    initialState: { pagination: { pageSize: 9 } },
+    initialState: { pagination: { pageSize: 7 } },
   });
 
 
