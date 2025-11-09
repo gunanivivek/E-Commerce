@@ -351,7 +351,7 @@ const SellerProductList: React.FC = () => {
                 placeholder="Search products..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 w-full border border-border-light rounded-lg bg-primary-100/30 text-primary-300 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                className="pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 w-full border border-border-light rounded-lg bg-primary-100/30 text-primary-300 focus:outline-none focus:ring-2 focus:ring-primary-400 text-sm"
               />
             </div>
           </div>
@@ -522,7 +522,7 @@ const SellerProductList: React.FC = () => {
           </div>
 
           {/* Pagination */}
-          <div className="flex flex-col sm:flex-row items-center justify-between mt-4 sm:mt-1 border-t border-primary-400/10 pt-2 gap-2 sm:gap-0">
+          <div className="flex flex-col sm:flex-row items-center justify-between mt-4 sm:mt-1 border-t border-border pt-2 gap-2 sm:gap-0">
             <div className="text-xs sm:text-sm text-primary-400">
               Page {table.getState().pagination.pageIndex + 1} of{" "}
               {table.getPageCount()}

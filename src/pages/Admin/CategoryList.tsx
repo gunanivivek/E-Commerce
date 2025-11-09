@@ -86,16 +86,16 @@ const CategoryList: React.FC = () => {
         {/* Title + Add Button */}
         <div className="flex items-center justify-between mb-2">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-primary-400">
+            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-accent-dark">
               Category Management
             </h1>
-            <p className="text-primary-400 text-xs sm:text-sm">
+            <p className="text-primary-300 text-sm sm:text-base">
               Manage, edit, and organize your product categories.
             </p>
           </div>
           <button
             onClick={handleAdd}
-            className="flex items-center gap-2 bg-primary-400 text-white text-sm font-medium px-3 py-1.5 rounded-lg shadow hover:bg-primary-500"
+            className="flex items-center gap-1 text-sm sm:text-base bg-primary-300 text-white rounded-lg px-3 py-1.5 hover:cursor-pointer hover:bg-primary-400 transition"
           >
             <Plus className="w-4 h-4" />
             Add Category
@@ -104,13 +104,13 @@ const CategoryList: React.FC = () => {
 
         {/* Search Bar */}
         <div className="relative w-full sm:w-80 mt-4 mb-6">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-400/50 w-4 h-4" />
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-300 w-4 h-4" />
           <input
             type="text"
             placeholder="Search categories..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9 pr-3 py-1.5 w-full border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 focus:ring-2 focus:ring-primary-500 text-sm"
+            className="pl-9 pr-3 py-1.5 w-full  border border-border-light rounded-lg bg-primary-100/30 text-primary-300 focus:outline-none focus:ring-2 focus:ring-border text-sm"
           />
         </div>
 
@@ -128,7 +128,7 @@ const CategoryList: React.FC = () => {
                 return (
                   <div
                     key={category.id}
-                    className="bg-white rounded-xl shadow-sm border border-primary-400/10 overflow-hidden hover:shadow-md transition"
+                    className="bg-white rounded-xl shadow-xl border border-primary-400/10 overflow-hidden hover:shadow-md transition"
                   >
                     {/* Image */}
                     <div className="w-full h-36 bg-primary-400/5 overflow-hidden">
@@ -161,14 +161,14 @@ const CategoryList: React.FC = () => {
                       <div className="flex gap-2 mt-2">
                         <button
                           onClick={() => handleEdit(category)}
-                          className="p-1.5 bg-yellow-50 text-yellow-600 rounded hover:bg-yellow-100"
+                          className="p-1.5 bg-surface-light text-accent-dark rounded hover:bg-surface hover:cursor-pointer"
                           title="Edit"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(category.id)}
-                          className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100 disabled:opacity-50"
+                          className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100 hover:cursor-pointer disabled:opacity-50"
                           title="Delete"
                           disabled={isDeleting}
                         >

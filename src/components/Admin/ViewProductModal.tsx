@@ -26,7 +26,7 @@ const getStatusColor = (status: string) => {
     case "approved":
       return "bg-green-100 text-green-700 border-green-300";
     case "pending":
-      return "bg-yellow-100 text-yellow-800 border-yellow-300";
+      return "bg-primary-100 text-muted border-border-light";
     case "rejected":
       return "bg-red-100 text-red-700 border-red-300";
     default:
@@ -77,7 +77,7 @@ const ViewProductModal: React.FC<ViewProductModalProps> = ({
             </div>
             <div className="flex flex-row justify-between gap-2">
               <span
-                className={`inline-block px-3 py-1 text-xs font-medium border rounded-full ${getStatusColor(
+                className={`inline-flex px-2 items-center text-center text-xs font-medium border rounded-full ${getStatusColor(
                   product.status
                 )}`}
               >
@@ -86,7 +86,7 @@ const ViewProductModal: React.FC<ViewProductModalProps> = ({
               </span>
               <button
                 onClick={onClose}
-                className="p-1 rounded-full bg-primary-100/50 text-primary-400 hover:bg-primary-200/30 transition-colors"
+                className="p-1 rounded-full  text-primary-400 hover:cursor-pointer transition-colors"
               >
                 <X size={20} />
               </button>
