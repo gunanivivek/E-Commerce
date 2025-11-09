@@ -86,12 +86,7 @@ const AdminOrderList: React.FC = () => {
           </span>
         ),
       }),
-      columnHelper.accessor("address.full_name", {
-        header: "Customer",
-        cell: (info) => (
-          <span className="text-primary-400">{info.getValue()}</span>
-        ),
-      }),
+    
       columnHelper.accessor("total_amount", {
         header: "Amount",
         cell: (info) => (
