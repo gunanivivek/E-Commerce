@@ -270,53 +270,47 @@ export const useCartStore = create<CartState>((set) => {
     },
   };
 
-  // subscribe to auth changes: on login, sync local guest cart to server
-  try {
-    useAuthStore.subscribe((authState) => {
-      const user = authState.user;
-      if (user) {
-        // user logged in: if we have local items, push them to server then fetch server cart
-        try {
-          const raw = localStorage.getItem(LOCAL_KEY);
-          if (raw) {
-            const localItems: CartItem[] = JSON.parse(raw) as CartItem[];
-            if (localItems && localItems.length) {
-              // sequentially add items to server
-              (async () => {
-                for (const it of localItems) {
-                  try {
-                    await cartApi.addToCart({ product_id: it.id, quantity: it.quantity });
-                  } catch (e) {
-                    console.error("sync local cart item failed:", e);
-                  }
-                }
-                // refresh from server
+  // NOTE: subscriptions moved outside of the create factory to avoid TDZ
+
+  return store;
+});
+
+// subscribe to auth changes: on login, sync local guest cart to server
+try {
+  useAuthStore.subscribe((authState) => {
+    const user = authState.user;
+    if (user) {
+      // user logged in: if we have local items, push them to server then fetch server cart
+      try {
+        const raw = localStorage.getItem("cart_items");
+        if (raw) {
+          const localItems: CartItem[] = JSON.parse(raw) as CartItem[];
+          if (localItems && localItems.length) {
+            // sequentially add items to server
+            (async () => {
+              for (const it of localItems) {
                 try {
-                  const server = await cartApi.getCart();
-                  const mapped = mapCartOutToState(server);
-                  useCartStore.setState({ cartItems: mapped });
-                  try {
-                    localStorage.removeItem(LOCAL_KEY);
-                  } catch (e) {
-                    console.error("remove local cart failed:", e);
-                  }
+                  await cartApi.addToCart({ product_id: it.id, quantity: it.quantity });
                 } catch (e) {
-                  console.error("fetchCart after sync failed:", e);
+                  console.error("sync local cart item failed:", e);
                 }
-              })();
-            } else {
-              // no local items: just fetch server cart
-              (async () => {
+              }
+              // refresh from server
+              try {
+                const server = await cartApi.getCart();
+                const mapped = mapCartOutToState(server);
+                useCartStore.setState({ cartItems: mapped });
                 try {
-                  const server = await cartApi.getCart();
-                  useCartStore.setState({ cartItems: mapCartOutToState(server) });
+                  localStorage.removeItem("cart_items");
                 } catch (e) {
-                  console.error("fetchCart on login failed:", e);
+                  console.error("remove local cart failed:", e);
                 }
-              })();
-            }
+              } catch (e) {
+                console.error("fetchCart after sync failed:", e);
+              }
+            })();
           } else {
-            // no local storage, just fetch
+            // no local items: just fetch server cart
             (async () => {
               try {
                 const server = await cartApi.getCart();
@@ -326,27 +320,35 @@ export const useCartStore = create<CartState>((set) => {
               }
             })();
           }
-        } catch (err) {
-          console.error("auth subscribe handler error:", err);
+        } else {
+          // no local storage, just fetch
+          (async () => {
+            try {
+              const server = await cartApi.getCart();
+              useCartStore.setState({ cartItems: mapCartOutToState(server) });
+            } catch (e) {
+              console.error("fetchCart on login failed:", e);
+            }
+          })();
         }
+      } catch (err) {
+        console.error("auth subscribe handler error:", err);
       }
-    });
-  } catch (err) {
-    console.error("auth subscribe setup failed:", err);
-  }
+    }
+  });
+} catch (err) {
+  console.error("auth subscribe setup failed:", err);
+}
 
-  // persist any changes to localStorage
-  try {
-    useCartStore.subscribe((state) => {
-      try {
-        localStorage.setItem(LOCAL_KEY, JSON.stringify(state.cartItems));
-      } catch (e) {
-        console.error("persist cart to localStorage failed:", e);
-      }
-    });
-  } catch (err) {
-    console.error("cartStore subscribe failed:", err);
-  }
-
-  return store;
-});
+// persist any changes to localStorage
+try {
+  useCartStore.subscribe((state) => {
+    try {
+      localStorage.setItem("cart_items", JSON.stringify(state.cartItems));
+    } catch (e) {
+      console.error("persist cart to localStorage failed:", e);
+    }
+  });
+} catch (err) {
+  console.error("cartStore subscribe failed:", err);
+}

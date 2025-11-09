@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { useLogin } from "../hooks/useLogin";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 import Footer from "../components/ui/Footer";
 import Header from "../components/ui/Header";
 
@@ -13,11 +13,20 @@ export default function Login() {
   const { register, handleSubmit, reset } = useForm<LoginForm>();
   const loginMutation = useLogin();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const onSubmit = (data: LoginForm) => {
     loginMutation.mutate(data, {
       onSuccess: (res) => {
         reset();
+        // if a `from` location was provided (redirected to login), go back there
+        const state = (location as unknown as { state?: { from?: string } })?.state;
+        const returnTo = state?.from;
+        if (returnTo && typeof returnTo === "string") {
+          navigate(returnTo, { replace: true });
+          return;
+        }
+
         const role = res.user.role;
 
         switch (role) {

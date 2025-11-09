@@ -1,44 +1,60 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useWishlistStore } from "../../store/wishlistStore";
 import { useCartStore } from "../../store/cartStore";
 import { useProductStore } from "../../store/useProductStore";
 import type { Product } from "../../store/useProductStore";
+import { useAuthStore } from "../../store/authStore";
+import { Link } from "react-router-dom";
 
 const WishlistCard: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { wishlist, removeFromWishlist } = useWishlistStore();
   const { cartItems, updateQuantity, removeItem } = useCartStore();
   const { addToCart } = useProductStore();
+  const user = useAuthStore((s) => s.user);
+  const filteredWishlist = wishlist.filter(
+    (product) => !cartItems.some((cartItem) => cartItem.id === product.id)
+  );
 
-  if (!wishlist || wishlist.length === 0) {
+  if (!filteredWishlist || filteredWishlist.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-gray-600">
-        <p className="text-lg font-medium">Your wishlist is empty 💔</p>
-        <button
-          onClick={() => navigate("/products")}
-          className="mt-4 px-6 py-2 bg-[var(--color-accent)] text-black rounded-md hover:bg-[var(--color-accent-dark)]"
+      <div className="min-h-screen flex items-center justify-center flex-col text-center">
+        <h1 className="text-4xl font-bold mb-4 text-[var(--color-primary-400)]">
+          Your wishlist is empty
+        </h1>
+        <p className="text-[var(--color-gray-600)] mb-8">
+          Start shopping to add items to your wishlist
+        </p>
+        <Link
+          to="/products"
+          className="bg-[var(--color-accent)] text-white py-3 px-6 rounded-lg hover:bg-[var(--color-accent-dark)] transition"
         >
-          Browse Products
-        </button>
+          Continue Shopping
+        </Link>
       </div>
     );
   }
 
   return (
-    <section className="px-6 md:px-16 py-10 bg-[var(--color-background)] min-h-screen">
+    <section className="px-6 md:px-16 py-5 bg-[var(--color-background)] min-h-screen">
       <h2 className="text-3xl font-bold text-center mb-10 font-logo">
         Your Wishlist
       </h2>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-        {wishlist.map((product: Product) => {
+        {filteredWishlist.map((product: Product) => {
           const inCart = cartItems.find((c) => c.id === product.id);
           const stock = Number(product.stock ?? 0);
 
           const handleAdd = (e: React.MouseEvent) => {
             e.stopPropagation();
             if (stock === 0) return;
+            if (!user)
+              return navigate("/login", {
+                state: { from: location.pathname + location.search },
+              });
             addToCart(product as Product);
           };
 
@@ -138,7 +154,7 @@ const WishlistCard: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <button
                           onClick={dec}
-                          className="px-3 py-1 cursor-pointer bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)] cursor-pointer rounded-md"
+                          className="px-3 py-1 bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)] cursor-pointer rounded-md"
                           aria-label="decrease"
                         >
                           -
@@ -148,7 +164,7 @@ const WishlistCard: React.FC = () => {
                         </span>
                         <button
                           onClick={inc}
-                          className="px-3 py-1 cursor-pointer bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)] cursor-pointer rounded-md"
+                          className="px-3 py-1 bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)] cursor-pointer rounded-md"
                           aria-label="increase"
                         >
                           +

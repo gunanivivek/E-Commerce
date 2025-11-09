@@ -151,7 +151,7 @@ const ProductsPage: React.FC = () => {
                       animate={{ rotate: isOpen ? 180 : 0 }}
                       transition={{ duration: 0.3 }}
                     >
-                      <ChevronDown size={18} color="#ff6b00" />
+                      <ChevronDown size={18} color="#7B5C52" />
                     </motion.div>
                   </button>
 
