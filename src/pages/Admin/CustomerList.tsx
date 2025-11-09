@@ -191,10 +191,10 @@ const handleBlockToggle = useCallback(
   return (
     <div className="min-h-screen py-4 sm:py-6">
       <div className="px-4 sm:px-8">
-        <h1 className="text-xl sm:text-2xl font-bold text-primary-400 mb-1">
+        <h1 className="text-2xl sm:text-3xl font-heading font-bold text-accent-dark mb-1">
           Customer Management
         </h1>
-        <p className="text-primary-400 text-xs sm:text-sm mb-4">
+        <p className="text-primary-300 text-sm sm:text-base mb-4">
           Search, filter, and manage customer accounts.
         </p>
 
@@ -205,13 +205,13 @@ const handleBlockToggle = useCallback(
               All Customers
             </h2>
             <div className="relative w-full sm:w-80">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-400/50 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-300 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Search customers..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 pr-3 py-1.5 w-full border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 focus:ring-2 focus:ring-primary-500 text-sm"
+                className="pl-9 pr-3 py-1.5 w-full border border-border-light rounded-lg bg-primary-100/30 text-primary-300 focus:outline-none focus:ring-2 focus:ring-border text-sm"
               />
             </div>
           </div>
@@ -219,11 +219,11 @@ const handleBlockToggle = useCallback(
           {/* Filters */}
           <div className="flex flex-wrap items-end gap-2 mb-4">
             <div className="flex flex-col min-w-[120px]">
-              <label className="text-xs text-primary-400 mb-1">Status</label>
+              <label className="text-xs text-primary-300 mb-1">Status</label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:ring-2 focus:ring-primary-500"
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-400"
               >
                 <option value="">All</option>
                 <option value="active">Active</option>
@@ -232,22 +232,22 @@ const handleBlockToggle = useCallback(
             </div>
 
             <div className="flex flex-col min-w-[130px]">
-              <label className="text-xs text-primary-400 mb-1">From Date</label>
+              <label className="text-xs text-primary-300 mb-1">From Date</label>
               <input
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:ring-2 focus:ring-primary-500"
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-400"
               />
             </div>
 
             <div className="flex flex-col min-w-[130px]">
-              <label className="text-xs text-primary-400 mb-1">To Date</label>
+              <label className="text-xs text-primary-300 mb-1">To Date</label>
               <input
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:ring-2 focus:ring-primary-500"
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-400"
               />
             </div>
           </div>
@@ -257,7 +257,7 @@ const handleBlockToggle = useCallback(
             <table className="w-full min-w-max">
               <thead>
                 {table.getHeaderGroups().map((hg) => (
-                  <tr key={hg.id} className="border-b border-primary-400/10">
+                  <tr key={hg.id} className="border-b border-border">
                     {hg.headers.map((header) => (
                       <th
                         key={header.id}
@@ -306,7 +306,7 @@ const handleBlockToggle = useCallback(
                       {row.getVisibleCells().map((cell) => (
                         <td
                           key={cell.id}
-                          className="py-2 px-3 text-xs sm:text-sm text-primary-400"
+                          className="py-2 px-3 text-xs sm:text-sm text-primary-300"
                         >
                           {flexRender(
                             cell.column.columnDef.cell,
@@ -331,7 +331,7 @@ const handleBlockToggle = useCallback(
           </div>
 
           {/* Pagination */}
-          <div className="flex flex-col sm:flex-row items-center justify-between mt-4 border-t border-primary-400/10 pt-2">
+          <div className="flex flex-col sm:flex-row items-center justify-between mt-4 border-t border-border pt-2">
             <div className="text-xs sm:text-sm text-primary-400">
               Page {table.getState().pagination.pageIndex + 1} of{" "}
               {table.getPageCount()}

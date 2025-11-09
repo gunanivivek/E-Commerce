@@ -81,7 +81,7 @@ const ViewCustomerModal: React.FC<ViewCustomerModalProps> = ({
               </span>
               <button
                 onClick={onClose}
-                className="p-1 rounded-full bg-primary-100/50 text-primary-400 hover:bg-primary-200/30 transition-colors"
+                className="p-1 rounded-full hover:cursor-pointer text-primary-400 transition-colors"
               >
                 <X size={20} />
               </button>

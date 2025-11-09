@@ -28,7 +28,7 @@ const getStatusColor = (status: string) => {
     case "confirmed":
       return "bg-indigo-100 text-indigo-700 border-indigo-300";
     case "pending":
-      return "bg-yellow-100 text-yellow-700 border-yellow-300";
+      return "bg-primary-100 text-muted border-border-light";
     case "cancelled":
       return "bg-red-100 text-red-700 border-red-300";
     default:
@@ -81,7 +81,7 @@ const ViewOrderModal: React.FC<ViewOrderModalProps> = ({
               </span>
               <button
                 onClick={onClose}
-                className="p-1 bg-primary-100/50 rounded-full hover:bg-primary-200/40"
+                className="p-1 rounded-full hover:cursor-pointer"
               >
                 <X size={20} className="text-primary-400" />
               </button>
