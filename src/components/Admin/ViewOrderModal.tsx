@@ -11,8 +11,6 @@ import {
 } from "lucide-react";
 import type { Order } from "../../types/admin";
 
-
-
 interface ViewOrderModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -97,7 +95,7 @@ const ViewOrderModal: React.FC<ViewOrderModalProps> = ({
                 <div>
                   <p className="text-xs text-primary-400">Customer</p>
                   <p className="font-medium text-primary-600">
-                    {order.address.full_name}
+                    {order.address?.full_name ?? "-"}
                   </p>
                 </div>
               </div>
@@ -127,19 +125,21 @@ const ViewOrderModal: React.FC<ViewOrderModalProps> = ({
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <MapPin className="w-5 h-5 text-primary-400" />
-                <h3 className="text-primary-400 font-semibold">Shipping Address</h3>
+                <h3 className="text-primary-400 font-semibold">
+                  Shipping Address
+                </h3>
               </div>
               <div className="p-4 border rounded-lg bg-primary-100/30 text-sm text-primary-600 leading-relaxed">
-                <p>{order.address.full_name}</p>
-                <p>{order.address.address_line_1}</p>
-                {order.address.address_line_2 && <p>{order.address.address_line_2}</p>}
+                <p>{order.address?.full_name ?? "-"}</p>
+                <p>{order.address?.address_line_1 ?? "-"}</p>
+                <p>{order.address?.address_line_2 || "-"}</p>
                 <p>
-                  {order.address.city}, {order.address.state} -{" "}
-                  {order.address.postal_code}
+                  {order.address?.city ?? "-"}, {order.address?.state ?? "-"} -{" "}
+                  {order.address?.postal_code ?? "-"}
                 </p>
-                <p>{order.address.country}</p>
+                <p>{order.address?.country ?? "-"}</p>
                 <p className="mt-1 text-primary-400 text-xs">
-                  Phone: {order.address.phone_number}
+                  Phone: {order.address?.phone_number ?? "-"}
                 </p>
               </div>
             </div>
@@ -178,7 +178,6 @@ const ViewOrderModal: React.FC<ViewOrderModalProps> = ({
               </div>
             </div>
           </div>
-
         </div>
       </div>
     </>,
