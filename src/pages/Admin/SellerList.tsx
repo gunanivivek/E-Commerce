@@ -30,7 +30,7 @@ import ViewSellerModal from "../../components/Admin/ViewSellerModal";
 const columnHelper = createColumnHelper<Seller>();
 
 const SellerList: React.FC = () => {
-  const { sellers, setSellers, loading, error } = useAdminStore();
+  const { sellers, loading, error } = useAdminStore();
   useFetchSellers();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,7 +38,7 @@ const SellerList: React.FC = () => {
   const [blockFilter, setBlockFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const { approveSeller, rejectSeller } = useSellerActions();
+  const { approveSeller, rejectSeller,toggleBlockSeller } = useSellerActions();
   const [selectedSeller, setSelectedSeller] = useState<Seller | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -50,29 +50,27 @@ const SellerList: React.FC = () => {
       rejectSeller.reset();
     }
   }, [approveSeller.isSuccess, rejectSeller.isSuccess]);
-  // --- ACTION HANDLERS ---
+ 
   const handleApprove = useCallback(
     (id: number) => {
-      approveSeller.mutate(id); // ✅ Call API
+      approveSeller.mutate(id); // 
     },
     [approveSeller]
   );
 
   const handleReject = useCallback(
     (id: number) => {
-      rejectSeller.mutate(id); // ✅ Call API
+      rejectSeller.mutate(id); // 
     },
     [rejectSeller]
   );
+const handleBlockToggle = useCallback(
+  (id: number) => {
+    toggleBlockSeller.mutate(id);
+  },
+  [toggleBlockSeller]
+);
 
-  const handleBlockToggle = useCallback(
-    (id: number) => {
-      setSellers((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, is_blocked: !s.is_blocked } : s))
-      );
-    },
-    [setSellers]
-  );
 
   const handleEdit = useCallback((id: number) => {
     console.log("Edit seller:", id);
@@ -243,13 +241,13 @@ const SellerList: React.FC = () => {
               ) : (
                 <>
                  
-                  {/* <button
-                    onClick={() => handleDelete(seller.id)}
-                    className="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded"
-                    title="Delete"
+                     <button
+                    onClick={() => handleView(seller)}
+                    className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded"
+                    title="View"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button> */}
+                    <Eye className="w-3.5 h-3.5" />
+                  </button>
                   <button
                     onClick={() => handleBlockToggle(seller.id)}
                     className={`p-1.5 ${

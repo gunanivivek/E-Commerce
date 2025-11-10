@@ -51,30 +51,27 @@ const AdminOrderList: React.FC = () => {
     setSelectedOrder(null);
   };
 
-  const filteredData = useMemo(() => {
-    return orders.filter((o: Order) => {
-      const matchesSearch =
-        o.id.toString().includes(searchTerm.toLowerCase()) ||
-        o.address.full_name.toLowerCase().includes(searchTerm.toLowerCase());
+ const filteredData = useMemo(() => {
+  return orders.filter((o: Order) => {
+    const matchesSearch = o.id.toString().includes(searchTerm.trim());
 
-      const matchesStatus = statusFilter ? o.status === statusFilter : true;
+    const matchesStatus = statusFilter ? o.status === statusFilter : true;
+    const matchesPayment = paymentStatusFilter
+      ? o.payment_status === paymentStatusFilter
+      : true;
+    const matchesDateFrom = dateFrom ? o.created_at >= dateFrom : true;
+    const matchesDateTo = dateTo ? o.created_at <= dateTo : true;
 
-      const matchesPayment = paymentStatusFilter
-        ? o.payment_status === paymentStatusFilter
-        : true;
+    return (
+      matchesSearch &&
+      matchesStatus &&
+      matchesPayment &&
+      matchesDateFrom &&
+      matchesDateTo
+    );
+  });
+}, [orders, searchTerm, statusFilter, paymentStatusFilter, dateFrom, dateTo]);
 
-      const matchesDateFrom = dateFrom ? o.created_at >= dateFrom : true;
-      const matchesDateTo = dateTo ? o.created_at <= dateTo : true;
-
-      return (
-        matchesSearch &&
-        matchesStatus &&
-        matchesPayment &&
-        matchesDateFrom &&
-        matchesDateTo
-      );
-    });
-  }, [orders, searchTerm, statusFilter, paymentStatusFilter, dateFrom, dateTo]);
 
   const columns = useMemo(
     () => [
