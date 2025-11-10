@@ -50,7 +50,7 @@ const AccountInfo = () => {
     }
   }, [user]);
 
-  // ---------- 🖼 Handle Image Upload ----------
+  
   const handleAddProfileClick = () => fileInputRef.current?.click();
 
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,12 +85,12 @@ const AccountInfo = () => {
   };
 
   return (
-    <section className="bg-[var(--color-background)] py-5 px-6 md:px-6">
+    <section className="bg-[var(--color-background)] py-5 px-2 md:px-6">
       <h2 className="text-3xl font-bold mb-8 leading-tight text-[var(--color-primary-400)]">
         Personal Information
       </h2>
 
-      {/* Profile Image Section */}
+    
       <div className="flex items-center gap-4 mb-8">
         <div className="w-20 h-20 rounded-full border border-gray-300 overflow-hidden flex items-center justify-center bg-gray-100">
           {profilePreview ? (
