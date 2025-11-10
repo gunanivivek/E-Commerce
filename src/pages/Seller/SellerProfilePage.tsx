@@ -4,9 +4,9 @@ import { User } from "lucide-react";
 import { toast } from "react-toastify";
 import { useChangePassword } from "../../hooks/useChangePassword";
 import { useParams } from "react-router";
-import type { SellerProfile } from "../../types/seller";
-import { getSellerProfile, updateSellerProfile } from "../../api/sellerApi";
-// import { updateSellerProfile, uploadSellerImage } from "../../api/sellerApi";
+import { useUploadProfilePicture } from "../../hooks/useUploadProfilePicture";
+import { useSellerProfile } from "../../hooks/Seller/useSellerProfile";
+import { useUpdateSellerProfile } from "../../hooks/Seller/useUpdateSellerProfile";
 
 interface SellerProfileForm {
   fullName: string;
@@ -15,6 +15,7 @@ interface SellerProfileForm {
   storeName: string;
   storeDescription: string;
   storeAddress: string;
+  profile_picture: string;
 }
 
 interface PasswordForm {
@@ -26,14 +27,13 @@ interface PasswordForm {
 const SellerProfilePage = () => {
   const [isEditingDetails, setIsEditingDetails] = useState(false);
   const [isEditingImage, setIsEditingImage] = useState(false);
-  const [showChangePassword, setShowChangePassword] = useState(false);
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
+  const [previousProfileImage, setPreviousProfileImage] = useState<
+    string | null
+  >(null);
+  const [showChangePassword, setShowChangePassword] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const changePasswordMutation = useChangePassword();
-  const [loading, setLoading] = useState(true);
-
-  const [sellerData, setSellerData] = useState<SellerProfile | null>(null);
-  const { sellerId } = useParams<{ sellerId: string }>();
 
   // ---------------- Form: Seller Details ----------------
   const {
@@ -50,32 +50,34 @@ const SellerProfilePage = () => {
       storeName: "",
       storeDescription: "",
       storeAddress: "",
+      profile_picture: "",
     },
   });
 
+  const { mutate: uploadImage, isPending } = useUploadProfilePicture();
+  const { sellerId } = useParams<{ sellerId: string }>();
+
+  // Convert safely to number
+  const numericSellerId = sellerId ? Number(sellerId) : undefined;
+  const { data: sellerData, isLoading } = useSellerProfile(numericSellerId);
+  const { mutateAsync, isPending: isPendingProfile } = useUpdateSellerProfile();
+
   useEffect(() => {
-    const fetchSellerDetails = async () => {
-      if (!sellerId) return; // ensure ID exists
+    if (sellerData) {
+      reset({
+        fullName: sellerData.full_name || "",
+        email: sellerData.email || "",
+        phoneNumber: sellerData.phone || "",
+        storeName: sellerData.store_name || "",
+        storeDescription: sellerData.store_description || "",
+        storeAddress: sellerData.store_address || "",
+        profile_picture: sellerData.profile_picture || "",
+      });
 
-      try {
-        const data: SellerProfile = await getSellerProfile(sellerId);
-        setSellerData(data);
-        reset({
-          storeName: data.store_name,
-          storeDescription: data.store_description,
-          storeAddress: data.store_address,
-          fullName: data.full_name,
-          phoneNumber: data.phone,
-        });
-      } catch (err) {
-        console.error("❌ Failed to fetch seller details:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchSellerDetails();
-  }, [reset, sellerId]);
+      setProfilePreview(sellerData.profile_picture || null);
+      setPreviousProfileImage(sellerData.profile_picture || null);
+    }
+  }, [sellerData, reset]);
 
   // ---------------- Form: Password ----------------
   const {
@@ -84,21 +86,24 @@ const SellerProfilePage = () => {
     reset: resetPassword,
   } = useForm<PasswordForm>();
 
-  // ✅ Submit updated seller details
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const onSubmit = async (formData: any) => {
-    if (!sellerId) return;
+  // Submit updated seller details
+  const onSubmit = async (formData: SellerProfileForm) => {
+    if (!numericSellerId) return;
 
-    try   {
-      const payload = {
-        store_name: formData.storeName,
-        store_description: formData.storeDescription,
-        store_address: formData.storeAddress,
-        full_name: formData.fullName,
-        phone: formData.phoneNumber,
-      };
+    const payload = {
+      store_name: formData.storeName,
+      store_description: formData.storeDescription,
+      store_address: formData.storeAddress,
+      full_name: formData.fullName,
+      phone: formData.phoneNumber,
+    };
 
-      const updatedSeller = await updateSellerProfile(sellerId, payload);
+    try {
+      const updatedSeller = await mutateAsync({
+        sellerId: numericSellerId,
+        payload,
+      });
+
       reset({
         storeName: updatedSeller.store_name,
         storeDescription: updatedSeller.store_description,
@@ -107,30 +112,41 @@ const SellerProfilePage = () => {
         phoneNumber: updatedSeller.phone,
       });
 
-      alert("✅ Seller profile updated successfully!");
+      toast.success("✅ Seller profile updated successfully!");
       setIsEditingDetails(false);
     } catch (err) {
       console.error("❌ Failed to update seller profile:", err);
-      alert("❌ Failed to update profile. Try again.");
+      toast.error("❌ Failed to update profile. Try again.");
     }
   };
 
-  if (loading) {
-    return (
-      <p className="text-center text-gray-500">Loading seller details...</p>
-    );
-  }
-
-  // ✅ Handle profile image upload
+  // Handle profile image upload
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setProfilePreview(URL.createObjectURL(file));
-      console.log("Selected seller image:", file);
-      // await uploadSellerImage(file);
-      toast.success("Profile image updated!");
-      setIsEditingImage(false);
-    }
+    if (!file) return;
+
+    // Immediate local preview
+    const localPreview = URL.createObjectURL(file);
+    setProfilePreview(localPreview);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    uploadImage(formData, {
+      onSuccess: (data) => {
+        setProfilePreview(data.image_url);
+        setPreviousProfileImage(data.image_url); // update backup on success
+      },
+      onError: () => {
+        setProfilePreview(previousProfileImage); // revert if upload fails
+      },
+    });
+
+    setIsEditingImage(false);
+  };
+
+  const handleAddProfileClick = () => {
+    fileInputRef.current?.click();
   };
 
   // ✅ Handle password change
@@ -155,24 +171,33 @@ const SellerProfilePage = () => {
     );
   };
 
-  const handleAddProfileClick = () => fileInputRef.current?.click();
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-[70vh]">
+        <span className="text-primary-400 font-medium text-lg animate-pulse">
+          Loading profile...
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-6 px-4 lg:px-0">
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-3xl px-5 space-y-6">
         {/* -------- Header -------- */}
         <div>
-          <h1 className="text-2xl font-bold text-primary-400">
+          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-accent-dark">
             Seller Profile
           </h1>
-          <p className="text-primary-400 text-sm">
+          <p className="text-primary-300 text-sm sm:text-base">
             Manage your personal and store information
           </p>
         </div>
+        {}
 
         {/* -------- Profile Image Section -------- */}
         <div className="bg-white rounded-lg p-4 shadow-sm">
-          <h2 className="text-primary-400 font-semibold mb-3">Profile Image</h2>
+          <h2 className="text-accent-dark font-normal mb-3 font-heading text-xl">Profile Image</h2>
 
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 rounded-full bg-primary-100 flex items-center justify-center overflow-hidden">
@@ -191,7 +216,7 @@ const SellerProfilePage = () => {
               <button
                 type="button"
                 onClick={() => setIsEditingImage(true)}
-                className="px-3 py-1 bg-primary-400/10 text-primary-400 text-sm rounded-lg hover:bg-primary-400/20 transition-colors"
+                className="px-4 py-1 bg-surface text-base hover:bg-accent-light/25 text-accent-dark hover:cursor-pointer rounded-lg transition-colors font-medium"
               >
                 Edit Image
               </button>
@@ -200,7 +225,7 @@ const SellerProfilePage = () => {
                 <button
                   type="button"
                   onClick={handleAddProfileClick}
-                  className="px-3 py-1 bg-primary-300 text-white rounded-lg hover:bg-primary-500 transition-colors text-sm"
+                  className="px-3 py-1 bg-primary-300 text-white rounded-lg hover:bg-primary-400 hover:cursor-pointer transition-colors text-base"
                 >
                   Choose Image
                 </button>
@@ -214,19 +239,20 @@ const SellerProfilePage = () => {
                 <button
                   type="button"
                   onClick={() => setIsEditingImage(false)}
-                  className="px-3 py-1 bg-gray-200 text-sm rounded-lg hover:bg-gray-300 transition-colors"
+                  className="px-3 py-1 bg-white text-primary-300 text-base rounded-lg hover:bg-primary-100 hover:cursor-pointer transition-colors"
                 >
                   Cancel
                 </button>
               </>
             )}
+            {isPending && <p>Uploading...</p>}
           </div>
         </div>
 
         {/* -------- Seller Details Section -------- */}
         <div className="bg-white rounded-lg p-4 shadow-sm">
           <div className="flex justify-between items-center mb-3">
-            <h2 className="text-primary-400 font-semibold">
+            <h2 className="text-accent-dark font-normal mb-3 font-heading text-xl">
               Store & Personal Info
             </h2>
 
@@ -235,7 +261,6 @@ const SellerProfilePage = () => {
                 if (isEditingDetails) {
                   clearErrors();
 
-                  // 🔹 Reset to last fetched seller data
                   if (sellerData) {
                     reset({
                       storeName: sellerData.store_name || "",
@@ -248,19 +273,19 @@ const SellerProfilePage = () => {
                 }
                 setIsEditingDetails(!isEditingDetails);
               }}
-              type="button" // ✅ prevents accidental form submission
-              className="px-4 py-1.5 bg-primary-400/10 text-sm hover:bg-primary-400/20 text-primary-400 rounded-lg transition-colors font-medium"
+              type="button" 
+              className="px-4 py-1.5 bg-surface text-base hover:bg-accent-light/25 text-accent-dark hover:cursor-pointer rounded-lg transition-colors font-medium"
             >
               {isEditingDetails ? "Close" : "Edit Details"}
             </button>
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
-            <h3 className="text-primary-400 text-sm font-semibold mb-2">
+          <form onSubmit={handleSubmit(onSubmit)} className="px-4 space-y-3">
+            <h3 className="text-primary-400 text-lg font-heading font-semibold mb-2">
               Store Info
             </h3>
             <div>
-              <label className="block text-primary-400 text-sm font-medium mb-1">
+              <label className="block text-xs text-primary-300 mb-1 font-medium">
                 Store Name
               </label>
               <input
@@ -269,7 +294,7 @@ const SellerProfilePage = () => {
                   required: "Store name is required",
                 })}
                 disabled={!isEditingDetails}
-                className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 w-full"
               />
               {errors.storeName && (
                 <p className="text-red-500 text-xs mt-1">
@@ -279,7 +304,7 @@ const SellerProfilePage = () => {
             </div>
 
             <div>
-              <label className="block text-primary-400 text-sm font-medium mb-1">
+              <label className="block text-xs text-primary-300 mb-1 font-medium">
                 Store Description
               </label>
               <textarea
@@ -288,12 +313,12 @@ const SellerProfilePage = () => {
                 })}
                 rows={3}
                 disabled={!isEditingDetails}
-                className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none resize-none"
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 w-full"
               />
             </div>
 
             <div>
-              <label className="block text-primary-400 text-sm font-medium mb-1">
+              <label className="block text-xs text-primary-300 mb-1 font-medium">
                 Store Address
               </label>
               <input
@@ -302,15 +327,15 @@ const SellerProfilePage = () => {
                   required: "Store address is required",
                 })}
                 disabled={!isEditingDetails}
-                className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 w-full"
               />
             </div>
 
-            <h3 className="text-primary-400 text-sm font-semibold mt-4">
+            <h3 className="text-primary-400 text-lg font-heading font-semibold mb-2">
               Personal Info
             </h3>
             <div>
-              <label className="block text-primary-400 text-sm font-medium mb-1">
+              <label className="block text-xs text-primary-300 mb-1 font-medium">
                 Full Name
               </label>
               <input
@@ -319,24 +344,24 @@ const SellerProfilePage = () => {
                   required: "Full name is required",
                 })}
                 disabled={!isEditingDetails}
-                className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 w-full"
               />
             </div>
 
             <div>
-              <label className="block text-primary-400 text-sm font-medium mb-1">
+              <label className="block text-xs text-primary-300 mb-1 font-medium">
                 Email
               </label>
               <input
                 type="email"
                 {...register("email")}
                 disabled
-                className="w-full p-2 text-sm bg-gray-100 rounded-lg text-gray-500 cursor-not-allowed"
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 w-full"
               />
             </div>
 
             <div>
-              <label className="block text-primary-400 text-sm font-medium mb-1">
+              <label className="block text-xs text-primary-300 mb-1 font-medium">
                 Phone Number
               </label>
               <input
@@ -345,14 +370,15 @@ const SellerProfilePage = () => {
                   required: "Phone number is required",
                 })}
                 disabled={!isEditingDetails}
-                className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 w-full"
               />
             </div>
 
             {isEditingDetails && (
               <button
                 type="submit"
-                className="px-4 py-2 bg-primary-400/80 font-semibold text-white rounded-lg text-sm hover:bg-primary-500 transition-colors mt-2"
+                disabled={isPendingProfile}
+                className="px-4 py-1.5 bg-surface text-sm hover:bg-accent-light/25 text-accent-dark hover:cursor-pointer rounded-lg transition-colors font-medium mt-2"
               >
                 Save Changes
               </button>
@@ -364,7 +390,7 @@ const SellerProfilePage = () => {
         <div className="bg-white rounded-lg p-4 shadow-sm">
           <button
             onClick={() => setShowChangePassword(!showChangePassword)}
-            className="px-4 py-2 bg-primary-400/10 text-sm hover:bg-primary-400/20 text-primary-400 rounded-lg transition-colors font-medium"
+            className="px-4 py-2 bg-accent-dark text-sm hover:bg-accent-darker text-surface hover:cursor-pointer rounded-lg transition-colors"
           >
             {showChangePassword ? "Cancel" : "Change Password"}
           </button>
@@ -375,29 +401,29 @@ const SellerProfilePage = () => {
               className="mt-3 space-y-3"
             >
               <div>
-                <label className="block text-primary-400 text-sm font-medium mb-1">
+                <label className="block text-xs text-primary-300 mb-1 font-medium">
                   Old Password
                 </label>
                 <input
                   type="password"
                   {...registerPassword("oldPassword", { required: true })}
-                  className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
+                  className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 w-full"
                 />
               </div>
 
               <div>
-                <label className="block text-primary-400 text-sm font-medium mb-1">
+                <label className="block text-xs text-primary-300 mb-1 font-medium">
                   New Password
                 </label>
                 <input
                   type="password"
                   {...registerPassword("newPassword", { required: true })}
-                  className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
+                  className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 w-full"
                 />
               </div>
 
               <div>
-                <label className="block text-primary-400 text-sm font-medium mb-1">
+                <label className="block text-xs text-primary-300 mb-1 font-medium">
                   Confirm New Password
                 </label>
                 <input
@@ -405,14 +431,14 @@ const SellerProfilePage = () => {
                   {...registerPassword("confirmNewPassword", {
                     required: true,
                   })}
-                  className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
+                  className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 w-full"
                 />
               </div>
 
               <button
                 type="submit"
                 disabled={changePasswordMutation.isPending}
-                className={`px-4 py-2 bg-primary-300 font-semibold text-white rounded-lg text-sm transition-colors mt-2 ${
+                className={`px-4 py-1.5 bg-surface text-base hover:bg-accent-light/25 text-accent-dark hover:cursor-pointer rounded-lg transition-colors font-medium mt-2 ${
                   changePasswordMutation.isPending
                     ? "cursor-not-allowed opacity-70"
                     : "hover:bg-primary-500"
