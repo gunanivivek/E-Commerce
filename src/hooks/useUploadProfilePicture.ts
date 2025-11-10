@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { uploadProfilePicture } from "../api/adminApi";
-import { useAuthStore } from "../store/authStore"; // <-- import store
+import { useAuthStore } from "../store/authStore";
 import type { AxiosError } from "axios";
 
 interface ApiError {

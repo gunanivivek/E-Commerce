@@ -1,4 +1,3 @@
-// hooks/admin/useProductStatusActions.ts
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateProductStatus } from "../../api/adminApi";
 import { toast } from "react-toastify";
