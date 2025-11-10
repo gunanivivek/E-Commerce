@@ -89,7 +89,7 @@ const AddressInfo = () => {
 
   if (isLoading) {
     return (
-      <section className="bg-[var(--color-background)] py-5 px-6 md:px-20">
+      <section className="bg-[var(--color-background)] py-5 px-2 md:px-6">
         <h2 className="text-3xl font-bold mb-8 leading-tight text-[var(--color-primary-400)]">
           Address
         </h2>
@@ -104,7 +104,7 @@ const AddressInfo = () => {
   }
 
   return (
-    <section className="bg-[var(--color-background)] py-5 px-6 md:px-6">
+    <section className="bg-[var(--color-background)] py-5 px-2 md:px-6">
       <h2 className="text-3xl font-bold mb-8 leading-tight text-[var(--color-primary-400)]">
         Address
       </h2>
@@ -131,7 +131,7 @@ const AddressInfo = () => {
             {editingId ? "Edit Address" : "Add Address"}
           </h3>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <input
               {...register("full_name")}
               placeholder="Full Name"

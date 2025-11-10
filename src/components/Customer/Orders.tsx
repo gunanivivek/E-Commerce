@@ -90,7 +90,7 @@ const Orders: React.FC = () => {
 
   /** Orders Display **/
   return (
-    <section className="bg-[var(--color-background)] py-5 px-4 md:px-10">
+    <section className="bg-[var(--color-background)] py-5 px-2 md:px-6">
       <h2 className="text-3xl font-bold mb-8 text-[var(--color-primary-400)]">
         My Orders
       </h2>
