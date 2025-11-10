@@ -17,6 +17,8 @@ export interface SellerProfile {
   store_address: string;
   full_name: string;
   phone: string;
+  email: string;
+  profile_picture: string;
 }
 
 export interface Product {

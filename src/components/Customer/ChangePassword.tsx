@@ -46,7 +46,7 @@ const ChangePassword = () => {
   };
 
   return (
-    <section className="bg-[var(--color-background)] py-5 px-6 md:px-6">
+    <section className="bg-[var(--color-background)] py-5 px-2 md:px-6">
       <div className=" rounded-lg ">
         <h2 className="text-3xl font-bold mb-6 leading-tight text-[var(--color-primary-400)]">
           Change Password
