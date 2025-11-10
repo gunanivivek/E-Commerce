@@ -37,6 +37,7 @@ import AddresssInfo from "./components/Customer/AddresssInfo";
 import Wishlist from "./pages/Customer/Wishlist";
 import AdminOrderList from "./pages/Admin/AdminOrderList";
 import Checkout from "./pages/Customer/Checkout";
+import SellerCoupons from "./pages/Seller/SellerCoupons";
 
 
 function App() {
@@ -86,7 +87,7 @@ function App() {
               <Route index element={<TestDashboard />} />
               <Route path="products" element={<SellerProductList />} />
               <Route path="orders" element={<SellerOrders />} />
-              <Route path="coupons" element={<Test />} />
+              <Route path="coupons" element={<SellerCoupons />} />
               <Route path=":sellerId" element={<SellerProfilePage />} />
             </Route>
           </Route>
