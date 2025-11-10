@@ -84,6 +84,7 @@ export const getSellerProducts = async (
     price: p.price,
     status: p.status,
     addedDate: p.created_at,
+    stock:p.stock,
   }));
 };
 
@@ -132,5 +133,13 @@ export const deleteProduct = async (
   ProductId: number
 ): Promise<{ message: string }> => {
   const res = await API.delete(`products/${ProductId}/delete`);
+  return res.data;
+};
+
+export const updateProductStock = async (
+  productId: number,
+  data: { quantity: number }
+) => {
+  const res = await API.patch(`/products/${productId}/stock`, data);
   return res.data;
 };

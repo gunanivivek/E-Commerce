@@ -27,7 +27,8 @@ export interface Product {
   category: string;
   price: number;
   status: "approved" | "pending" | "rejected";
-  addedDate: string; // or Date if you convert it later
+  addedDate: string; 
+  stock: number;
 }
 
 export interface ViewProduct {
