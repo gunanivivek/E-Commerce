@@ -76,18 +76,18 @@ const AdminProfile = () => {
 
   return (
     <div className="min-h-screen py-6 px-4 lg:px-0">
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-3xl px-5 space-y-6">
         {/* Header */}
         <div>
-          <h1 className="text-2xl font-bold text-primary-400">Admin Profile</h1>
-          <p className="text-primary-400 text-sm">
+           <h1 className="text-2xl sm:text-3xl font-heading font-bold text-accent-dark">Admin Profile</h1>
+          <p className="text-primary-300 text-sm sm:text-base">
             View and manage your personal information
           </p>
         </div>
 
         {/* Profile Image Section */}
         <div className="bg-white rounded-lg p-4 shadow-sm">
-          <h2 className="text-primary-400 font-semibold mb-3">Profile Image</h2>
+          <h2 className="text-accent-dark font-normal mb-3 font-heading text-xl">Profile Image</h2>
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 rounded-full bg-primary-100 flex items-center justify-center overflow-hidden">
               {profilePreview ? (
@@ -104,7 +104,7 @@ const AdminProfile = () => {
               <button
                 type="button"
                 onClick={() => setIsEditingImage(true)}
-                className="px-3 py-1 bg-primary-400/10 text-primary-400 text-sm rounded-lg hover:bg-primary-400/20 transition-colors"
+                className="px-4 py-1 bg-surface text-base hover:bg-accent-light/25 text-accent-dark hover:cursor-pointer rounded-lg transition-colors font-medium"
               >
                 Edit Image
               </button>
@@ -113,7 +113,7 @@ const AdminProfile = () => {
                 <button
                   type="button"
                   onClick={handleAddProfileClick}
-                  className="px-3 py-1 bg-primary-300 text-white rounded-lg hover:bg-primary-500 transition-colors text-sm"
+                  className="px-3 py-1 bg-primary-300 text-white rounded-lg hover:bg-primary-400 hover:cursor-pointer transition-colors text-base"
                 >
                   Choose Image
                 </button>
@@ -127,7 +127,7 @@ const AdminProfile = () => {
                 <button
                   type="button"
                   onClick={() => setIsEditingImage(false)}
-                  className="px-3 py-1 bg-gray-200 text-sm rounded-lg hover:bg-gray-300 transition-colors"
+                  className="px-3 py-1 bg-white text-primary-300 text-base rounded-lg hover:bg-primary-100 hover:cursor-pointer transition-colors"
                 >
                   Cancel
                 </button>
@@ -140,11 +140,11 @@ const AdminProfile = () => {
         {/* Profile Details Section */}
         <div className="bg-white rounded-lg p-4 shadow-sm">
           <div className="flex justify-between items-center mb-3">
-            <h2 className="text-primary-400 font-semibold">Personal Info</h2>
+            <h2 className="text-accent-dark font-normal mb-3 font-heading text-xl">Personal Info</h2>
           </div>
           <form className="space-y-3">
             <div>
-              <label className="block text-primary-400 text-sm font-medium mb-1">
+              <label className="block text-xs text-primary-300 mb-1 font-medium">
                 Full Name
               </label>
               <input
@@ -157,7 +157,8 @@ const AdminProfile = () => {
                   },
                   minLength: { value: 3, message: "Minimum 3 characters" },
                 })}
-                className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
+                disabled
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm cursor-not-allowed w-full"
               />
               {errors.fullName && (
                 <p className="text-red-500 text-xs mt-1">
@@ -167,19 +168,19 @@ const AdminProfile = () => {
             </div>
 
             <div>
-              <label className="block text-primary-400 text-sm font-medium mb-1">
+              <label className="block text-xs text-primary-300 mb-1 font-medium">
                 Email
               </label>
               <input
                 type="email"
                 {...register("email")}
                 disabled
-                className="w-full p-2 text-sm bg-gray-100 rounded-lg text-gray-500 cursor-not-allowed"
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm cursor-not-allowed w-full"
               />
             </div>
 
             <div>
-              <label className="block text-primary-400 text-sm font-medium mb-1">
+              <label className="block text-xs text-primary-300 mb-1 font-medium">
                 Phone Number
               </label>
               <input
@@ -188,7 +189,8 @@ const AdminProfile = () => {
                   required: "Phone number is required",
                   pattern: { value: /^\d{10}$/, message: "Must be 10 digits" },
                 })}
-                className="w-full p-2 text-sm bg-primary-400/5 rounded-lg text-primary-400 focus:outline-none"
+                disabled
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm cursor-not-allowed w-full"
               />
               {errors.phoneNumber && (
                 <p className="text-red-500 text-xs mt-1">

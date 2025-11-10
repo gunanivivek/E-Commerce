@@ -10,14 +10,14 @@ import API from "./axiosInstance";
 
 // SELLER'S Profile Related APIs
 export const getSellerProfile = async (
-  sellerId: string
+  sellerId: number
 ): Promise<SellerProfile> => {
   const res = await API.get(`/sellers/${sellerId}`);
   return res.data;
 };
 
 export const updateSellerProfile = async (
-  sellerId: string,
+  sellerId: number,
   data: Partial<SellerProfile>
 ): Promise<SellerProfile> => {
   const res = await API.patch(`/sellers/${sellerId}`, data);
