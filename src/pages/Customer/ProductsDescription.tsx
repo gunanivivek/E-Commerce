@@ -13,7 +13,7 @@ import Footer from "../../components/ui/Footer";
 import { Link } from "react-router-dom";
 import LoadingState from "../../components/LoadingState";
 
-const SingleProductPage: React.FC = () => {
+const ProductDescription: React.FC = () => {
   // route is defined as /product/:productId in App.tsx, so read productId here
   const { productId } = useParams<{ productId: string }>();
   const navigate = useNavigate();
@@ -270,4 +270,4 @@ const SingleProductPage: React.FC = () => {
   );
 };
 
-export default SingleProductPage;
+export default ProductDescription;

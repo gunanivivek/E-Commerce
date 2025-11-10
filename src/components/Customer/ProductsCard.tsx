@@ -42,8 +42,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   const { data: apiProducts, isLoading } = useQuery<ProductResponse[], Error>({
     queryKey: ["products"],
     queryFn: () => productsApi.getProducts(),
-    // keep products cached and avoid refetching often — reduce network chattiness
-    staleTime: 1000 * 60 * 30, // 30 minutes
+    staleTime: 1000 * 60 * 30, 
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
@@ -56,7 +55,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
       id: p.id,
       name: p.name,
       description: p.description ?? "",
-      price: Number(p.discount_price ?? p.price),
+      price: Number(p.price),
       discount_price: p.discount_price ? Number(p.discount_price) : undefined,
       stock: p.stock,
       images: p.images
@@ -66,9 +65,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
       image: p.images && p.images.length ? p.images[0].url : "",
       is_active: p.is_active,
       created_at: p.created_at,
-      // API doesn't currently expose rating; default to 4.5 so rating filters work predictably
       rating: (p as unknown as { rating?: number }).rating ?? 4.5,
-      // include category name for filtering
       category: p.category?.name ?? null,
     }));
   }, [apiProducts]);
@@ -219,7 +216,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   if (!filteredProducts.length) return <p>No products available right now.</p>;
 
   return (
-    <section className="bg-[var(--color-background)] py-5 px-6 md:px-20">
+    <section className="py-5 px-6 md:px-20">
       {/* Product Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredProducts.map((product) => {
@@ -271,7 +268,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                   />
                 ) : (
                   <span
-                    className="text-gray-400 text-sm"
+                    className="text-primary-200 text-sm"
                     onClick={handleNavigate}
                   >
                     No Image Available
@@ -281,15 +278,15 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
 
               {/* Product Info */}
               <div onClick={handleNavigate} className="cursor-pointer">
-                <h3 className="text-[var(--color-primary-400)] font-semibold text-lg text-center mb-2 hover:underline">
-                  {product.name.length > 20
-                    ? product.name.slice(0, 20) + "..."
+                <h3 className="text-accent-dark font-semibold text-lg text-center mb-2 hover:underline">
+                  {product.name.length > 15
+                    ? product.name.slice(0, 15) + "..."
                     : product.name}
                 </h3>
-                <p className="text-sm text-gray-600 mb-1">
+                <p className="text-sm text-accent mb-1 min-h-[60px]">
                   {(() => {
                     const desc = product.description ?? "";
-                    const maxWords = 10;
+                    const maxWords = 8;
                     const words = desc.trim().split(/\s+/).filter(Boolean);
                     if (words.length <= maxWords) return desc;
                     return words.slice(0, maxWords).join(" ") + "...";
@@ -303,6 +300,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                     <span className="text-gray-400 line-through text-sm ml-2">
                       ₹{product.price}
                     </span>
+                    
                   )}
                 </p>
 
@@ -378,8 +376,8 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                     disabled={stock === 0}
                     className={`flex-1 py-2 rounded-lg font-semibold transition-all duration-150 shadow-sm ${
                       stock === 0
-                        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                        : "bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)] hover:shadow-md transform hover:-translate-y-0.5"
+                        ? "bg-accent-light text-accent-light cursor-not-allowed"
+                        : "bg-[var(--color-accent)] text-primary-100 hover:bg-[var(--color-accent-dark)] hover:shadow-md transform hover:-translate-y-0.5"
                     }`}
                   >
                     Add to Cart

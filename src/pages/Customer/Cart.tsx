@@ -99,8 +99,8 @@ const Cart: React.FC = () => {
       </div>
 
       {/* Main section */}
-      <section className="min-h-screen bg-[var(--color-background)] py-12 px-6 md:px-20">
-        <h1 className="text-3xl font-bold text-[var(--color-primary-100)] mb-8">
+      <section className="min-h-screen bg-background py-12 px-6 md:px-20">
+        <h1 className="text-3xl font-bold text- mb-8 text-accent-darker">
           Shopping Cart
         </h1>
 
