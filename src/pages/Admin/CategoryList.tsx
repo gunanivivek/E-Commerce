@@ -128,7 +128,7 @@ const CategoryList: React.FC = () => {
                 return (
                   <div
                     key={category.id}
-                    className="bg-white rounded-xl shadow-xl border border-primary-400/10 overflow-hidden hover:shadow-md transition"
+                    className="bg-white rounded-xl  border-1 border-primary-400/10 overflow-hidden hover:shadow-md  transition"
                   >
                     {/* Image */}
                     <div className="w-full h-36 bg-primary-400/5 overflow-hidden">
