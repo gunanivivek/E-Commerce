@@ -140,12 +140,12 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
         >
           {/* Header */}
           <div className="p-5 border-b border-primary-border flex justify-between items-center">
-            <h2 className="text-lg font-bold text-primary-400">
+            <h2 className="text-primary-400 font-bold text-base sm:text-lg">
               {isEdit ? "Edit Category" : "Create Category"}
             </h2>
             <button
               onClick={onClose}
-              className="p-1 rounded-full bg-primary-100/50 text-primary-400 hover:bg-primary-200/30"
+              className="p-1 rounded-full  text-primary-400 hover:cursor-pointer"
             >
               <X size={20} />
             </button>

@@ -8,7 +8,7 @@ const AdminLayouts = () => {
   return (
     <div className="flex flex-row min-h-screen">
       <DashboardSidebar />
-      <div className="w-full bg-primary-400/10 pt-10 lg:pt-0">
+      <div className="w-full bg-white pt-10 lg:pt-0">
         <Outlet />
       </div>
     </div>

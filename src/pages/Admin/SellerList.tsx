@@ -30,7 +30,7 @@ import ViewSellerModal from "../../components/Admin/ViewSellerModal";
 const columnHelper = createColumnHelper<Seller>();
 
 const SellerList: React.FC = () => {
-  const { sellers, setSellers, loading, error } = useAdminStore();
+  const { sellers, loading, error } = useAdminStore();
   useFetchSellers();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,7 +38,7 @@ const SellerList: React.FC = () => {
   const [blockFilter, setBlockFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const { approveSeller, rejectSeller } = useSellerActions();
+  const { approveSeller, rejectSeller,toggleBlockSeller } = useSellerActions();
   const [selectedSeller, setSelectedSeller] = useState<Seller | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -50,29 +50,27 @@ const SellerList: React.FC = () => {
       rejectSeller.reset();
     }
   }, [approveSeller.isSuccess, rejectSeller.isSuccess]);
-  // --- ACTION HANDLERS ---
+ 
   const handleApprove = useCallback(
     (id: number) => {
-      approveSeller.mutate(id); // ✅ Call API
+      approveSeller.mutate(id); // 
     },
     [approveSeller]
   );
 
   const handleReject = useCallback(
     (id: number) => {
-      rejectSeller.mutate(id); // ✅ Call API
+      rejectSeller.mutate(id); // 
     },
     [rejectSeller]
   );
+const handleBlockToggle = useCallback(
+  (id: number) => {
+    toggleBlockSeller.mutate(id);
+  },
+  [toggleBlockSeller]
+);
 
-  const handleBlockToggle = useCallback(
-    (id: number) => {
-      setSellers((prev) =>
-        prev.map((s) => (s.id === id ? { ...s, is_blocked: !s.is_blocked } : s))
-      );
-    },
-    [setSellers]
-  );
 
   const handleEdit = useCallback((id: number) => {
     console.log("Edit seller:", id);
@@ -184,7 +182,7 @@ const SellerList: React.FC = () => {
               className={`px-3 py-1 rounded-full text-xs font-medium ${
                 active
                   ? "bg-green-100 text-green-700"
-                  : "bg-yellow-100 text-yellow-700"
+                  : "bg-primary-100 text-muted"
               }`}
             >
               {active ? "Active" : "Not Active"}
@@ -243,13 +241,13 @@ const SellerList: React.FC = () => {
               ) : (
                 <>
                  
-                  {/* <button
-                    onClick={() => handleDelete(seller.id)}
-                    className="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded"
-                    title="Delete"
+                     <button
+                    onClick={() => handleView(seller)}
+                    className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded"
+                    title="View"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button> */}
+                    <Eye className="w-3.5 h-3.5" />
+                  </button>
                   <button
                     onClick={() => handleBlockToggle(seller.id)}
                     className={`p-1.5 ${
@@ -289,27 +287,27 @@ const SellerList: React.FC = () => {
   return (
     <div className="min-h-screen py-4 sm:py-6">
       <div className="px-4 sm:px-8">
-        <h1 className="text-xl sm:text-2xl font-bold text-primary-400 mb-1">
+        <h1 className="text-2xl sm:text-3xl font-heading font-bold text-accent-dark mb-1">
           Seller Management
         </h1>
-        <p className="text-primary-400 text-xs sm:text-sm mb-4">
+        <p className="text-primary-300 text-sm sm:text-base mb-4">
           Search, filter, and manage sellers.
         </p>
 
-        <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4">
+        <div className="bg-white rounded-lg shadow-xl p-3 sm:p-4">
           {/* Search Bar */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3">
             <h2 className="text-primary-400 font-semibold text-base sm:text-lg">
               All Sellers
             </h2>
             <div className="relative w-full sm:w-80">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-400/50 w-4 h-4" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-300 w-4 h-4" />
               <input
                 type="text"
                 placeholder="Search sellers..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-9 pr-3 py-1.5 w-full border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 focus:ring-2 focus:ring-primary-500 text-sm"
+                className="pl-9 pr-3 py-1.5 w-full border border-border-light rounded-lg bg-primary-100/30 text-primary-300 focus:outline-none focus:ring-2 focus:ring-primary-400 text-sm"
               />
             </div>
           </div>
@@ -317,11 +315,11 @@ const SellerList: React.FC = () => {
           {/* Filters */}
           <div className="flex flex-wrap items-end gap-2 mb-4">
             <div className="flex flex-col min-w-[120px]">
-              <label className="text-xs text-primary-400 mb-1">Status</label>
+              <label className="text-xs text-primary-300 mb-1">Status</label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:ring-2 focus:ring-primary-500"
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
               >
                 <option value="">All</option>
                 <option value="active">Active</option>
@@ -330,13 +328,13 @@ const SellerList: React.FC = () => {
             </div>
 
             <div className="flex flex-col min-w-[120px]">
-              <label className="text-xs text-primary-400 mb-1">
+              <label className="text-xs text-primary-300 mb-1">
                 Block Status
               </label>
               <select
                 value={blockFilter}
                 onChange={(e) => setBlockFilter(e.target.value)}
-                className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:ring-2 focus:ring-primary-500"
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
               >
                 <option value="">All</option>
                 <option value="blocked">Blocked</option>
@@ -345,22 +343,22 @@ const SellerList: React.FC = () => {
             </div>
 
             <div className="flex flex-col min-w-[130px]">
-              <label className="text-xs text-primary-400 mb-1">From Date</label>
+              <label className="text-xs text-primary-300 mb-1">From Date</label>
               <input
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:ring-2 focus:ring-primary-500"
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
               />
             </div>
 
             <div className="flex flex-col min-w-[130px]">
-              <label className="text-xs text-primary-400 mb-1">To Date</label>
+              <label className="text-xs text-primary-300 mb-1">To Date</label>
               <input
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:ring-2 focus:ring-primary-500"
+                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
               />
             </div>
           </div>
@@ -370,7 +368,7 @@ const SellerList: React.FC = () => {
             <table className="w-full min-w-max">
               <thead>
                 {table.getHeaderGroups().map((hg) => (
-                  <tr key={hg.id} className="border-b border-primary-400/10">
+                  <tr key={hg.id} className="border-b border-border">
                     {hg.headers.map((header) => (
                       <th
                         key={header.id}
@@ -420,7 +418,7 @@ const SellerList: React.FC = () => {
                       {row.getVisibleCells().map((cell) => (
                         <td
                           key={cell.id}
-                          className="py-2 px-3 text-xs sm:text-sm text-primary-400"
+                          className="py-2 px-3 text-xs sm:text-sm text-primary-300"
                         >
                           {flexRender(
                             cell.column.columnDef.cell,
@@ -445,7 +443,7 @@ const SellerList: React.FC = () => {
           </div>
 
           {/* Pagination */}
-          <div className="flex flex-col sm:flex-row items-center justify-between mt-4 border-t border-primary-400/10 pt-2">
+          <div className="flex flex-col sm:flex-row items-center justify-between mt-4 border-t border-border pt-2">
             <div className="text-xs sm:text-sm text-primary-400">
               Page {table.getState().pagination.pageIndex + 1} of{" "}
               {table.getPageCount()}

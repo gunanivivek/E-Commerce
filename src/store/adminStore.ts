@@ -7,7 +7,6 @@ export const useAdminStore = create<AdminState>((set) => ({
   loading: false,
   error: null,
 
-  // ✅ Sellers
   setSellers: (sellersOrUpdater) =>
     set((state) => ({
       sellers:
@@ -16,7 +15,7 @@ export const useAdminStore = create<AdminState>((set) => ({
           : sellersOrUpdater,
     })),
 
-  // ✅ Customers
+
   setCustomers: (customersOrUpdater) =>
     set((state) => ({
       customers:
@@ -25,11 +24,11 @@ export const useAdminStore = create<AdminState>((set) => ({
           : customersOrUpdater,
     })),
 
-  // ✅ Loading + Error handling
+
   setLoading: (loading) => set({ loading }),
   setError: (error) => set({ error }),
 
-  // ✅ Clear all data
+
   clearAdminData: () =>
     set({
       sellers: [],

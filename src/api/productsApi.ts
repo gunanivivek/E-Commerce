@@ -2,8 +2,7 @@ import API from "./axiosInstance";
 import type { ProductResponse } from "../types/product";
 
 export const getProducts = async (params?: Record<string, unknown>): Promise<ProductResponse[]> => {
-  // Use the approved products listing endpoint
-  const res = await API.get<ProductResponse[]>("products/approved/", { params });
+  const res = await API.get<ProductResponse[]>("products/", { params });
   return res.data;
 };
 

@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { updateSellerStatus } from "../../api/adminApi";
+import { toggleSellerBlockStatus, updateSellerStatus } from "../../api/adminApi";
 import type { Seller } from "../../types/admin";
 import type { AxiosError } from "axios";
 
@@ -9,7 +9,7 @@ interface ApiError {
   detail?: string;
 }
 
-// ✅ ReactText replaced with string | number
+
 interface ToastContext {
   toastId: string | number;
 }
@@ -17,7 +17,7 @@ interface ToastContext {
 export const useSellerActions = () => {
   const queryClient = useQueryClient();
 
-  // 🔹 Approve Seller
+  //  Approve Seller
   const approveSeller = useMutation<
     Seller,
     AxiosError<ApiError>,
@@ -57,7 +57,7 @@ export const useSellerActions = () => {
     },
   });
 
-  // 🔹 Reject Seller
+  //  Reject Seller
   const rejectSeller = useMutation<
     Seller,
     AxiosError<ApiError>,
@@ -97,5 +97,39 @@ export const useSellerActions = () => {
     },
   });
 
-  return { approveSeller, rejectSeller };
+  // 🔹 Toggle Block / Unblock Seller
+  const toggleBlockSeller = useMutation<Seller, AxiosError<ApiError>, number, ToastContext>({
+    mutationFn: (id) => toggleSellerBlockStatus(id),
+    onMutate: () => {
+      const toastId = toast.loading("Updating block status...");
+      return { toastId };
+    },
+    onSuccess: (data, _id, context) => {
+      if (!context) return;
+      toast.update(context.toastId, {
+        render: `Seller "${data.full_name}" has been ${data.is_blocked ? "blocked" : "unblocked"}.`,
+        type: data.is_blocked ? "warning" : "success",
+        isLoading: false,
+        autoClose: 2000,
+      });
+      queryClient.invalidateQueries({ queryKey: ["sellers"] });
+    },
+    onError: (error, _id, context) => {
+      const errorMsg =
+        error.response?.data?.message ||
+        error.response?.data?.detail ||
+        "Failed to update block status.";
+      if (context) {
+        toast.update(context.toastId, {
+          render: errorMsg,
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+        });
+      } else {
+        toast.error(errorMsg);
+      }
+    },
+  });
+  return { approveSeller, rejectSeller,toggleBlockSeller };
 };

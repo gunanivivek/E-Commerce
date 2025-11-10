@@ -179,7 +179,7 @@ const AdminProductList: React.FC = () => {
               badgeColor = "bg-green-100 text-green-700 border-green-300";
               break;
             case "pending":
-              badgeColor = "bg-yellow-100 text-yellow-800 border-yellow-300";
+              badgeColor = "bg-primary-100 text-muted border-border-light";
               break;
             case "rejected":
               badgeColor = "bg-red-100 text-red-700 border-red-300";
@@ -280,10 +280,10 @@ const AdminProductList: React.FC = () => {
         <div className="px-4 sm:px-8">
           {/* Header */}
           <div className="mb-4">
-            <h1 className="text-xl sm:text-2xl font-bold text-primary-400 mb-1">
+            <h1 className="text-2xl sm:text-3xl font-heading font-bold text-accent-dark mb-1">
               Product Management
             </h1>
-            <p className="text-primary-400 text-xs sm:text-sm">
+            <p className="text-primary-300 text-sm sm:text-base">
               Review and approve products from sellers.
             </p>
           </div>
@@ -297,13 +297,13 @@ const AdminProductList: React.FC = () => {
               </h2>
 
               <div className="relative w-full sm:w-80">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-400/50 w-4 h-4 sm:w-5 sm:h-5" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-300 w-4 h-4 sm:w-5 sm:h-5" />
                 <input
                   type="text"
                   placeholder="Search products..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 w-full border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm"
+                  className="pl-9 sm:pl-10 pr-3 sm:pr-4 py-1.5 sm:py-2 w-full border border-border-light rounded-lg bg-primary-100/30 text-primary-300 focus:outline-none focus:ring-2 focus:ring-primary-400 text-sm"
                 />
               </div>
             </div>
@@ -317,7 +317,7 @@ const AdminProductList: React.FC = () => {
                 <select
                   value={categoryFilter}
                   onChange={(e) => setCategoryFilter(e.target.value)}
-                  className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
                 >
                   <option value="">All Categories</option>
                   {uniqueCategories.map((cat) => (
@@ -329,11 +329,11 @@ const AdminProductList: React.FC = () => {
               </div>
 
               <div className="flex flex-col min-w-[100px]">
-                <label className="text-xs text-primary-400 mb-1">Status</label>
+                <label className="text-xs text-primary-300 mb-1">Status</label>
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
                 >
                   <option value="">All Status</option>
                   <option value="approved">Approved</option>
@@ -343,29 +343,29 @@ const AdminProductList: React.FC = () => {
               </div>
 
               <div className="flex flex-col min-w-[130px]">
-                <label className="text-xs text-primary-400 mb-1">
+                <label className="text-xs text-primary-300 mb-1">
                   From Date
                 </label>
                 <input
                   type="date"
                   value={dateFrom}
                   onChange={(e) => setDateFrom(e.target.value)}
-                  className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
                 />
               </div>
 
               <div className="flex flex-col min-w-[130px]">
-                <label className="text-xs text-primary-400 mb-1">To Date</label>
+                <label className="text-xs text-primary-300 mb-1">To Date</label>
                 <input
                   type="date"
                   value={dateTo}
                   onChange={(e) => setDateTo(e.target.value)}
-                  className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
                 />
               </div>
 
               <div className="flex flex-col min-w-[100px]">
-                <label className="text-xs text-primary-400 mb-1">
+                <label className="text-xs text-primary-300 mb-1">
                   Min Price
                 </label>
                 <input
@@ -379,12 +379,12 @@ const AdminProductList: React.FC = () => {
                     )
                   }
                   placeholder="0.00"
-                  className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
                 />
               </div>
 
               <div className="flex flex-col min-w-[100px]">
-                <label className="text-xs text-primary-400 mb-1">
+                <label className="text-xs text-primary-300 mb-1">
                   Max Price
                 </label>
                 <input
@@ -398,7 +398,7 @@ const AdminProductList: React.FC = () => {
                     )
                   }
                   placeholder="100.00"
-                  className="border border-primary-400/20 rounded-lg bg-primary-400/5 text-primary-400 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
                 />
               </div>
             </div>
@@ -410,7 +410,7 @@ const AdminProductList: React.FC = () => {
                   {table.getHeaderGroups().map((headerGroup) => (
                     <tr
                       key={headerGroup.id}
-                      className="border-b border-primary-400/10"
+                      className="border-b border-border"
                     >
                       {headerGroup.headers.map((header) => (
                         <th
@@ -463,7 +463,7 @@ const AdminProductList: React.FC = () => {
                         {row.getVisibleCells().map((cell) => (
                           <td
                             key={cell.id}
-                            className="py-2 px-3 text-xs sm:text-sm text-primary-400"
+                            className="py-2 px-3 text-xs sm:text-sm text-primary-300"
                           >
                             {flexRender(
                               cell.column.columnDef.cell,
@@ -488,7 +488,7 @@ const AdminProductList: React.FC = () => {
             </div>
 
             {/* Pagination */}
-            <div className="flex flex-col sm:flex-row items-center justify-between mt-4 sm:mt-1 border-t border-primary-400/10 pt-2 gap-2 sm:gap-0">
+            <div className="flex flex-col sm:flex-row items-center justify-between mt-4 sm:mt-1 border-t border-border pt-2 gap-2 sm:gap-0">
               <div className="text-xs sm:text-sm text-primary-400">
                 Page {table.getState().pagination.pageIndex + 1} of{" "}
                 {table.getPageCount()}

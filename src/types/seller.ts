@@ -17,6 +17,8 @@ export interface SellerProfile {
   store_address: string;
   full_name: string;
   phone: string;
+  email: string;
+  profile_picture: string;
 }
 
 export interface Product {
@@ -25,7 +27,8 @@ export interface Product {
   category: string;
   price: number;
   status: "approved" | "pending" | "rejected";
-  addedDate: string; // or Date if you convert it later
+  addedDate: string; 
+  stock: number;
 }
 
 export interface ViewProduct {

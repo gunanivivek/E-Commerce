@@ -62,3 +62,7 @@ export const getAllOrders = async (): Promise<Order[]> => {
   return res.data;
 };
 
+export const toggleSellerBlockStatus = async (id: number): Promise<Seller> => {
+  const res = await API.patch(`/sellers/${id}/block-toggle`);
+  return res.data;
+};

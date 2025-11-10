@@ -1,3 +1,4 @@
+import type { Customer } from "../types/admin";
 import type { User } from "../types/auth";
 import API from "./axiosInstance";
 
@@ -10,3 +11,12 @@ export const updateCustomerProfile = async (
   return res.data;
 };
 
+export const updateCustomerStatus = async (
+  id: number,
+  isBlocked: boolean
+): Promise<Customer> => {
+  const res = await API.patch(`/admin/customers/${id}/`, {
+    is_blocked: isBlocked,
+  });
+  return res.data;
+};
