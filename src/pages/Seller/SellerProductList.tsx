@@ -24,14 +24,12 @@ import AddProductModal from "../../components/Seller/AddProductModal";
 import UpdateProductForm from "../../components/Seller/UpdateProductForm";
 import DeleteProductModal from "../../components/Seller/DeleteProductModal";
 import type { Product } from "../../types/seller";
-import {
-  deleteProduct,
-  getSellerProducts,
-} from "../../api/sellerApi";
+import { deleteProduct, getSellerProducts } from "../../api/sellerApi";
 import { useAuthStore } from "../../store/authStore";
 import { toast } from "react-toastify";
 import TableRowSkeleton from "../../components/TableRowSkeleton";
 import { usePrefetchProduct } from "../../hooks/Seller/usePrefetchProduct";
+import { EditableQuantityCell } from "../../components/Seller/EditableQuantityCell";
 
 const columnHelper = createColumnHelper<Product>();
 
@@ -58,7 +56,9 @@ const SellerProductList: React.FC = () => {
     id: number;
     name: string;
   } | null>(null);
-    const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
+  const [selectedProductId, setSelectedProductId] = useState<number | null>(
+    null
+  );
 
   const user = useAuthStore((state) => state.user);
 
@@ -79,9 +79,9 @@ const SellerProductList: React.FC = () => {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["products", user?.id], 
+    queryKey: ["products", user?.id],
     queryFn: () => getSellerProducts(String(user?.id)),
-    enabled: !!user?.id, 
+    enabled: !!user?.id,
   });
 
   const uniqueCategories = useMemo(() => {
@@ -93,9 +93,9 @@ const SellerProductList: React.FC = () => {
   }, [products]);
 
   const handleView = useCallback((ProductId: number) => {
-  setSelectedProductId(ProductId);
-  setIsViewProdOpen(true);
-}, []);
+    setSelectedProductId(ProductId);
+    setIsViewProdOpen(true);
+  }, []);
 
   const deleteProductMutation = useMutation({
     mutationFn: (productId: number) => deleteProduct(productId),
@@ -186,7 +186,7 @@ const SellerProductList: React.FC = () => {
           const value =
             typeof rawValue === "number"
               ? rawValue
-              : parseFloat(String(rawValue)); 
+              : parseFloat(String(rawValue));
 
           return (
             <span className="text-primary-400">
@@ -195,11 +195,22 @@ const SellerProductList: React.FC = () => {
           );
         },
       }),
+      columnHelper.accessor("stock", {
+        header: "Quantity",
+        cell: ({ row }) => (
+          <EditableQuantityCell
+            product={{
+              id: row.original.id,
+              stock: row.original.stock,
+            }}
+          />
+        ),
+      }),
       columnHelper.accessor("status", {
         header: "Status",
         cell: (info) => {
           const status = info.getValue() as Product["status"] | undefined;
-          const colorClass = getStatusColor(status ?? "pending"); 
+          const colorClass = getStatusColor(status ?? "pending");
 
           return (
             <span
@@ -448,10 +459,7 @@ const SellerProductList: React.FC = () => {
             <table className="w-full min-w-max">
               <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
-                  <tr
-                    key={headerGroup.id}
-                    className="border-b-2 border-border"
-                  >
+                  <tr key={headerGroup.id} className="border-b-2 border-border">
                     {headerGroup.headers.map((header) => (
                       <th
                         key={header.id}
@@ -499,10 +507,7 @@ const SellerProductList: React.FC = () => {
                   </div>
                 ) : (
                   table.getRowModel().rows.map((row) => (
-                    <tr
-                      key={row.id}
-                      className="hover:bg-primary-400/5"
-                    >
+                    <tr key={row.id} className="hover:bg-primary-400/5">
                       {row.getVisibleCells().map((cell) => (
                         <td
                           key={cell.id}
