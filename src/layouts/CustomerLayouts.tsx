@@ -176,40 +176,42 @@ const CustomerPage: React.FC = () => {
 
           {/* Category Grid */}
           <div className="max-w-6xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {categories.map((cat, i) => (
-              <motion.a
-                key={cat.id}
-                href={cat.name}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: i * 0.1 }}
-                viewport={{ once: true }}
-                whileHover={{ scale: 1.03 }}
-                className="relative group rounded-2xl overflow-hidden bg-accent-darker"
-              >
-                {/* Image */}
-                <img
-                  src={cat.image_url}
-                  alt={cat.name}
-                  className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110 opacity-80"
-                />
+            {categories
+              .filter((cat) => cat.name.toLowerCase() !== "default")
+              .map((cat, i) => (
+                <motion.a
+                  key={cat.id}
+                  href={cat.name}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, delay: i * 0.1 }}
+                  viewport={{ once: true }}
+                  whileHover={{ scale: 1.03 }}
+                  className="relative group rounded-2xl overflow-hidden bg-accent-darker"
+                >
+                  {/* Image */}
+                  <img
+                    src={cat.image_url}
+                    alt={cat.name}
+                    className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110 opacity-80"
+                  />
 
-                {/* Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-accent-darker/40 via-accent/30 to-transparent flex items-end justify-between p-6">
-                  <h3 className="text-2xl font-semibold text-[var(--color-white)] tracking-wide">
-                    {cat.name}
-                  </h3>
-                  <motion.span
-                    initial={{ x: 10, opacity: 0 }}
-                    whileHover={{ x: 0, opacity: 1 }}
-                    transition={{ duration: 0.3 }}
-                    className="text-orange-500 text-2xl font-bold"
-                  >
-                    →
-                  </motion.span>
-                </div>
-              </motion.a>
-            ))}
+                  {/* Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-accent-darker/40 via-accent/30 to-transparent flex items-end justify-between p-6">
+                    <h3 className="text-2xl font-semibold text-[var(--color-white)] tracking-wide">
+                      {cat.name}
+                    </h3>
+                    <motion.span
+                      initial={{ x: 10, opacity: 0 }}
+                      whileHover={{ x: 0, opacity: 1 }}
+                      transition={{ duration: 0.3 }}
+                      className="text-orange-500 text-2xl font-bold"
+                    >
+                      →
+                    </motion.span>
+                  </div>
+                </motion.a>
+              ))}
           </div>
         </section>
 
@@ -288,9 +290,7 @@ const CustomerPage: React.FC = () => {
                 </h3>
 
                 {/* Description */}
-                <p
-                  className="text-sm leading-relaxed max-w-xs font-body text-text-secondary"
-                >
+                <p className="text-sm leading-relaxed max-w-xs font-body text-text-secondary">
                   {item.desc}
                 </p>
               </motion.div>
@@ -344,21 +344,15 @@ const CustomerPage: React.FC = () => {
                         </div>
 
                         {/* Quote */}
-                        <p
-                          className="text-lg mb-6 leading-relaxed italic text-text-secondary font-body"
-                        >
+                        <p className="text-lg mb-6 leading-relaxed italic text-text-secondary font-body">
                           "{t.message}"
                         </p>
 
                         {/* Name & Location */}
-                        <h4
-                          className="text-xl font-bold mb-1 font-heading text-white"
-                        >
+                        <h4 className="text-xl font-bold mb-1 font-heading text-white">
                           {t.name}
                         </h4>
-                        <p
-                          className="text-sm mb-4 text-gray-500"
-                        >
+                        <p className="text-sm mb-4 text-gray-500">
                           {t.location}
                         </p>
 
@@ -500,7 +494,6 @@ const CustomerPage: React.FC = () => {
                   <motion.button
                     onClick={() => setActiveIndex(isOpen ? null : i)}
                     className="w-full flex items-center hover:text-white justify-between p-6 font-semibold cursor-pointer"
-                    
                     transition={{ duration: 0.2 }}
                   >
                     <span className="text-lg">{faq.q}</span>
@@ -508,9 +501,7 @@ const CustomerPage: React.FC = () => {
                       animate={{ rotate: isOpen ? 180 : 0 }}
                       transition={{ duration: 0.3 }}
                     >
-                      <ChevronDown
-                        size={20}
-                      />
+                      <ChevronDown size={20} />
                     </motion.div>
                   </motion.button>
 

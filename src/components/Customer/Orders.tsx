@@ -141,9 +141,15 @@ const Orders: React.FC = () => {
             {/* Product List */}
             <div className="divide-y divide-gray-200">
               {order.items.map((item) => (
-                <div key={item.id} className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-3">
+                <div
+                  key={item.id}
+                  className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-3"
+                >
                   <img
-                    src={item.product?.image || "https://via.placeholder.com/80x80?text=Product"}
+                    src={
+                      item.product?.image ||
+                      "https://via.placeholder.com/80x80?text=Product"
+                    }
                     alt={item.product?.name}
                     className="w-20 h-20 rounded-lg object-cover border border-gray-200"
                   />
@@ -155,7 +161,11 @@ const Orders: React.FC = () => {
                       ₹{item.unit_price.toLocaleString()} × {item.quantity}
                     </p>
                   </div>
-                  <div className="mt-2 sm:mt-0">{getStatusBadge(item.status)}</div>
+                  {order.status !== "cancelled" && (
+                    <div className="mt-2 sm:mt-0">
+                      {getStatusBadge(item.status)}
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

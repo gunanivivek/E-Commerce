@@ -9,7 +9,7 @@ interface ApiError {
   detail?: string;
 }
 
-// ✅ ReactText replaced with string | number
+
 interface ToastContext {
   toastId: string | number;
 }
