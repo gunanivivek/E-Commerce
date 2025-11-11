@@ -1,4 +1,4 @@
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
@@ -12,6 +12,8 @@ import type {
   ProductImageResponse,
 } from "../../types/product";
 import {
+  type SortingState,
+  type FilterFn,
   useReactTable,
   getCoreRowModel,
   getFilteredRowModel,
@@ -23,7 +25,6 @@ import type { ColumnDef } from "@tanstack/react-table";
 import type { Product } from "../../store/useProductStore";
 import LoadingState from "../LoadingState";
 
-// local product type extended with category for filtering
 type LocalProduct = Product & { category?: string | null };
 
 type FilterShape = {
@@ -37,104 +38,68 @@ type FilterShape = {
 };
 
 const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
-  const [globalFilter, setGlobalFilter] = useState("");
-
-  const { data: apiProducts, isLoading } = useQuery<ProductResponse[], Error>({
-    queryKey: ["products"],
-    queryFn: () => productsApi.getProducts(),
-    staleTime: 1000 * 60 * 30, 
+  const { data: apiNewArrivals, isLoading } = useQuery<
+    ProductResponse[],
+    Error
+  >({
+    queryKey: ["new-arrivals"],
+    queryFn: () => productsApi.getNewArrivals(),
+    staleTime: 1000 * 60 * 30,
     refetchOnWindowFocus: false,
     refetchOnMount: false,
     refetchOnReconnect: false,
   });
 
   const data = useMemo<LocalProduct[]>(() => {
-    const apiList = (apiProducts ?? []) as ProductResponse[];
-    if (!apiList.length) return [];
-    return apiList.map((p: ProductResponse) => ({
+    if (!apiNewArrivals?.length) return [];
+    return apiNewArrivals.map((p) => ({
       id: p.id,
       name: p.name,
       description: p.description ?? "",
       price: Number(p.price),
       discount_price: p.discount_price ? Number(p.discount_price) : undefined,
       stock: p.stock,
-      images: p.images
-        ? p.images.map((i: ProductImageResponse) => i.url)
-        : undefined,
+      images: p.images?.map((i: ProductImageResponse) => i.url),
       slug: p.slug,
-      image: p.images && p.images.length ? p.images[0].url : "",
+      image: p.images?.[0]?.url ?? "",
       is_active: p.is_active,
       created_at: p.created_at,
       rating: (p as unknown as { rating?: number }).rating ?? 4.5,
       category: p.category?.name ?? null,
     }));
-  }, [apiProducts]);
+  }, [apiNewArrivals]);
 
-  // apply category, rating and ordering filters before handing data to the table
-  const filteredAndSorted = useMemo<LocalProduct[]>(() => {
-    let list = [...data];
-    if (filters) {
-      if (filters.category != null) {
-        const wanted = String(filters.category).toLowerCase().trim();
-        list = list.filter(
-          (p) =>
-            String(p.category ?? "")
-              .toLowerCase()
-              .trim() === wanted
-        );
-      }
-      if (filters.ratingGte != null) {
-        list = list.filter((p) => (p.rating ?? 0) >= (filters.ratingGte ?? 0));
-      }
-      if (filters.ordering) {
-        const ord = filters.ordering;
-        if (ord === "price") list.sort((a, b) => a.price - b.price);
-        else if (ord === "-price") list.sort((a, b) => b.price - a.price);
-        else if (ord === "rating")
-          list.sort((a, b) => (a.rating ?? 0) - (b.rating ?? 0));
-        else if (ord === "-rating")
-          list.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
-        else if (ord === "-created")
-          list.sort(
-            (a, b) =>
-              new Date(b.created_at).getTime() -
-              new Date(a.created_at).getTime()
-          );
-        else if (ord === "created")
-          list.sort(
-            (a, b) =>
-              new Date(a.created_at).getTime() -
-              new Date(b.created_at).getTime()
-          );
-      }
-    }
-    return list;
-  }, [data, filters]);
+  const between: FilterFn<LocalProduct> = (
+    row,
+    id,
+    range: { min?: number; max?: number }
+  ) => {
+    const val = Number(row.getValue(id) ?? 0);
+    if (range?.min != null && val < range.min) return false;
+    if (range?.max != null && val > range.max) return false;
+    return true;
+  };
 
-  const columns = useMemo<ColumnDef<Product>[]>(
+  const columns = useMemo<ColumnDef<LocalProduct>[]>(
     () => [
       { accessorKey: "name", header: "Name" },
       {
         accessorKey: "price",
         header: "Price",
-        filterFn: (
-          row,
-          columnId,
-          filterValue: { min?: number | null; max?: number | null }
-        ) => {
-          const v = Number(row.getValue(columnId) ?? 0);
-          if (filterValue?.min != null && v < filterValue.min) return false;
-          if (filterValue?.max != null && v > filterValue.max) return false;
-          return true;
-        },
+        sortingFn: "auto",
+        filterFn: between,
+      },
+      {
+        accessorKey: "category",
+        header: "Category",
+        sortingFn: "auto",
       },
       {
         accessorKey: "stock",
         header: "Stock",
-        filterFn: (row, columnId, filterValue: boolean) => {
-          const v = Number(row.getValue(columnId) ?? 0);
-          if (filterValue) return v > 0;
-          return true;
+        filterFn: (row, id, value: boolean) => {
+          const stock = Number(row.getValue(id) ?? 0);
+          return value ? stock > 0 : true;
         },
       },
       { accessorKey: "description", header: "Description" },
@@ -142,37 +107,68 @@ const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
     []
   );
 
+  const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [sorting, setSorting] = useState<SortingState>([]);
 
+  // reactively apply filters from props
   useEffect(() => {
     const next: ColumnFiltersState = [];
+
     if (!filters) {
       setColumnFilters([]);
       setGlobalFilter("");
       return;
     }
+
+    if (filters.search) setGlobalFilter(filters.search);
+
     if (filters.minPrice != null || filters.maxPrice != null) {
       next.push({
         id: "price",
-        value: { min: filters.minPrice ?? null, max: filters.maxPrice ?? null },
+        value: {
+          min: filters.minPrice ?? null,
+          max: filters.maxPrice ?? null,
+        },
       });
     }
+
     if (filters.in_stock != null) {
-      next.push({ id: "stock", value: filters.in_stock });
+      next.push({
+        id: "stock",
+        value: filters.in_stock,
+      });
     }
-    if (filters.search) {
-      setGlobalFilter(filters.search);
+
+    if (filters.category) {
+      next.push({
+        id: "category",
+        value: filters.category,
+      });
     }
+
     setColumnFilters(next);
+
+    // handle ordering
+    if (filters.ordering) {
+      const ord = filters.ordering;
+      if (ord.startsWith("-")) {
+        setSorting([{ id: ord.substring(1), desc: true }]);
+      } else {
+        setSorting([{ id: ord, desc: false }]);
+      }
+    }
   }, [filters]);
 
   const table = useReactTable({
-    data: filteredAndSorted,
+    data,
     columns,
     state: {
+      sorting,
       globalFilter,
       columnFilters,
     },
+    onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -180,19 +176,10 @@ const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     filterFns: {
-      between: (
-        row,
-        columnId,
-        filterValue: { min?: number | null; max?: number | null }
-      ) => {
-        const v = Number(row.getValue(columnId) ?? 0);
-        if (filterValue?.min != null && v < filterValue.min) return false;
-        if (filterValue?.max != null && v > filterValue.max) return false;
-        return true;
-      },
-      instock: (row, columnId, filterValue: boolean) => {
-        const v = Number(row.getValue(columnId) ?? 0);
-        if (filterValue) return v > 0;
+      between: (row, id, range: { min?: number; max?: number }) => {
+        const val = Number(row.getValue(id) ?? 0);
+        if (range?.min != null && val < range.min) return false;
+        if (range?.max != null && val > range.max) return false;
         return true;
       },
     },
@@ -205,13 +192,13 @@ const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   const location = useLocation();
   const { cartItems, updateQuantity, removeItem } = useCartStore();
 
-  const filteredProducts = table
-    .getFilteredRowModel()
-    .rows.map((row) => row.original);
+  const filteredProducts = table.getRowModel().rows.map((r) => r.original);
 
   // show loading only if we're actually loading AND have no cached products to show
-  const hasProducts = Array.isArray(apiProducts) && apiProducts.length > 0;
-  if (isLoading && !hasProducts) return <LoadingState message="Loading products..." />;
+  const hasProducts =
+    Array.isArray(apiNewArrivals) && apiNewArrivals.length > 0;
+  if (isLoading && !hasProducts)
+    return <LoadingState message="Loading products..." />;
 
   if (!filteredProducts.length) return <p>No products available right now.</p>;
 
@@ -231,16 +218,22 @@ const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
             e.stopPropagation();
             // don't add if out of stock
             if (stock === 0) return;
-                    // require login to add to cart
-                    if (!user) return navigate("/login", { state: { from: location.pathname + location.search } });
-                    // add via product store which already syncs to cartStore
-                    addToCart(product as Product);
+            // require login to add to cart
+            if (!user)
+              return navigate("/login", {
+                state: { from: location.pathname + location.search },
+              });
+            // add via product store which already syncs to cartStore
+            addToCart(product as Product);
           };
 
           const handleWishlist = (e: React.MouseEvent) => {
             e.stopPropagation();
             // require login to add to wishlist
-            if (!user) return navigate("/login", { state: { from: location.pathname + location.search } });
+            if (!user)
+              return navigate("/login", {
+                state: { from: location.pathname + location.search },
+              });
             addToWishlist(product as Product);
           };
 
@@ -300,7 +293,6 @@ const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                     <span className="text-gray-400 line-through text-sm ml-2">
                       ₹{product.price}
                     </span>
-                    
                   )}
                 </p>
 

@@ -17,6 +17,13 @@ export const getProductsByCategory = async (category: string): Promise<ProductRe
   return res.data;
 };
 
+export const getNewArrivals = async (
+  params?: Record<string, unknown>
+): Promise<ProductResponse[]> => {
+  const res = await API.get<ProductResponse[]>("products/new-arrivals/", { params });
+  return res.data;
+};
+
 export default {
   getProducts,
   getProductById,
