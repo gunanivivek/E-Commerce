@@ -11,7 +11,7 @@ export const useFetchProducts = () => {
   const { setProducts, setError, setLoading } = useAdminProductStore();
 
   const query = useQuery({
-    queryKey: ["products"],
+    queryKey: ["admin-products"],
     queryFn: getAllProducts,
     retry: false,
   });

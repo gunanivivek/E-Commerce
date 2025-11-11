@@ -44,7 +44,7 @@ const AdminProductList: React.FC = () => {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["products"],
+    queryKey: ["admin-products"],
     queryFn: getAllProducts,
   });
 
