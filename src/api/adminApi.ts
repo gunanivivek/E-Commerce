@@ -35,7 +35,7 @@ export const uploadProfilePicture = async (
 };
 
 export const getAllProducts = async (): Promise<Product[]> => {
-  const res = await API.get("https://e-commerce-backend-4-p9d1.onrender.com/products/");
+  const res = await API.get("/products/");
   return res.data;
 };
 
