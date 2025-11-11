@@ -62,11 +62,11 @@ const Header = () => {
             <button
               type="button"
               onClick={() => {
-                navigate("/categories");
+                navigate("/new-arrivals");
               }}
               className="text-lg font-semibold font-logo text-accent-dark hover:cursor-pointer transition-colors hover:text-light"
             >
-              Categories
+              Fresh Drops
             </button>
           </nav>
         </div>
