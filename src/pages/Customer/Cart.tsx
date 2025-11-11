@@ -1,5 +1,9 @@
 import React from "react";
 import { useCartStore } from "../../store/cartStore";
+import useDebouncedUpdateCart from "../../hooks/Customer/CartHooks/useDebouncedUpdateCart";
+import useRemoveCartItem from "../../hooks/Customer/CartHooks/useRemoveCartItem";
+import useApplyCoupon from "../../hooks/Customer/CartHooks/useApplyCoupon";
+import useClearCart from "../../hooks/Customer/CartHooks/useClearCart";
 import { Link } from "react-router-dom";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import Header from "../../components/ui/Header";
@@ -9,18 +13,18 @@ import ConfirmModal from "../../components/Customer/ConfirmModal";
 const Cart: React.FC = () => {
   const {
     cartItems,
-    removeItem,
-    updateQuantity,
-    applyCoupon,
     subtotal: storeSubtotal,
     discount: storeDiscount,
     total: storeTotal,
   } = useCartStore();
+  const removeMutation = useRemoveCartItem();
+  const applyCouponMutation = useApplyCoupon();
+  const debouncedUpdater = useDebouncedUpdateCart();
+  const clearMutation = useClearCart();
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [pendingDelete, setPendingDelete] = React.useState<number | null>(null);
   const [couponCode, setCouponCode] = React.useState("");
-
-  // tax is zero by default
+  const [clearConfirmOpen, setClearConfirmOpen] = React.useState(false);
 
   const subtotal =
     storeSubtotal ||
@@ -100,10 +104,17 @@ const Cart: React.FC = () => {
 
       {/* Main section */}
       <section className="min-h-screen bg-background py-12 px-6 md:px-20">
-        <h1 className="text-3xl font-bold text- mb-8 text-accent-darker">
-          Shopping Cart
-        </h1>
-
+        <div className="flex justify-between mb-6 itemns-center h-min">
+          <h1 className="text-3xl font-bold text- mb-8 text-accent-darker">
+            Shopping Cart
+          </h1>
+          <button
+            onClick={() => setClearConfirmOpen(true)}
+            className="ml-2 px-4 py-2 h-min bg-accent-dark cursor-pointer text-white rounded-lg hover:opacity-90 transition"
+          >
+            Clear Cart
+          </button>
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Left: Cart Items */}
           <div className="lg:col-span-2 space-y-6">
@@ -141,14 +152,20 @@ const Cart: React.FC = () => {
 
                   <div className="flex items-center border rounded-lg px-2 py-1">
                     <button
-                      onClick={() => updateQuantity(item.id, -1)}
+                      onClick={() => {
+                        const newQty = Math.max(1, item.quantity - 1);
+                        debouncedUpdater.scheduleUpdate({ id: item.id, quantity: newQty });
+                      }}
                       className="p-1 hover:text-[var(--color-accent)] transition"
                     >
                       <Minus size={14} />
                     </button>
                     <span className="px-4 font-medium">{item.quantity}</span>
                     <button
-                      onClick={() => updateQuantity(item.id, 1)}
+                      onClick={() => {
+                        const newQty = item.quantity + 1;
+                        debouncedUpdater.scheduleUpdate({ id: item.id, quantity: newQty });
+                      }}
                       className="p-1 hover:text-[var(--color-accent)] transition"
                     >
                       <Plus size={14} />
@@ -200,25 +217,23 @@ const Cart: React.FC = () => {
                 placeholder="Coupon code"
                 className="w-full border border-[var(--color-gray-300)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
               />
-              <button
-                onClick={async () => {
-                  if (!couponCode.trim()) return;
-                  try {
-                    await applyCoupon(couponCode.trim());
-                    // optional: show a simple alert for now
-                    // later: replace with toasts
-                    alert("Coupon applied successfully");
-                  } catch (err) {
-                    console.error(err);
-                    const msg =
-                      err instanceof Error ? err.message : String(err);
-                    alert(msg || "Failed to apply coupon");
-                  }
-                }}
-                className="w-full border border-[var(--color-accent)] text-[var(--color-accent)] py-2 rounded-lg hover:bg-[var(--color-accent-light)] hover:text-white transition"
-              >
-                Apply Coupon
-              </button>
+              <div className="flex gap-2">
+                <button
+                  onClick={async () => {
+                    if (!couponCode.trim()) return;
+                    try {
+                      await applyCouponMutation.mutateAsync(couponCode.trim());
+                      // hook will show toast on success
+                    } catch (err) {
+                      // hook also shows error toast, but log for debugging
+                      console.error(err);
+                    }
+                  }}
+                  className="flex-1 border border-[var(--color-accent)] text-[var(--color-accent)] py-2 rounded-lg hover:bg-[var(--color-accent-light)] hover:text-white transition"
+                >
+                  Apply Coupon
+                </button>
+              </div>
             </div>
 
             <Link to="/checkout">
@@ -246,10 +261,38 @@ const Cart: React.FC = () => {
           setConfirmOpen(false);
           setPendingDelete(null);
         }}
-        onConfirm={() => {
-          if (pendingDelete != null) removeItem(pendingDelete);
+        onConfirm={async () => {
+          if (pendingDelete != null) {
+            try {
+              await removeMutation.mutateAsync(pendingDelete);
+            } catch {
+              // handled by hook
+            }
+          }
           setConfirmOpen(false);
           setPendingDelete(null);
+        }}
+      />
+      <ConfirmModal
+        isOpen={clearConfirmOpen}
+        title="Clear cart"
+        message={
+          <>
+            Are you sure you want to clear your cart? This will remove all
+            items.
+          </>
+        }
+        confirmText="Clear"
+        cancelText="Cancel"
+        danger
+        onClose={() => setClearConfirmOpen(false)}
+        onConfirm={async () => {
+          try {
+            await clearMutation.mutateAsync();
+          } catch {
+            // handled by hook
+          }
+          setClearConfirmOpen(false);
         }}
       />
     </>

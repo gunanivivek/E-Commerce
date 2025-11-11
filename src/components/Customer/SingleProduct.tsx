@@ -1,9 +1,12 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
-import { useProductStore } from "../../store/useProductStore";
+// import { useProductStore } from "../../store/useProductStore";
 import { useWishlistStore } from "../../store/wishlistStore";
 import { useCartStore } from "../../store/cartStore";
+import useRemoveCartItem from "../../hooks/Customer/CartHooks/useRemoveCartItem";
+import useDebouncedUpdateCart from "../../hooks/Customer/CartHooks/useDebouncedUpdateCart";
+import useAddToCart from "../../hooks/Customer/CartHooks/useAddToCart";
 import type { Product } from "../../store/useProductStore";
 
 interface ProductCardProps {
@@ -14,9 +17,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useAuthStore((s) => s.user);
-  const { addToCart } = useProductStore();
+  // product store left for wishlist helper; addToCart replaced by react-query hook
   const { addToWishlist } = useWishlistStore();
-  const { cartItems, updateQuantity, removeItem } = useCartStore();
+  const { cartItems } = useCartStore();
+  const removeMutation = useRemoveCartItem();
+  const debouncedUpdater = useDebouncedUpdateCart();
+  const addToCartMutation = useAddToCart();
 
   const stock = Number(product.stock ?? NaN);
   const inCart = cartItems.find((c) => c.id === product.id);
@@ -31,7 +37,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       return navigate("/login", {
         state: { from: location.pathname + location.search },
       });
-    addToCart(product);
+    addToCartMutation.mutate({ id: product.id, quantity: 1 });
   };
 
   const handleWishlist = (e: React.MouseEvent) => {
@@ -124,12 +130,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             const c = inCart!;
             const dec = (ev: React.MouseEvent) => {
               ev.stopPropagation();
-              if (c.quantity <= 1) removeItem(c.id);
-              else updateQuantity(c.id, -1);
+              if (c.quantity <= 1) removeMutation.mutate(c.id);
+              else debouncedUpdater.scheduleUpdate({ id: c.id, quantity: Math.max(1, c.quantity - 1) });
             };
             const inc = (ev: React.MouseEvent) => {
               ev.stopPropagation();
-              updateQuantity(c.id, 1);
+              debouncedUpdater.scheduleUpdate({ id: c.id, quantity: c.quantity + 1 });
             };
             return (
               <div className="flex items-center gap-2">

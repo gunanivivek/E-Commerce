@@ -1,12 +1,17 @@
 import React, { useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
-import { useProductStore } from "../../store/useProductStore";
 import { useWishlistStore } from "../../store/wishlistStore";
 import { useCartStore } from "../../store/cartStore";
+import useRemoveCartItem from "../../hooks/Customer/CartHooks/useRemoveCartItem";
+import useDebouncedUpdateCart from "../../hooks/Customer/CartHooks/useDebouncedUpdateCart";
+import useAddToCart from "../../hooks/Customer/CartHooks/useAddToCart";
 import { useQuery } from "@tanstack/react-query";
 import * as productsApi from "../../api/productsApi";
-import type { ProductResponse, ProductImageResponse } from "../../types/product";
+import type {
+  ProductResponse,
+  ProductImageResponse,
+} from "../../types/product";
 import {
   useReactTable,
   getCoreRowModel,
@@ -17,7 +22,6 @@ import {
 } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Product } from "../../store/useProductStore";
-
 
 type LocalProduct = Product & { category?: string | null };
 
@@ -84,7 +88,9 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
     if (filters) {
       if (filters.category) {
         const cat = filters.category.toLowerCase().trim();
-        list = list.filter((p) => (p.category ?? "").toLowerCase().trim() === cat);
+        list = list.filter(
+          (p) => (p.category ?? "").toLowerCase().trim() === cat
+        );
       }
       if (filters.ratingGte != null) {
         list = list.filter((p) => (p.rating ?? 0) >= (filters.ratingGte ?? 0));
@@ -93,17 +99,21 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
         const ord = filters.ordering;
         if (ord === "price") list.sort((a, b) => a.price - b.price);
         else if (ord === "-price") list.sort((a, b) => b.price - a.price);
-        else if (ord === "rating") list.sort((a, b) => (a.rating ?? 0) - (b.rating ?? 0));
-        else if (ord === "-rating") list.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+        else if (ord === "rating")
+          list.sort((a, b) => (a.rating ?? 0) - (b.rating ?? 0));
+        else if (ord === "-rating")
+          list.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
         else if (ord === "-created")
           list.sort(
             (a, b) =>
-              new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime()
           );
         else if (ord === "created")
           list.sort(
             (a, b) =>
-              new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+              new Date(a.created_at).getTime() -
+              new Date(b.created_at).getTime()
           );
       }
     }
@@ -113,9 +123,12 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useAuthStore((s) => s.user);
-  const { addToCart } = useProductStore();
-  const { addToWishlist } = useWishlistStore();
-  const { cartItems, updateQuantity, removeItem } = useCartStore();
+  // product store kept for non-cart product helpers if needed
+  const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore();
+  const { cartItems } = useCartStore();
+  const removeMutation = useRemoveCartItem();
+  const debouncedUpdater = useDebouncedUpdateCart();
+  const addToCartMutation = useAddToCart();
 
   const table = useReactTable({
     data: filteredAndSorted,
@@ -129,7 +142,9 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  const filteredProducts = table.getFilteredRowModel().rows.map((r) => r.original);
+  const filteredProducts = table
+    .getFilteredRowModel()
+    .rows.map((r) => r.original);
 
   const hasProducts = Array.isArray(apiProducts) && apiProducts.length > 0;
 
@@ -146,7 +161,11 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
     );
 
   if (!filteredProducts.length)
-    return <p className="text-center py-10 text-gray-600">No products available right now.</p>;
+    return (
+      <p className="text-center py-10 text-gray-600">
+        No products available right now.
+      </p>
+    );
 
   return (
     <section className="py-5 px-6 md:px-20">
@@ -156,18 +175,28 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
           const inCart = cartItems.find((c) => c.id === product.id);
 
           const handleNavigate = () => navigate(`/product/${product.id}`);
-          const handleAddToCart = (e: React.MouseEvent) => {
+          const handleAddToCart = async (e: React.MouseEvent) => {
             e.stopPropagation();
             if (stock === 0) return;
             if (!user)
-              return navigate("/login", { state: { from: location.pathname + location.search } });
-            addToCart(product);
+              return navigate("/login", {
+                state: { from: location.pathname + location.search },
+              });
+            try {
+              await addToCartMutation.mutateAsync({ id: product.id, quantity: 1 });
+            } catch {
+              // handled in hook
+            }
           };
           const handleWishlist = (e: React.MouseEvent) => {
             e.stopPropagation();
             if (!user)
-              return navigate("/login", { state: { from: location.pathname + location.search } });
-            addToWishlist(product);
+              return navigate("/login", {
+                state: { from: location.pathname + location.search },
+              });
+            const inWishlist = wishlist.some((w) => w.id === product.id);
+            if (inWishlist) removeFromWishlist(product.id);
+            else addToWishlist(product);
           };
 
           return (
@@ -192,12 +221,16 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                     className="object-cover w-full h-full transition-transform duration-300 hover:scale-110"
                   />
                 ) : (
-                  <span className="text-primary-200 text-sm">No Image Available</span>
+                  <span className="text-primary-200 text-sm">
+                    No Image Available
+                  </span>
                 )}
               </div>
 
               <h3 className="text-accent-dark font-semibold text-lg text-center mb-2 hover:underline cursor-pointer">
-                {product.name.length > 15 ? product.name.slice(0, 15) + "..." : product.name}
+                {product.name.length > 15
+                  ? product.name.slice(0, 15) + "..."
+                  : product.name}
               </h3>
 
               <p className="text-sm text-accent mb-1 min-h-[60px]">
@@ -220,12 +253,6 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                 )}
               </p>
 
-              {Number.isFinite(stock) && (
-                <p className="text-xs text-gray-500 mb-2">
-                  Stock: {stock > 0 ? stock : "Out of stock"}
-                </p>
-              )}
-
               {/* Rating */}
               <div className="flex items-center mb-3">
                 {Array.from({ length: 5 }).map((_, index) => (
@@ -239,7 +266,9 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                     <path d="M12 .587l3.668 7.568L24 9.75l-6 5.854L19.335 24 12 19.896 4.665 24 6 15.604 0 9.75l8.332-1.595z" />
                   </svg>
                 ))}
-                <span className="text-sm text-gray-600 ml-2">{product.rating}</span>
+                <span className="text-sm text-gray-600 ml-2">
+                  {product.rating}
+                </span>
               </div>
 
               {/* Buttons */}
@@ -252,12 +281,12 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                     const c = inCart;
                     const dec = (ev: React.MouseEvent) => {
                       ev.stopPropagation();
-                      if (c.quantity <= 1) removeItem(c.id);
-                      else updateQuantity(c.id, -1);
+                      if (c.quantity <= 1) removeMutation.mutate(c.id);
+                      else debouncedUpdater.scheduleUpdate({ id: c.id, quantity: Math.max(1, c.quantity - 1) });
                     };
                     const inc = (ev: React.MouseEvent) => {
                       ev.stopPropagation();
-                      updateQuantity(c.id, 1);
+                      debouncedUpdater.scheduleUpdate({ id: c.id, quantity: c.quantity + 1 });
                     };
                     return (
                       <div className="flex items-center gap-2">
@@ -285,7 +314,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                     disabled={stock === 0}
                     className={`flex-1 py-2 rounded-lg font-semibold transition-all duration-150 shadow-sm ${
                       stock === 0
-                        ? "bg-accent-light text-accent-light cursor-not-allowed"
+                        ? "bg-accent text-primary-100 cursor-not-allowed"
                         : "bg-[var(--color-accent)] text-primary-100 hover:bg-[var(--color-accent-dark)] hover:shadow-md transform hover:-translate-y-0.5"
                     }`}
                   >
@@ -296,16 +325,27 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                   onClick={handleWishlist}
                   className="ml-2 p-2 border rounded-lg transition-all duration-150 border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-black"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.8}
-                    className="w-5 h-5"
-                  >
-                    <path d="M12 21C12 21 4 13.647 4 8.75C4 6.17893 6.17893 4 8.75 4C10.2355 4 11.6028 4.80549 12 6.00613C12.3972 4.80549 13.7645 4 15.25 4C17.8211 4 20 6.17893 20 8.75C20 13.647 12 21 12 21Z" />
-                  </svg>
+                  {wishlist.some((w) => w.id === product.id) ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      className="w-5 h-5 text-[var(--color-error)]"
+                    >
+                      <path d="M12 21C12 21 4 13.647 4 8.75C4 6.17893 6.17893 4 8.75 4C10.2355 4 11.6028 4.80549 12 6.00613C12.3972 4.80549 13.7645 4 15.25 4C17.8211 4 20 6.17893 20 8.75C20 13.647 12 21 12 21Z" />
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={1.8}
+                      className="w-5 h-5"
+                    >
+                      <path d="M12 21C12 21 4 13.647 4 8.75C4 6.17893 6.17893 4 8.75 4C10.2355 4 11.6028 4.80549 12 6.00613C12.3972 4.80549 13.7645 4 15.25 4C17.8211 4 20 6.17893 20 8.75C20 13.647 12 21 12 21Z" />
+                    </svg>
+                  )}
                 </button>
               </div>
             </div>
