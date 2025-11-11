@@ -49,7 +49,7 @@ const SellerList: React.FC = () => {
       approveSeller.reset();
       rejectSeller.reset();
     }
-  }, [approveSeller.isSuccess, rejectSeller.isSuccess]);
+  }, [approveSeller, rejectSeller]);
  
   const handleApprove = useCallback(
     (id: number) => {

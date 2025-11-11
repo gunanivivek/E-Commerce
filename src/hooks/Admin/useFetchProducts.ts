@@ -29,7 +29,7 @@ export const useFetchProducts = () => {
       setError(message);
       toast.error(message);
     }
-  }, [query.isFetching, query.isSuccess, query.data, query.isError, query.error]);
+  }, [query.isFetching, query.isSuccess, query.data, query.isError, query.error, setProducts, setError, setLoading]);
 
   return query;
 };

@@ -10,10 +10,10 @@ import Hero1 from "../assets/Hero1.webp";
 import Hero2 from "../assets/Hero2.png";
 import Hero3 from "../assets/Hero3.jpg";
 import { useState } from "react";
-import { ChevronDown } from "lucide-react"; // Assuming Lucide icons; adjust as needed
+import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react"; // Assuming Lucide icons; adjust as needed
 import { User2, User2Icon, type LucideProps } from "lucide-react";
 import { useCategoryStore } from "../store/categoryStore";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 interface Testimonial {
   id?: number;
@@ -23,7 +23,20 @@ interface Testimonial {
   rating: number;
   location: string;
 }
-
+const variants = {
+  enter: (direction: number) => ({
+    x: direction > 0 ? "100%" : "-100%",
+    opacity: 1,
+  }),
+  center: {
+    x: 0,
+    opacity: 1,
+  },
+  exit: (direction: number) => ({
+    x: direction > 0 ? "-100%" : "100%",
+    opacity: 1,
+  }),
+};
 const fetchTestimonials = async (): Promise<Testimonial[]> => {
   const res = await fetch("/data/testimonials.json");
   if (!res.ok) throw new Error("Failed to fetch testimonials");
@@ -33,6 +46,8 @@ const fetchTestimonials = async (): Promise<Testimonial[]> => {
 const CustomerPage: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const categories = useCategoryStore((state) => state.categories);
+  const [current, setCurrent] = useState(0);
+  const [direction, setDirection] = useState(1);
   const { data: testimonials = [] } = useQuery({
     queryKey: ["testimonials"],
     queryFn: fetchTestimonials,
@@ -66,9 +81,18 @@ const CustomerPage: React.FC = () => {
     ],
   };
   const images = [Hero1, Hero2, Hero3];
-  const [current, setCurrent] = useState(0);
 
-  // Auto change image every 3 seconds
+  const handleNext = () => {
+    setDirection(1);
+    setCurrent((prev) => (prev + 1) % images.length);
+  };
+
+  const handlePrev = () => {
+    setDirection(-1);
+    setCurrent((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  // Auto-slide every 3s
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrent((prev) => (prev + 1) % images.length);
@@ -103,7 +127,7 @@ const CustomerPage: React.FC = () => {
                 {/* Buttons */}
                 <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
                   <Link
-                    to="#"
+                    to="/products"
                     className="inline-block font-semibold rounded-full py-3 px-8 transition-all duration-250 text-center bg-gradient-to-r from-accent to-accent-dark text-[var(--color-white)] hover:-translate-y-0.5 hover:shadow-lg"
                   >
                     Shop Now
@@ -112,19 +136,39 @@ const CustomerPage: React.FC = () => {
               </div>
 
               {/* Right: Auto Image Slider */}
-              <div className="flex items-center justify-center relative overflow-hidden rounded-xl shadow-xl w-full max-w-md md:max-w-full">
-                <AnimatePresence mode="wait">
+              <div className="relative w-full max-w-md md:max-w-full h-96 overflow-hidden rounded-xl shadow-xl flex items-center justify-center bg-black/5">
+                <AnimatePresence custom={direction}>
                   <motion.img
                     key={images[current]}
                     src={images[current]}
-                    alt="Product showcase"
-                    className="rounded-xl w-full h-96 object-cover"
-                    initial={{ opacity: 0, scale: 1.05 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.8 }}
+                    custom={direction}
+                    variants={variants}
+                    initial="enter"
+                    animate="center"
+                    exit="exit"
+                    transition={{
+                      x: { type: "spring", stiffness: 300, damping: 30 },
+                      opacity: { duration: 0.2 },
+                    }}
+                    className="absolute w-full h-full object-cover rounded-xl"
                   />
                 </AnimatePresence>
+
+                {/* Optional buttons */}
+                <div className="absolute inset-0 flex justify-between items-center px-4">
+                  <button
+                    onClick={handlePrev}
+                    className="bg-white/70 hover:bg-white p-2 rounded-full shadow"
+                  >
+                    <ChevronLeft />
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    className="bg-white/70 hover:bg-white p-2 rounded-full shadow"
+                  >
+                    <ChevronRight />
+                  </button>
+                </div>
               </div>
             </div>
           </section>
@@ -179,9 +223,8 @@ const CustomerPage: React.FC = () => {
             {categories
               .filter((cat) => cat.name.toLowerCase() !== "default")
               .map((cat, i) => (
-                <motion.a
+                <motion.div
                   key={cat.id}
-                  href={cat.name}
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, delay: i * 0.1 }}
@@ -189,28 +232,34 @@ const CustomerPage: React.FC = () => {
                   whileHover={{ scale: 1.03 }}
                   className="relative group rounded-2xl overflow-hidden bg-accent-darker"
                 >
-                  {/* Image */}
-                  <img
-                    src={cat.image_url}
-                    alt={cat.name}
-                    className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110 opacity-80"
-                  />
+                  {/* ✅ Use Link instead of <a> */}
+                  <Link
+                    to={`/category/${cat.name}`}
+                    className="block"
+                  >
+                    {/* Image */}
+                    <img
+                      src={cat.image_url}
+                      alt={cat.name}
+                      className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110 opacity-80"
+                    />
 
-                  {/* Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-accent-darker/40 via-accent/30 to-transparent flex items-end justify-between p-6">
-                    <h3 className="text-2xl font-semibold text-[var(--color-white)] tracking-wide">
-                      {cat.name}
-                    </h3>
-                    <motion.span
-                      initial={{ x: 10, opacity: 0 }}
-                      whileHover={{ x: 0, opacity: 1 }}
-                      transition={{ duration: 0.3 }}
-                      className="text-orange-500 text-2xl font-bold"
-                    >
-                      →
-                    </motion.span>
-                  </div>
-                </motion.a>
+                    {/* Overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-accent-darker/40 via-accent/30 to-transparent flex items-end justify-between p-6">
+                      <h3 className="text-2xl font-semibold text-[var(--color-white)] tracking-wide">
+                        {cat.name}
+                      </h3>
+                      <motion.span
+                        initial={{ x: 10, opacity: 0 }}
+                        whileHover={{ x: 0, opacity: 1 }}
+                        transition={{ duration: 0.3 }}
+                        className="text-text-primary text-2xl font-bold"
+                      >
+                        →
+                      </motion.span>
+                    </div>
+                  </Link>
+                </motion.div>
               ))}
           </div>
         </section>

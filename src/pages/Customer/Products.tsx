@@ -64,18 +64,18 @@ const ProductsPage: React.FC = () => {
   return (
     <>
       <Header />
-      <div className="bg-surface">
+      <div className="min-h-screen text-[var(--color-text)] bg-background">
         {/*  Hero Section */}
         <section className="px-8 md:px-20 py-10 md:py-16 text-center">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-3xl md:text-4xl text-white font-extrabold font-logo "
+            className="text-3xl md:text-4xl font-extrabold font-logo "
           >
-            Explore Our {" "}
-            <span className="bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-dark)] bg-clip-text text-accent-darker">
-              Premium {" "}
+            Explore Our
+            <span className="bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-dark)] bg-clip-text text-transparent">
+              Premium
             </span>
             Collection
           </motion.h1>
@@ -84,7 +84,7 @@ const ProductsPage: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
-            className="mt-6 text-xl text-accent max-w-3xl mx-auto"
+            className="mt-6 text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto"
           >
             Find the best deals across all categories — smart, stylish, and high
             quality.
@@ -96,7 +96,7 @@ const ProductsPage: React.FC = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="flex flex-wrap gap-6 justify-between"
+            className="bg-white border border-gray-200 rounded-2xl shadow-lg p-6 flex flex-wrap gap-6 justify-between"
           >
             {filters.map((filter, i) => {
               const isOpen = activeFilter === i;
@@ -144,7 +144,7 @@ const ProductsPage: React.FC = () => {
                 <div key={i} className="flex-1 min-w-[200px] relative">
                   <button
                     onClick={() => setActiveFilter(isOpen ? null : i)}
-                    className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-primary-100 cursor-pointer border border-accent-dark text-accent-dark hover:bg-gray-200 transition-colors duration-200"
+                    className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200 transition-colors duration-200"
                   >
                     {label}
                     <motion.div
@@ -233,12 +233,12 @@ const ProductsPage: React.FC = () => {
         </section>
 
         {/* 🧱 Product Listing */}
-        <section className="px-6 md:px-16 py-10 bg-background mt-10">
+        <section className="px-6 md:px-16 py-10">
           <motion.h2
             initial={{ opacity: 0, y: -10 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-4xl font-bold text-center font-logo text-accent"
+            className="text-4xl font-bold text-center mb-0 font-logo"
           >
             All Products
           </motion.h2>
