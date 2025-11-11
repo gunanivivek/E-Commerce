@@ -31,7 +31,7 @@ type FilterShape = {
   search?: string | null;
 };
 
-// 🧱 Skeleton component for loading UI
+
 const ProductSkeleton = () => (
   <div className="bg-white rounded-lg shadow-md p-4 flex flex-col animate-pulse">
     <div className="h-40 bg-gray-200 rounded-md mb-3"></div>
