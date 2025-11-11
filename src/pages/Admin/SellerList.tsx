@@ -270,7 +270,7 @@ const handleBlockToggle = useCallback(
         },
       }),
     ],
-    [handleApprove, handleReject, handleBlockToggle]
+    [handleApprove, handleReject, handleEdit, handleBlockToggle]
   );
 
   const table = useReactTable({
