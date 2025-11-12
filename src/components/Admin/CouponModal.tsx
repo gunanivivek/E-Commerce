@@ -2,20 +2,36 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { X, Calendar, Percent, IndianRupee } from "lucide-react";
 import { useForm } from "react-hook-form";
+import {
+  useCreateCoupon,
+  useUpdateCoupon,
+} from "../../hooks/Seller/useSellerCoupons";
 
-interface Coupon {
-  id?: number;
-  code: string;
-  discountType: "flat" | "percentage";
-  discountValue: number;
-  description: string;
-  validTill: string;
+interface CouponFormData {
+  coupon_name: string;
+  coupon_description: string;
+  discount_type: "flat" | "percentage";
+  discount_value: number;
+  minimum_value: number;
+  expiry_date: string;
+  usage_limit: number;
+  coupon_status?: true;
 }
 
 interface CouponModalProps {
   isOpen: boolean;
   onClose: () => void;
-  coupon?: Coupon | null;
+  coupon?: {
+    id: number;
+    coupon_name: string;
+    coupon_description: string;
+    discount_type: "flat" | "percentage";
+    discount_value: number;
+    minimum_value: number;
+    expiry_date: string;
+    usage_limit: number;
+    coupon_status?: true;
+  } | null;
 }
 
 const CouponModal: React.FC<CouponModalProps> = ({
@@ -25,21 +41,26 @@ const CouponModal: React.FC<CouponModalProps> = ({
 }) => {
   const isEdit = !!coupon;
 
-  const { register, handleSubmit, reset, watch, formState } = useForm<Coupon>({
-    defaultValues: {
-      code: "",
-      discountType: "percentage",
-      discountValue: 0,
-      description: "",
-      validTill: "",
-    },
-  });
+  const { register, handleSubmit, reset, watch, formState } =
+    useForm<CouponFormData>({
+      defaultValues: {
+        coupon_name: "",
+        coupon_description: "",
+        discount_type: "percentage",
+        discount_value: 0,
+        minimum_value: 0,
+        expiry_date: "",
+        usage_limit: 0,
+      },
+    });
 
-  const discountType = watch("discountType");
+  const discountType = watch("discount_type");
   const [symbol, setSymbol] = useState("%");
 
+  const createMutation = useCreateCoupon();
+  const updateMutation = useUpdateCoupon();
+
   useEffect(() => {
-    // Update symbol dynamically based on selection
     setSymbol(discountType === "flat" ? "₹" : "%");
   }, [discountType]);
 
@@ -48,23 +69,43 @@ const CouponModal: React.FC<CouponModalProps> = ({
       reset(coupon);
     } else {
       reset({
-        code: "",
-        discountType: "percentage",
-        discountValue: 0,
-        description: "",
-        validTill: "",
+        coupon_name: "",
+        coupon_description: "",
+        discount_type: "percentage",
+        discount_value: 0,
+        minimum_value: 0,
+        expiry_date: "",
+        usage_limit: 0,
       });
     }
   }, [isEdit, coupon, reset]);
 
-  const onSubmit = (data: Coupon) => {
-    if (isEdit) {
-      console.log("Updated Coupon:", data);
+  const onSubmit = async (data: CouponFormData) => {
+  try {
+    const formattedData = {
+      ...data,
+      expiry_date: new Date(data.expiry_date).toISOString(),
+      usage_limit: Number(data.usage_limit),
+    };
+
+    if (isEdit && coupon?.id) {
+      // include coupon_status only during update
+      const updateData = {
+        ...formattedData,
+        coupon_status: true as const 
+      };
+
+      await updateMutation.mutateAsync({ id: coupon.id, data: updateData });
     } else {
-      console.log("Created New Coupon:", data);
+      await createMutation.mutateAsync(formattedData);
     }
+
     onClose();
-  };
+  } catch (err) {
+    console.error("Coupon mutation error:", err);
+  }
+};
+
 
   if (!isOpen) return null;
 
@@ -95,32 +136,53 @@ const CouponModal: React.FC<CouponModalProps> = ({
 
           {/* Form */}
           <form onSubmit={handleSubmit(onSubmit)} className="p-5 space-y-4">
-            {/* Coupon Code */}
+            {/* Coupon Name */}
             <div>
               <label className="block text-sm font-medium text-primary-500 mb-1">
-                Coupon Code
+                Coupon Name
               </label>
               <input
-                {...register("code", { required: "Coupon code is required" })}
+                {...register("coupon_name", {
+                  required: "Coupon name is required",
+                })}
                 className="w-full border border-primary-border rounded-lg px-3 py-2 text-sm text-primary-600 focus:ring-2 focus:ring-primary-400"
-                placeholder="Enter coupon code (e.g., SAVE10)"
+                placeholder="Enter coupon name (e.g., Diwali Offer)"
               />
-              {formState.errors.code && (
+              {formState.errors.coupon_name && (
                 <p className="text-red-500 text-xs mt-1">
-                  {formState.errors.code.message}
+                  {formState.errors.coupon_name.message}
+                </p>
+              )}
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-sm font-medium text-primary-500 mb-1">
+                Description
+              </label>
+              <textarea
+                {...register("coupon_description", {
+                  required: "Description is required",
+                })}
+                className="w-full border border-primary-border rounded-lg px-3 py-2 text-sm text-primary-600 focus:ring-2 focus:ring-primary-400"
+                rows={3}
+                placeholder="Describe the coupon (e.g., 10% off on all products)"
+              />
+              {formState.errors.coupon_description && (
+                <p className="text-red-500 text-xs mt-1">
+                  {formState.errors.coupon_description.message}
                 </p>
               )}
             </div>
 
             {/* Discount Type + Value */}
             <div className="grid grid-cols-2 gap-3">
-              {/* Type Dropdown */}
               <div>
                 <label className="block text-sm font-medium text-primary-500 mb-1">
                   Discount Type
                 </label>
                 <select
-                  {...register("discountType", { required: true })}
+                  {...register("discount_type", { required: true })}
                   className="w-full border border-primary-border rounded-lg px-3 py-2 text-sm text-primary-600 bg-white focus:ring-2 focus:ring-primary-400"
                 >
                   <option value="percentage">Percentage (%)</option>
@@ -128,7 +190,6 @@ const CouponModal: React.FC<CouponModalProps> = ({
                 </select>
               </div>
 
-              {/* Value Input */}
               <div>
                 <label className="block text-sm font-medium text-primary-500 mb-1">
                   Discount Value
@@ -141,7 +202,7 @@ const CouponModal: React.FC<CouponModalProps> = ({
                   )}
                   <input
                     type="number"
-                    {...register("discountValue", {
+                    {...register("discount_value", {
                       required: "Discount value is required",
                       min: 1,
                     })}
@@ -149,32 +210,45 @@ const CouponModal: React.FC<CouponModalProps> = ({
                     placeholder={`Enter value in ${symbol}`}
                   />
                 </div>
-                {formState.errors.discountValue && (
+                {formState.errors.discount_value && (
                   <p className="text-red-500 text-xs mt-1">
-                    {formState.errors.discountValue.message}
+                    {formState.errors.discount_value.message}
                   </p>
                 )}
               </div>
             </div>
 
-            {/* Description */}
+            {/* Minimum Value */}
             <div>
               <label className="block text-sm font-medium text-primary-500 mb-1">
-                Description
+                Minimum Order Value (₹)
               </label>
-              <textarea
-                {...register("description", {
-                  required: "Description is required",
+              <input
+                type="number"
+                {...register("minimum_value", {
+                  required: "Minimum value is required",
+                  min: 0,
                 })}
                 className="w-full border border-primary-border rounded-lg px-3 py-2 text-sm text-primary-600 focus:ring-2 focus:ring-primary-400"
-                rows={3}
-                placeholder="Describe the coupon (e.g., 10% off on all products)"
+                placeholder="e.g., 1000"
               />
-              {formState.errors.description && (
+              {formState.errors.minimum_value && (
                 <p className="text-red-500 text-xs mt-1">
-                  {formState.errors.description.message}
+                  {formState.errors.minimum_value.message}
                 </p>
               )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-primary-500 mb-1">
+                Usage Limit
+              </label>
+              <input
+                type="number"
+                {...register("usage_limit", { required: true, min: 1 })}
+                className="w-full border border-primary-border rounded-lg px-3 py-2 text-sm text-primary-600 focus:ring-2 focus:ring-primary-400"
+                placeholder="Enter usage limit"
+              />
             </div>
 
             {/* Valid Till */}
@@ -186,15 +260,15 @@ const CouponModal: React.FC<CouponModalProps> = ({
                 <Calendar className="w-4 h-4 text-primary-400" />
                 <input
                   type="date"
-                  {...register("validTill", {
+                  {...register("expiry_date", {
                     required: "Valid till date is required",
                   })}
                   className="w-full border border-primary-border rounded-lg px-3 py-2 text-sm text-primary-600 focus:ring-2 focus:ring-primary-400"
                 />
               </div>
-              {formState.errors.validTill && (
+              {formState.errors.expiry_date && (
                 <p className="text-red-500 text-xs mt-1">
-                  {formState.errors.validTill.message}
+                  {formState.errors.expiry_date.message}
                 </p>
               )}
             </div>
@@ -210,9 +284,16 @@ const CouponModal: React.FC<CouponModalProps> = ({
               </button>
               <button
                 type="submit"
+                disabled={createMutation.isPending || updateMutation.isPending}
                 className="px-4 py-2 text-sm rounded-lg bg-primary-400 text-white hover:bg-primary-500"
               >
-                {isEdit ? "Save Changes" : "Create"}
+                {isEdit
+                  ? updateMutation.isPending
+                    ? "Saving..."
+                    : "Save Changes"
+                  : createMutation.isPending
+                  ? "Creating..."
+                  : "Create"}
               </button>
             </div>
           </form>

@@ -9,60 +9,41 @@ import {
   Calendar,
   TicketPercent,
 } from "lucide-react";
+import {
+  useCoupons,
+  useDeleteCoupon,
+} from "../../hooks/Seller/useSellerCoupons";
+import type { Coupon } from "../../api/couponApi";
+import CouponModal from "../../components/Admin/CouponModal";
 
 // Dummy static data
-const sampleCoupons = [
-  {
-    id: 1,
-    code: "SAVE10",
-    discount: "10%",
-    description: "Get 10% off on all products.",
-    validTill: "2025-12-31",
-  },
-  {
-    id: 2,
-    code: "FREESHIP",
-    discount: "Free Shipping",
-    description: "Enjoy free delivery on orders above ₹500.",
-    validTill: "2025-06-30",
-  },
-  {
-    id: 3,
-    code: "NEWUSER20",
-    discount: "20%",
-    description: "New users get 20% off on first order.",
-    validTill: "2025-08-15",
-  },
-  {
-    id: 4,
-    code: "DIWALI50",
-    discount: "50%",
-    description: "Celebrate Diwali with 50% off storewide!",
-    validTill: "2025-11-20",
-  },
-];
 
 const SellerCoupons: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [coupons, setCoupons] = useState(sampleCoupons);
-  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const { data: coupons = [], isLoading } = useCoupons();
+  const deleteMutation = useDeleteCoupon();
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingCoupon, setEditingCoupon] = useState<any>(null);
 
   const filteredCoupons = coupons.filter((coupon) =>
-    coupon.code.toLowerCase().includes(searchTerm.toLowerCase())
+    coupon.coupon_code.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleEdit = (coupon: any) => {
-    console.log("Edit coupon:", coupon);
+  const handleEdit = (coupon: Coupon) => {
+    setEditingCoupon(coupon); // store selected coupon
+    setModalOpen(true); // open modal
   };
 
-  const handleDelete = (id: number) => {
-    setDeletingId(id);
-    setTimeout(() => {
-      setCoupons((prev) => prev.filter((c) => c.id !== id));
-      setDeletingId(null);
-      console.log("Deleted coupon:", id);
-    }, 800);
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setEditingCoupon(null);
   };
+
+  if (isLoading)
+    return (
+      <p className="text-center text-primary-400 mt-10">Loading coupons...</p>
+    );
 
   return (
     <div className="min-h-screen py-4 sm:py-6">
@@ -78,7 +59,10 @@ const SellerCoupons: React.FC = () => {
             </p>
           </div>
           <button
-            onClick={() => console.log("Add Coupon clicked")}
+            onClick={() => {
+              setEditingCoupon(null);
+              setModalOpen(true);
+            }}
             className="flex items-center gap-1 text-sm sm:text-base bg-primary-300 text-white rounded-lg px-3 py-1.5 hover:cursor-pointer hover:bg-primary-400 transition"
           >
             <Plus className="w-4 h-4" />
@@ -105,8 +89,7 @@ const SellerCoupons: React.FC = () => {
               No coupons found.
             </p>
           ) : (
-            filteredCoupons.map((coupon) => {
-              const isDeleting = deletingId === coupon.id;
+            filteredCoupons.map((coupon: Coupon) => {
               return (
                 <div
                   key={coupon.id}
@@ -118,32 +101,32 @@ const SellerCoupons: React.FC = () => {
                       <h3 className="flex items-center justify-between text-primary-400 font-bold font-heading text-sm">
                         <div className="flex items-center gap-1.5">
                           <Tag className="w-4 h-4" />
-                          {coupon.code}
+                          {coupon.coupon_code}
                         </div>
                         <button
-                          onClick={() => handleDelete(coupon.id)}
+                          onClick={() => deleteMutation.mutate(coupon.id)}
                           className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100 hover:cursor-pointer disabled:opacity-50"
                           title="Delete"
-                          disabled={isDeleting}
+                          disabled={deleteMutation.isPending}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </h3>
 
                       <p className="text-primary-400/70 text-sm mt-1">
-                        {coupon.description}
+                        {coupon.coupon_description}
                       </p>
                       <p className="flex items-center gap-1 text-primary-400/80 text-sm mt-1 font-medium">
                         <TicketPercent className="w-4 h-4" />
                         Discount:{" "}
-                        <span className="text-primary-400">
-                          {coupon.discount}
-                        </span>
+                        {coupon.discount_type === "flat"
+                          ? `₹${coupon.discount_value} OFF`
+                          : `${coupon.discount_value}% OFF`}
                       </p>
                       <p className="flex items-center gap-1 text-primary-400/60 text-sm mt-1">
                         <Calendar className="w-4 h-4" />
                         Valid till:{" "}
-                        {new Date(coupon.validTill).toLocaleDateString()}
+                        {new Date(coupon.expiry_date).toLocaleDateString()}
                       </p>
                     </div>
 
@@ -164,6 +147,13 @@ const SellerCoupons: React.FC = () => {
           )}
         </div>
       </div>
+      {modalOpen && (
+        <CouponModal
+          isOpen={modalOpen}
+          onClose={handleCloseModal}
+          coupon={editingCoupon}  // null for new, object for edit
+        />
+      )}
     </div>
   );
 };
