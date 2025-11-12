@@ -23,6 +23,8 @@ import type { Product } from "../../types/admin";
 import ViewProductModal from "../../components/Admin/ViewProductModal";
 import TableRowSkeleton from "../../components/TableRowSkeleton";
 import { useProductStatusActions } from "../../hooks/Admin/useProductStatusActions";
+import { useAdminProductStore } from "../../store/Admin/adminProductStore";
+import { useFetchProducts } from "../../hooks/Admin/useFetchProducts";
 
 const columnHelper = createColumnHelper<Product>();
 
@@ -39,14 +41,8 @@ const AdminProductList: React.FC = () => {
   const { approveProduct, rejectProduct, isPending } =
     useProductStatusActions();
 
-  const {
-    data: products = [],
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["admin-products"],
-    queryFn: getAllProducts,
-  });
+ const { products } = useAdminProductStore();
+  const { isError, isLoading } = useFetchProducts();
 
   const uniqueCategories = useMemo(() => {
     const categories = products
