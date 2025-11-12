@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { logoutUser } from "../api/authApi";
 
 interface User {
   id: number;
@@ -56,6 +57,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
   logout: () => {
     set({ user: null, message: null });
     localStorage.removeItem("authData");
+    logoutUser();
   },
 
   clearAuth: () => {

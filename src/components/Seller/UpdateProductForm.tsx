@@ -3,12 +3,9 @@ import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { X } from "lucide-react";
 import ReactDOM from "react-dom";
-import type { CreateProductRequest } from "../../types/seller";
 import { useCategoryStore } from "../../store/categoryStore";
-import { updateProduct } from "../../api/sellerApi";
-import { toast } from "react-toastify";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useProductQuery } from "../../hooks/useProductQuery";
+import { useUpdateProduct } from "../../hooks/Seller/useUpdateProduct";
 
 interface UpdateProductModalProps {
   isOpen: boolean;
@@ -22,6 +19,7 @@ interface ProductFormData {
   price: number;
   stock: number;
   category_id: number;
+  images?: FileList;
 }
 
 const UpdateProductForm: React.FC<UpdateProductModalProps> = ({
@@ -30,8 +28,8 @@ const UpdateProductForm: React.FC<UpdateProductModalProps> = ({
   productId,
 }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const [previewImages, setPreviewImages] = useState<string[]>([]);
 
-  const queryClient = useQueryClient();
   const categories = useCategoryStore((state) => state.categories);
 
   const {
@@ -44,8 +42,21 @@ const UpdateProductForm: React.FC<UpdateProductModalProps> = ({
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<ProductFormData>();
+
+  const selectedImages = watch("images");
+
+  useEffect(() => {
+    if (selectedImages && selectedImages.length > 0) {
+      const previews = Array.from(selectedImages).map((file) =>
+        URL.createObjectURL(file)
+      );
+      setPreviewImages(previews);
+      return () => previews.forEach((url) => URL.revokeObjectURL(url));
+    }
+  }, [selectedImages]);
 
   useEffect(() => {
     if (product) {
@@ -57,36 +68,31 @@ const UpdateProductForm: React.FC<UpdateProductModalProps> = ({
         category_id:
           categories.find((c) => c.name === product.category)?.id || 0,
       });
+      const imageUrls = product.images?.map((img) => img.url) || [];
+      setPreviewImages(imageUrls);
       setIsEditing(false);
     }
   }, [product, reset, categories]);
 
-  const mutation = useMutation({
-    mutationFn: (data: CreateProductRequest) => updateProduct(productId!, data),
-    onSuccess: () => {
-      toast.success("Product updated successfully!");
-      queryClient.invalidateQueries({ queryKey: ["products"] });
-      queryClient.invalidateQueries({ queryKey: ["product", productId] });
-      onClose();
-    },
-    onError: (error: any) => {
-      toast.error(
-        error.response?.data?.detail || "Failed to update product. Try again."
-      );
-    },
-  });
+  const { mutate: updateProductMutation, isPending } = useUpdateProduct(productId);
 
   const onSubmit = (data: ProductFormData) => {
     if (!productId) return;
-    const payload: CreateProductRequest = {
-      name: data.name,
-      description: data.description,
-      price: Number(data.price),
-      stock: Number(data.stock),
-      category: Number(data.category_id),
-      images: [],
-    };
-    mutation.mutate(payload);
+
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("description", data.description);
+    formData.append("price", data.price.toString());
+    formData.append("stock", data.stock.toString());
+    formData.append("category_id", data.category_id.toString());
+
+    if (selectedImages && selectedImages.length > 0) {
+    Array.from(selectedImages).forEach((file) => {
+      formData.append("images", file);
+    });
+  }
+
+    updateProductMutation(formData);
   };
 
   if (!isOpen) return null;
@@ -201,6 +207,37 @@ const UpdateProductForm: React.FC<UpdateProductModalProps> = ({
                 </p>
               )}
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Product Images
+              </label>
+
+              {/* Show existing or newly selected previews */}
+              <div className="flex flex-wrap gap-2 mb-2">
+                {previewImages.length > 0 ? (
+                  previewImages.map((img, index) => (
+                    <img
+                      key={index}
+                      src={img}
+                      alt={`product-${index}`}
+                      className="w-20 h-20 rounded-lg object-cover border"
+                    />
+                  ))
+                ) : (
+                  <p className="text-gray-400 text-sm">No images available</p>
+                )}
+              </div>
+
+              {isEditing && (
+                <input
+                  type="file"
+                  {...register("images")}
+                  multiple
+                  accept="image/*"
+                  className="block w-full text-sm text-gray-700 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-primary-400 file:text-white hover:file:bg-primary-500"
+                />
+              )}
+            </div>
 
             {/* Buttons */}
             <div className="flex justify-end gap-3 pt-4 border-t">
@@ -225,7 +262,7 @@ const UpdateProductForm: React.FC<UpdateProductModalProps> = ({
                     type="submit"
                     className="px-4 py-2 bg-primary-300 hover:bg-primary-400 hover:cursor-pointer text-white rounded-lg transition"
                   >
-                    Save Changes
+                    {isPending ? "Saving.." : "Save"}
                   </button>
                 </>
               )}

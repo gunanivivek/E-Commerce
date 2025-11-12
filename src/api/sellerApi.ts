@@ -80,14 +80,17 @@ export const getSellerProducts = async (
   return res.data.map((p: any) => ({
     id: p.id,
     name: p.name,
-    category: p.category?.name, 
+    category: p.category?.name,
     price: p.price,
     status: p.status,
     addedDate: p.created_at,
+    stock: p.stock,
   }));
 };
 
-export const getProductById = async (ProductId: number): Promise<ViewProduct> => {
+export const getProductById = async (
+  ProductId: number
+): Promise<ViewProduct> => {
   const res = await API.get(`products/${ProductId}/`);
   const item = res.data;
 
@@ -99,9 +102,12 @@ export const getProductById = async (ProductId: number): Promise<ViewProduct> =>
     category: item.category?.name ?? "Unknown",
     price: Number(item.price ?? 0),
     status:
-      item.status === "approved" || item.status === "pending" || item.status === "rejected"
+      item.status === "approved" ||
+      item.status === "pending" ||
+      item.status === "rejected"
         ? item.status
-        : "pending", 
+        : "pending",
+    images: item.images ? item.images.map((img: any) => img.image || img) : [],
   };
 
   return product;
@@ -110,16 +116,9 @@ export const getProductById = async (ProductId: number): Promise<ViewProduct> =>
 // Update product
 export const updateProduct = async (
   id: number,
-  data: CreateProductRequest
+  data: FormData
 ): Promise<ViewProduct> => {
-  const formData = new FormData();
-  formData.append("name", data.name);
-  formData.append("description", data.description);
-  formData.append("price", data.price.toString());
-  formData.append("stock", data.stock.toString());
-  formData.append("category_id", data.category.toString());
-  data.images.forEach((file) => formData.append("images", file));
-  const res = await API.patch(`/products/${id}/update`, formData, {
+  const res = await API.patch(`/products/${id}/update`, data, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
@@ -132,5 +131,13 @@ export const deleteProduct = async (
   ProductId: number
 ): Promise<{ message: string }> => {
   const res = await API.delete(`products/${ProductId}/delete`);
+  return res.data;
+};
+
+export const updateProductStock = async (
+  productId: number,
+  data: { quantity: number }
+) => {
+  const res = await API.patch(`/products/${productId}/stock`, data);
   return res.data;
 };

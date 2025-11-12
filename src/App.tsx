@@ -9,7 +9,6 @@ import TestDashboard from "./pages/TestDashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 import AdminLayouts from "./layouts/AdminLayouts";
-import Test from "./pages/Test";
 import SellerLayouts from "./layouts/SellerLayouts";
 import AdminProfile from "./pages/Admin/AdminProfile";
 import About from "./pages/Customer/About";
@@ -38,6 +37,9 @@ import Wishlist from "./pages/Customer/Wishlist";
 import AdminOrderList from "./pages/Admin/AdminOrderList";
 import Checkout from "./pages/Customer/Checkout";
 import SellerCoupons from "./pages/Seller/SellerCoupons";
+import AdminCoupons from "./pages/Admin/AdminCoupons";
+import CategoryPage from "./pages/Customer/CategoryPage";
+import NewArrivals from "./pages/Customer/NewArrivals";
 
 
 function App() {
@@ -59,6 +61,8 @@ function App() {
         <Route path="about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/products" element={<Products />} />
+        <Route path="/category/:category_name" element={<CategoryPage />} />
+        <Route path="/new-arrivals" element={<NewArrivals />} />
         <Route path="/product/:productId" element={<ProductsDescription />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/wishlist" element={<Wishlist />} />
@@ -75,7 +79,7 @@ function App() {
               <Route path="products" element={<AdminProductList />} />
               <Route path="category" element={<CategoryList />} />
               <Route path="customers" element={<CustomerList />} />
-              <Route path="coupons" element={<Test />} />
+              <Route path="coupons" element={<AdminCoupons />} />
               <Route path="profile" element={<AdminProfile />} />
                 <Route path="orders" element={<AdminOrderList />} />
             </Route>

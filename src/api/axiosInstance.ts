@@ -2,6 +2,7 @@
 import axios from "axios";
 import { useAuthStore } from "../store/authStore";
 import { toast } from "react-toastify";
+import { logoutUser } from "./authApi";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -13,6 +14,7 @@ const handleLogout = () => {
     localStorage.removeItem("authData");
     const { logout } = useAuthStore.getState();
     logout?.();
+    logoutUser();
   } catch (err) {
     console.error("Error clearing auth:", err);
   }

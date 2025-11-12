@@ -27,7 +27,8 @@ export interface Product {
   category: string;
   price: number;
   status: "approved" | "pending" | "rejected";
-  addedDate: string; // or Date if you convert it later
+  addedDate: string; 
+  stock: number;
 }
 
 export interface ViewProduct {
@@ -37,7 +38,8 @@ export interface ViewProduct {
   stock: number;
   category: string;
   price: number;
-  status: "approved" | "pending" | "rejected"; // or Date if you convert it later
+  status: "approved" | "pending" | "rejected";
+  images: { id: number; url: string }[]; // or Date if you convert it later
 }
 
 

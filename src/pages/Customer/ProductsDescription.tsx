@@ -2,9 +2,12 @@ import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import * as productsApi from "../../api/productsApi";
 import type { ProductResponse } from "../../types/product";
-import { useProductStore } from "../../store/useProductStore";
+import { useWishlistStore } from "../../store/wishlistStore";
 import type { Product } from "../../store/useProductStore";
 import { useCartStore } from "../../store/cartStore";
+import useRemoveCartItem from "../../hooks/Customer/CartHooks/useRemoveCartItem";
+import useDebouncedUpdateCart from "../../hooks/Customer/CartHooks/useDebouncedUpdateCart";
+import useAddToCart from "../../hooks/Customer/CartHooks/useAddToCart";
 import { useAuthStore } from "../../store/authStore";
 import ProductImageGallery from "../../components/Customer/ProductImageGallery";
 import { Star } from "lucide-react";
@@ -13,7 +16,7 @@ import Footer from "../../components/ui/Footer";
 import { Link } from "react-router-dom";
 import LoadingState from "../../components/LoadingState";
 
-const SingleProductPage: React.FC = () => {
+const ProductDescription: React.FC = () => {
   // route is defined as /product/:productId in App.tsx, so read productId here
   const { productId } = useParams<{ productId: string }>();
   const navigate = useNavigate();
@@ -31,8 +34,12 @@ const SingleProductPage: React.FC = () => {
     retry: 1,
   });
 
-  const { addToCart, addToWishlist } = useProductStore();
-  const { cartItems, updateQuantity, removeItem } = useCartStore();
+  // use centralized wishlist store so wishlist is consistent across the app
+  const { addToWishlist } = useWishlistStore();
+  const { cartItems } = useCartStore();
+  const removeMutation = useRemoveCartItem();
+  const debouncedUpdater = useDebouncedUpdateCart();
+  const addToCartMutation = useAddToCart();
   const user = useAuthStore((s) => s.user);
   const location = useLocation();
   // const [activeTab, setActiveTab] = useState("description");
@@ -202,10 +209,10 @@ const SingleProductPage: React.FC = () => {
                 (() => {
                   const c = cartItems.find((ci) => ci.id === product.id)!;
                   const dec = () => {
-                    if (c.quantity <= 1) removeItem(c.id);
-                    else updateQuantity(c.id, -1);
+                    if (c.quantity <= 1) removeMutation.mutate(c.id);
+                    else debouncedUpdater.scheduleUpdate({ id: c.id, quantity: Math.max(1, c.quantity - 1) });
                   };
-                  const inc = () => updateQuantity(c.id, 1);
+                  const inc = () => debouncedUpdater.scheduleUpdate({ id: c.id, quantity: c.quantity + 1 });
 
                   return (
                     <div className="flex items-center gap-2 min-w-61">
@@ -231,13 +238,17 @@ const SingleProductPage: React.FC = () => {
                 })()
               ) : (
                 <button
-                  onClick={() => {
-                    if (!user)
-                      return navigate("/login", {
-                        state: { from: location.pathname + location.search },
-                      });
-                    addToCart(storeProduct as Product);
-                  }}
+                  onClick={async () => {
+                      if (!user)
+                        return navigate("/login", {
+                          state: { from: location.pathname + location.search },
+                        });
+                      try {
+                        await addToCartMutation.mutateAsync({ id: storeProduct.id, quantity: 1 });
+                      } catch {
+                        // handled in hook
+                      }
+                    }}
                   disabled={product.stock === 0}
                   className={`flex-1 py-3 rounded-lg font-semibold transition-all duration-150 shadow-sm ${
                     product.stock === 0
@@ -270,4 +281,4 @@ const SingleProductPage: React.FC = () => {
   );
 };
 
-export default SingleProductPage;
+export default ProductDescription;

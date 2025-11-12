@@ -14,6 +14,7 @@ import type { AxiosError } from "axios";
 import type { Address as UserAddress } from "../../types/Address";
 import type { CartItem as StoreCartItem } from "../../store/cartStore";
 import LoadingState from "../../components/LoadingState";
+import useClearCart from "../../hooks/Customer/CartHooks/useClearCart";
 
 // Use real API createOrder via react-query
 
@@ -43,7 +44,7 @@ const Checkout: React.FC = () => {
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const clearCart = useCartStore((s) => s.clearCart);
+  const clearMutation = useClearCart();
 
   // Replace local placeholder with a react-query mutation that calls createOrder
   const placeOrderMutation = useMutation({
@@ -65,9 +66,9 @@ const Checkout: React.FC = () => {
         toast.success("Order placed successfully!");
       }
 
-      // clear cart
+      // clear cart using mutation to ensure server sync
       try {
-        clearCart();
+        await clearMutation.mutateAsync();
       } catch {
         // ignore
       }

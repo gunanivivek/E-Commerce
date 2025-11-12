@@ -35,7 +35,7 @@ export const uploadProfilePicture = async (
 };
 
 export const getAllProducts = async (): Promise<Product[]> => {
-  const res = await API.get("https://e-commerce-backend-4-p9d1.onrender.com/products/");
+  const res = await API.get("/products/");
   return res.data;
 };
 
@@ -62,3 +62,7 @@ export const getAllOrders = async (): Promise<Order[]> => {
   return res.data;
 };
 
+export const toggleSellerBlockStatus = async (id: number): Promise<Seller> => {
+  const res = await API.patch(`/sellers/${id}/block-toggle`);
+  return res.data;
+};
