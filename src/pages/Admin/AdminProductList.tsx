@@ -17,8 +17,6 @@ import {
   createColumnHelper,
 } from "@tanstack/react-table";
 import type { Row } from "@tanstack/react-table";
-import { useQuery } from "@tanstack/react-query";
-import { getAllProducts } from "../../api/adminApi";
 import type { Product } from "../../types/admin";
 import ViewProductModal from "../../components/Admin/ViewProductModal";
 import TableRowSkeleton from "../../components/TableRowSkeleton";
