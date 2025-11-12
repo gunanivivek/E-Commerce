@@ -1,10 +1,21 @@
+export interface ProductImage {
+  id: number;
+  product_id: number;
+  url: string;
+  position?: number;
+  created_at?: string;
+}
+
+export interface OrderProduct {
+  id: number;
+  name: string;
+  sku?: string;
+  images?: ProductImage[];
+}
+
 export interface OrderItem {
   id: number;
-  product: {
-    name: string;
-    sku?: string;
-    image?: string;
-  };
+  product: OrderProduct;
   seller_id: number;
   quantity: number;
   unit_price: number;

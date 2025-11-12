@@ -36,7 +36,8 @@ export const useProductStatusActions = () => {
       updateProductStatusLocal(variables.id, variables.status);
 
       //  Refetch product list
-      queryClient.invalidateQueries({ queryKey: ["products"] });
+    queryClient.invalidateQueries({ queryKey: ["admin-products"] });
+
     },
 
     onError: (error: AxiosError<{ detail?: string }>, _variables, context) => {

@@ -28,6 +28,8 @@ const Orders: React.FC = () => {
             Cancelled
           </span>
         );
+      default:
+        return null;
     }
   };
 
@@ -140,34 +142,42 @@ const Orders: React.FC = () => {
 
             {/* Product List */}
             <div className="divide-y divide-gray-200">
-              {order.items.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-3"
-                >
-                  <img
-                    src={
-                      item.product?.image ||
-                      "https://via.placeholder.com/80x80?text=Product"
-                    }
-                    alt={item.product?.name}
-                    className="w-20 h-20 rounded-lg object-cover border border-gray-200"
-                  />
-                  <div className="flex-1">
-                    <h4 className="text-[var(--color-primary-400)] font-semibold">
-                      {item.product?.name ?? "-"}
-                    </h4>
-                    <p className="text-gray-600 text-sm">
-                      ₹{item.unit_price.toLocaleString()} × {item.quantity}
-                    </p>
-                  </div>
-                  {order.status !== "cancelled" && (
-                    <div className="mt-2 sm:mt-0">
-                      {getStatusBadge(item.status)}
+              {order.items.map((item) => {
+                const imageUrl =
+                  item.product?.images?.[0]?.url ||
+                  "https://via.placeholder.com/80x80?text=Product";
+
+                return (
+                  <div
+                    key={item.id}
+                    className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-3"
+                  >
+                    <img
+                      src={imageUrl}
+                      alt={item.product?.name}
+                      className="w-20 h-20 rounded-lg object-cover border border-gray-200"
+                    />
+                    <div className="flex-1">
+                      <h4 className="text-[var(--color-primary-400)] font-semibold">
+                        {item.product?.name ?? "-"}
+                      </h4>
+                      {item.product?.sku && (
+                        <p className="text-gray-500 text-xs">
+                          SKU: {item.product.sku}
+                        </p>
+                      )}
+                      <p className="text-gray-600 text-sm">
+                        ₹{item.unit_price.toLocaleString()} × {item.quantity}
+                      </p>
                     </div>
-                  )}
-                </div>
-              ))}
+                    {order.status !== "cancelled" && (
+                      <div className="mt-2 sm:mt-0">
+                        {getStatusBadge(item.status)}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
 
             {/* Footer */}
