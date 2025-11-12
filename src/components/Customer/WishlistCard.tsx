@@ -2,7 +2,9 @@ import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useWishlistStore } from "../../store/wishlistStore";
 import { useCartStore } from "../../store/cartStore";
-import { useProductStore } from "../../store/useProductStore";
+import useRemoveCartItem from "../../hooks/Customer/CartHooks/useRemoveCartItem";
+import useDebouncedUpdateCart from "../../hooks/Customer/CartHooks/useDebouncedUpdateCart";
+import useAddToCart from "../../hooks/Customer/CartHooks/useAddToCart";
 import type { Product } from "../../store/useProductStore";
 import { useAuthStore } from "../../store/authStore";
 import { Link } from "react-router-dom";
@@ -11,8 +13,10 @@ const WishlistCard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { wishlist, removeFromWishlist } = useWishlistStore();
-  const { cartItems, updateQuantity, removeItem } = useCartStore();
-  const { addToCart } = useProductStore();
+  const { cartItems } = useCartStore();
+  const removeMutation = useRemoveCartItem();
+  const debouncedUpdater = useDebouncedUpdateCart();
+  const addToCartMutation = useAddToCart();
   const user = useAuthStore((s) => s.user);
   const filteredWishlist = wishlist.filter(
     (product) => !cartItems.some((cartItem) => cartItem.id === product.id)
@@ -48,14 +52,18 @@ const WishlistCard: React.FC = () => {
           const inCart = cartItems.find((c) => c.id === product.id);
           const stock = Number(product.stock ?? 0);
 
-          const handleAdd = (e: React.MouseEvent) => {
+          const handleAdd = async (e: React.MouseEvent) => {
             e.stopPropagation();
             if (stock === 0) return;
             if (!user)
               return navigate("/login", {
                 state: { from: location.pathname + location.search },
               });
-            addToCart(product as Product);
+            try {
+              await addToCartMutation.mutateAsync({ id: product.id, quantity: 1 });
+            } catch {
+              // handled in hook
+            }
           };
 
           return (
@@ -143,12 +151,12 @@ const WishlistCard: React.FC = () => {
                     const c = inCart!;
                     const dec = (ev: React.MouseEvent) => {
                       ev.stopPropagation();
-                      if (c.quantity <= 1) removeItem(c.id);
-                      else updateQuantity(c.id, -1);
+                      if (c.quantity <= 1) removeMutation.mutate(c.id);
+               else debouncedUpdater.scheduleUpdate({ id: c.id, quantity: Math.max(1, c.quantity - 1) });
                     };
                     const inc = (ev: React.MouseEvent) => {
                       ev.stopPropagation();
-                      updateQuantity(c.id, 1);
+                      debouncedUpdater.scheduleUpdate({ id: c.id, quantity: c.quantity + 1 });
                     };
                     return (
                       <div className="flex items-center gap-2">
