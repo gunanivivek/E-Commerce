@@ -101,7 +101,7 @@ const CustomerProfileLayout = () => {
           </aside>
 
           {/* Main Content */}
-          <section className="md:col-span-3 rounded-lg shadow-md p-8 border border-gray-200">
+          <section className="md:col-span-3 rounded-lg shadow-md p-4 md:p-8  border border-gray-200">
             <Outlet />
           </section>
         </div>

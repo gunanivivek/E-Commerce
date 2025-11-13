@@ -32,11 +32,17 @@ const AddressInfo = () => {
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
 
-  const { register, handleSubmit, reset } = useForm<Address>({
+ const {
+    register,
+    handleSubmit,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<Address>({
     defaultValues: {
       id: 0,
       full_name: "",
-      phone_number: "",
+      phone_number: "+91",
       address_line_1: "",
       address_line_2: "",
       city: "",
@@ -47,6 +53,7 @@ const AddressInfo = () => {
   });
 
   const startAdd = () => {
+    
     setIsAdding(true);
     setEditingId(null);
     reset({
@@ -137,24 +144,31 @@ const AddressInfo = () => {
               placeholder="Full Name"
               className="bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:outline-none focus:ring-[var(--color-accent)]"
             />
+          
             <input
-              {...register("phone_number")}
+              {...register("phone_number", {
+                required: "Phone number is required",
+                pattern: {
+                  value: /^\+91\d{10}$/,
+                  message: "Format must be +91 followed by 10 digits",
+                },
+                onChange: (e) => {
+                  let val = e.target.value.replace(/[^\d+]/g, "");
+                  if (!val.startsWith("+91")) {
+                    val = "+91" + val.replace(/^(\+|91)/, "");
+                  }
+                  val = val.slice(0, 13); // limit to +91 + 10 digits
+                  setValue("phone_number", val); // ✅ this ensures form state updates
+                },
+              })}
               placeholder="Phone Number"
-              className="bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:outline-none focus:ring-[var(--color-accent)]"
-              onChange={(e) => {
-                let val = e.target.value;
-
-                val = val.replace(/[^\d+]/g, "");
-
-                if (!val.startsWith("+91")) {
-                  val = "+91" + val.replace(/^(\+|91)/, "");
-                }
-
-                val = val.replace(/[^+0-9]/g, "");
-
-                e.target.value = val;
-              }}
-            />
+             className="bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-gray-900 focus:ring-2 focus:outline-none focus:ring-[var(--color-accent)]"
+           />
+            {errors.phone_number && (
+              <p className="text-red-500 text-xs col-span-2">
+                {errors.phone_number.message}
+              </p>
+            )}
             <input
               {...register("address_line_1")}
               placeholder="Address Line 1"
@@ -220,7 +234,9 @@ const AddressInfo = () => {
                 onClick={() => setSelectedAddress(address)}
                 className="cursor-pointer flex-1"
               >
-                <p className="text-[var(--color-primary-400)] font-semibold">{address.full_name}</p>
+                <p className="text-[var(--color-primary-400)] font-semibold">
+                  {address.full_name}
+                </p>
                 <p className="text-gray-600 text-sm">{address.phone_number}</p>
                 <p className="text-gray-600 text-sm">
                   {address.address_line_1}, {address.address_line_2}
@@ -254,7 +270,9 @@ const AddressInfo = () => {
         ))}
 
         {addresses?.length === 0 && !isAdding && !editingId && (
-          <p className="text-gray-500 text-center py-12">No address added yet.</p>
+          <p className="text-gray-500 text-center py-12">
+            No address added yet.
+          </p>
         )}
       </div>
     </section>
