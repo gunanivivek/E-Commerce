@@ -5,143 +5,233 @@ import {
   Menu,
   Heart,
   LogIn,
-  LogOut,
+  X,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useStore } from "../../store/headerStore";
 import { useAuthStore } from "../../store/authStore";
 import { toast } from "react-toastify";
- 
+
 const Header = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
   const { cartCount } = useStore();
+
   const [searchQuery, setSearchQuery] = useState("");
- 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      navigate(`/products?search=${encodeURIComponent(searchQuery)}`);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
+
+  // ✅ Search on Enter or click, redirect to /search?query=
+  const handleSearch = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmed = searchQuery.trim();
+    if (trimmed) {
+      navigate(`/search?query=${encodeURIComponent(trimmed)}`);
+      setIsMobileSearchOpen(false);
+    } else {
+      toast.info("Please enter something to search");
     }
   };
- 
-  const logout = useAuthStore((state) => state.logout);
-  const handleLogout = async () => {
-    try {
-      logout();
-      toast.success("Logged out successfully!");
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      toast.error(err?.response?.data?.detail || "Logout failed");
-    }
+
+  const handleNavigation = (path: string) => {
+    navigate(path);
+    setIsMobileMenuOpen(false);
   };
- 
+
   return (
-    <header className="sticky top-0 z-50 w-full bg-background  border-orange-500">
-      <div className="flex h-16 items-center justify-between">
-        <div className="flex items-center gap-1"> {/* Reduced the gap from 4 to 1 -> By Vivek */}
-          <button className="md:hidden p-2 text-white hover:text-orange-500">
-            <Menu className="h-5 w-5" />
-          </button>
-          <a href="/" className="flex items-center space-x-4">
-            <span className="hidden font-logo ml-8 font-bold text-3xl md:inline-block tracking-wider text-accent-darker">
-              Cartify
-            </span>
-          </a>
-          <nav className="hidden md:flex gap-6 px-20">
+    <>
+      <header className="sticky top-0 z-50 w-full bg-background ">
+        <div className="flex h-16 items-center justify-between px-4 md:px-6 lg:px-8">
+          {/* 🔹 Left Section */}
+          <div className="flex items-center gap-2 md:gap-4 flex-1">
+            {/* Hamburger (mobile) */}
             <button
-              type="button"
-              onClick={() => {
-                navigate("/products");
-              }}
-              className="text-lg font-semibold font-logo text-accent-dark hover:cursor-pointer transition-colors hover:text-light"
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 text-accent-dark hover:text-light"
+              aria-label="Toggle menu"
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
+            </button>
+
+            {/* Logo */}
+            <a href="/" className="flex items-center">
+              <span className="font-logo font-bold text-2xl md:text-3xl tracking-wider text-accent-darker">
+                Cartify
+              </span>
+            </a>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex gap-4 lg:gap-6 ml-4 lg:ml-8">
+              <button
+                type="button"
+                onClick={() => navigate("/products")}
+                className="text-base lg:text-lg font-semibold font-logo text-accent-dark hover:cursor-pointer transition-colors hover:text-light whitespace-nowrap"
+              >
+                Products
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate("/new-arrivals")}
+                className="text-base lg:text-lg font-semibold font-logo text-accent-dark hover:cursor-pointer transition-colors hover:text-light whitespace-nowrap"
+              >
+                Fresh Drops
+              </button>
+            </nav>
+          </div>
+
+          {/* 🔹 Desktop Search Bar */}
+          <form
+            onSubmit={handleSearch}
+            className="hidden md:flex flex-1 max-w-md mx-4"
+          >
+            <div className="relative w-full">
+              <Search
+                onClick={() => handleSearch()}
+                className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 cursor-pointer"
+              />
+              <input
+                type="search"
+                placeholder="Search products..."
+                className="pl-10 border bg-white rounded-md py-2 px-4 w-full placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-border focus:border-none"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+          </form>
+
+          {/* 🔹 Right Section */}
+          <div className="flex items-center gap-1 md:gap-2">
+            {/* Mobile search icon */}
+            <button
+              onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
+              className="md:hidden p-2 text-accent-dark hover:text-light"
+              aria-label="Search"
+            >
+              <Search className="h-5 w-5" />
+            </button>
+
+            {user ? (
+              <>
+                {/* Wishlist */}
+                <button
+                  onClick={() => handleNavigation("/wishlist")}
+                  className="p-2 hover:cursor-pointer text-accent-dark hover:text-light"
+                  aria-label="Wishlist"
+                >
+                  <Heart className="h-5 w-5 cursor-pointer" />
+                </button>
+
+                {/* Cart */}
+                <button
+                  onClick={() => handleNavigation("/cart")}
+                  className="relative p-2 hover:cursor-pointer text-accent-dark hover:text-light"
+                  aria-label="Cart"
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  {cartCount > 0 && (
+                    <div className="cursor-pointer absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-accent-dark hover:text-light text-xs rounded-full">
+                      {cartCount}
+                    </div>
+                  )}
+                </button>
+
+                {/* Profile */}
+                <button
+                  onClick={() => handleNavigation("/profile")}
+                  className="p-2 hover:cursor-pointer text-accent-dark hover:text-light"
+                  aria-label="Profile"
+                >
+                  <User className="h-5 w-5 cursor-pointer" />
+                </button>
+              </>
+            ) : (
+              <button
+                onClick={() => handleNavigation("/login")}
+                className="flex text-sm bg-accent-light/40 rounded-xl px-4 py-2 justify-center flex-row items-center gap-1  hover:cursor-pointer text-accent-dark hover:text-accent-darker"
+                aria-label="Login"
+              >
+                <span className="font-semibold">Login</span> 
+                <LogIn className="h-5 w-5" />
+               
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* 🔹 Mobile Search Bar */}
+        {isMobileSearchOpen && (
+          <div className="md:hidden px-4 pb-4 border-t border-orange-500/30">
+            <form onSubmit={handleSearch} className="mt-4">
+              <div className="relative w-full">
+                <Search
+                  onClick={() => handleSearch()}
+                  className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 cursor-pointer"
+                />
+                <input
+                  type="search"
+                  placeholder="Search products..."
+                  className="pl-10 border bg-white rounded-md py-2 px-4 w-full placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-border focus:border-none"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  autoFocus
+                />
+              </div>
+            </form>
+          </div>
+        )}
+      </header>
+
+      {/* 🔹 Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="md:hidden fixed inset-0 z-40 bg-black/50"
+          onClick={() => setIsMobileMenuOpen(false)}
+        />
+      )}
+
+      {/* 🔹 Mobile Sidebar Menu */}
+      <div
+        className={`md:hidden fixed top-0 left-0 z-50 h-full w-64 bg-background transform transition-transform duration-300 ease-in-out ${
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
+        <div className="flex flex-col h-full">
+          <div className="flex items-center justify-between p-4">
+            <span className="font-logo font-bold text-2xl tracking-wider text-accent-darker">
+              Menu
+            </span>
+            <button
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="p-2 text-accent-dark hover:text-light"
+              aria-label="Close menu"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+
+          <nav className="flex flex-col p-4 gap-2">
+            <button
+              onClick={() => handleNavigation("/products")}
+              className="text-left text-lg font-semibold font-logo text-accent-dark hover:text-light py-3 px-2 rounded transition-colors"
             >
               Products
             </button>
             <button
-              type="button"
-              onClick={() => {
-                navigate("/new-arrivals");
-              }}
-              className="text-lg font-semibold font-logo text-accent-dark hover:cursor-pointer transition-colors hover:text-light"
+              onClick={() => handleNavigation("/new-arrivals")}
+              className="text-left text-lg font-semibold font-logo text-accent-dark hover:text-light py-3 px-2 rounded transition-colors"
             >
               Fresh Drops
             </button>
           </nav>
         </div>
- 
-        <form
-          onSubmit={handleSearch}
-          className="hidden md:flex flex-1 max-w-md mx-4"
-        >
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-            <input
-              type="search"
-              placeholder="Search products..."
-              className="pl-10 border bg-white rounded-md py-2 px-4 w-full placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-border focus:border-none"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-        </form>
- 
-        <div className="flex items-center gap-2">
-          {user ? (
-            <>
-              <button
-                onClick={() => navigate("/wishlist")}
-                className="p-2 hover:cursor-pointer text-accent-dark hover:text-light"
-                aria-label="Wishlist"
-              >
-                <Heart className="h-5 w-5 cursor-pointer" />
-              </button>
- 
-              <button
-                onClick={() => navigate("/profile")}
-                className="p-2 hover:cursor-pointer text-accent-dark hover:text-light"
-                aria-label="Profile"
-              >
-                <User className="h-5 w-5 cursor-pointer" />
-              </button>
- 
-              <button
-                onClick={() => navigate("/cart")}
-                className="relative p-2 hover:cursor-pointer text-accent-dark hover:text-light"
-                aria-label="Cart"
-              >
-                <ShoppingCart className="h-5 w-5" />
-                {cartCount > 0 && (
-                  <div className="cursor-pointer absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-accent-dark hover:text-light text-xs rounded-full">
-                    {cartCount}
-                  </div>
-                )}
-              </button>
- 
-              <button
-                onClick={handleLogout}
-                className="p-2 hover:cursor-pointer font-bold text-accent-dark hover:text-light"
-                aria-label="Logout"
-              >
-                <LogOut className="h-5 w-5" />
-              </button>
-            </>
-          ) : (
-            <button
-              onClick={() => navigate("/login")}
-              className="p-2 hover:cursor-pointer text-accent-dark hover:text-light"
-              aria-label="Login"
-            >
-              <LogIn className="h-5 w-5" />
-            </button>
-          )}
-        </div>
       </div>
-    </header>
+    </>
   );
 };
- 
+
 export default Header;
- 
- 

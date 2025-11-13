@@ -98,26 +98,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           )}
         </p>
 
-        {Number.isFinite(stock) && (
-          <p className="text-xs text-gray-500 mb-2">
-            Stock: {stock > 0 ? stock : "Out of stock"}
-          </p>
-        )}
+     
 
-        <div className="flex items-center mb-3">
-          {Array.from({ length: 5 }).map((_, index) => (
-            <svg
-              key={index}
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill={index < (product.rating ?? 0) ? "#facc15" : "#e5e7eb"}
-              className="w-5 h-5"
-            >
-              <path d="M12 .587l3.668 7.568L24 9.75l-6 5.854L19.335 24 12 19.896 4.665 24 6 15.604 0 9.75l8.332-1.595z" />
-            </svg>
-          ))}
-          <span className="text-sm text-gray-600 ml-2">{product.rating ?? 4.5}</span>
-        </div>
+     
       </div>
 
       {/* Buttons */}

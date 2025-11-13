@@ -40,6 +40,7 @@ import SellerCoupons from "./pages/Seller/SellerCoupons";
 import AdminCoupons from "./pages/Admin/AdminCoupons";
 import CategoryPage from "./pages/Customer/CategoryPage";
 import NewArrivals from "./pages/Customer/NewArrivals";
+import SearchPage from "./pages/Customer/SearchPage";
 
 
 function App() {
@@ -65,6 +66,8 @@ function App() {
         <Route path="/new-arrivals" element={<NewArrivals />} />
         <Route path="/product/:productId" element={<ProductsDescription />} />
         <Route path="/cart" element={<Cart />} />
+        <Route path="/search" element={<SearchPage />} />
+
         <Route path="/wishlist" element={<Wishlist />} />
         <Route path="/checkout" element={<Checkout />} />
       </Route>
