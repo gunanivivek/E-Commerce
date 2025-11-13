@@ -140,7 +140,7 @@ const AdminCoupons: React.FC = () => {
                         <h3 className="flex items-center justify-between text-primary-400 font-bold font-heading text-sm">
                           <div className="flex items-center gap-1.5">
                             <Tag className="w-4 h-4" />
-                            {coupon.coupon_name}
+                            {coupon.coupon_code}
                           </div>
                           <button
                             onClick={() => deleteMutation.mutate(coupon.id)}
