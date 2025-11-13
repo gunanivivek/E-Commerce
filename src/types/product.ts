@@ -18,6 +18,7 @@ export interface CategoryResponse {
 }
 
 export interface ProductResponse {
+  specifications?: string | null;
   id: number;
   name: string;
   description?: string | null;

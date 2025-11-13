@@ -41,6 +41,7 @@ const Checkout: React.FC = () => {
   const storeSubtotal = useCartStore((s) => s.subtotal);
   const storeDiscount = useCartStore((s) => s.discount);
   const storeTotal = useCartStore((s) => s.total);
+  const storeCoupon = useCartStore((s) => s.coupon);
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -158,9 +159,9 @@ const Checkout: React.FC = () => {
   if (isLoadingAddresses) {
     return (
       <div className="min-h-screen bg-[var(--color-background)] py-12 text-center text-[var(--color-text-primary)]">
-      <Header />
-      <LoadingState message="Loading addresses..." />
-      <Footer />
+        <Header />
+        <LoadingState message="Loading addresses..." />
+        <Footer />
       </div>
     );
   }
@@ -168,6 +169,36 @@ const Checkout: React.FC = () => {
   return (
     <>
       <Header />
+
+      {/* Breadcrumb */}
+      <div className="px-6 md:px-20 mt-5 mb-5 bg-primary-50 text-md">
+        <nav className="flex items-center gap-2 justify-center">
+          <Link
+            to="/"
+            className="text-[var(--color-text-dark)] hover:text-[var(--color-accent)] transition"
+          >
+            Home
+          </Link>
+          <span>/</span>
+          <Link
+            to="/products"
+            className="text-[var(--color-text-dark)] hover:text-[var(--color-accent)] transition"
+          >
+            Products
+          </Link>
+          <span>/</span>
+          <Link
+            to="/cart"
+            className="text-[var(--color-text-dark)] hover:text-[var(--color-accent)] transition"
+          >
+            Cart
+          </Link>
+          <span>/</span>
+          <span className="text-[var(--color-text-orange)]">Checkout</span>
+        </nav>
+      </div>
+
+      {/* Checkout section */}
       <div className="min-h-screen bg-gradient-to-tl from-background to-primary-100 py-12">
         <div className="container mx-auto px-4 max-w-7xl">
           <h1 className="text-3xl font-heading font-extrabold text-accent-dark mb-8">
@@ -454,6 +485,18 @@ const Checkout: React.FC = () => {
                     <span>Discount</span>
                     <span>- ₹{discountAmount.toFixed(2)}</span>
                   </div>
+
+                  {/* Coupon code (visible when applied) */}
+                  {storeCoupon ? (
+                    <div className="flex items-center justify-between text-sm text-[var(--color-text-muted)] mt-1">
+                      <span className="font-medium">Coupon</span>
+                      <span className="inline-flex items-center gap-2">
+                        <span className="px-2 py-1 bg-[var(--color-primary-50)] text-[var(--color-primary-600)] rounded-md font-semibold">
+                          {storeCoupon}
+                        </span>
+                      </span>
+                    </div>
+                  ) : null}
 
                   <hr className="border-[var(--color-border-light)]" />
 

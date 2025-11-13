@@ -124,7 +124,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   const location = useLocation();
   const user = useAuthStore((s) => s.user);
   // product store kept for non-cart product helpers if needed
-  const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore();
+  const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlistStore();
   const { cartItems } = useCartStore();
   const removeMutation = useRemoveCartItem();
   const debouncedUpdater = useDebouncedUpdateCart();
@@ -173,6 +173,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
         {filteredProducts.map((product) => {
           const stock = Number(product.stock ?? NaN);
           const inCart = cartItems.find((c) => c.id === product.id);
+          const inWishlist = wishlistItems.find((w) => w.id === product.id);
 
           const handleNavigate = () => navigate(`/product/${product.id}`);
           const handleAddToCart = async (e: React.MouseEvent) => {
@@ -188,15 +189,22 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
               // handled in hook
             }
           };
-          const handleWishlist = (e: React.MouseEvent) => {
+          const handleWishlist = async (e: React.MouseEvent) => {
             e.stopPropagation();
             if (!user)
               return navigate("/login", {
                 state: { from: location.pathname + location.search },
               });
-            const inWishlist = wishlist.some((w) => w.id === product.id);
-            if (inWishlist) removeFromWishlist(product.id);
-            else addToWishlist(product);
+
+            try {
+              if (inWishlist) {
+                await removeFromWishlist(product.id);
+              } else {
+                await addToWishlist(product as Product);
+              }
+            } catch {
+              // errors are logged inside the store; optionally show toast here
+            }
           };
 
           return (
@@ -323,14 +331,14 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                 )}
                 <button
                   onClick={handleWishlist}
-                  className="ml-2 p-2 border rounded-lg transition-all duration-150 border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-black"
+                  className="ml-2 p-2 border rounded-lg transition-all duration-150 border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-white"
                 >
-                  {wishlist.some((w) => w.id === product.id) ? (
+                  { inWishlist ? (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
                       fill="currentColor"
-                      className="w-5 h-5 text-[var(--color-error)]"
+                      className="w-5 h-5"
                     >
                       <path d="M12 21C12 21 4 13.647 4 8.75C4 6.17893 6.17893 4 8.75 4C10.2355 4 11.6028 4.80549 12 6.00613C12.3972 4.80549 13.7645 4 15.25 4C17.8211 4 20 6.17893 20 8.75C20 13.647 12 21 12 21Z" />
                     </svg>

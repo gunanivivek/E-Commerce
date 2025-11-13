@@ -12,13 +12,13 @@ import { Link } from "react-router-dom";
 const WishlistCard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { wishlist, removeFromWishlist } = useWishlistStore();
+  const { wishlistItems, removeItem } = useWishlistStore();
   const { cartItems } = useCartStore();
   const removeMutation = useRemoveCartItem();
   const debouncedUpdater = useDebouncedUpdateCart();
   const addToCartMutation = useAddToCart();
   const user = useAuthStore((s) => s.user);
-  const filteredWishlist = wishlist.filter(
+  const filteredWishlist = wishlistItems.filter(
     (product) => !cartItems.some((cartItem) => cartItem.id === product.id)
   );
 
@@ -195,7 +195,7 @@ const WishlistCard: React.FC = () => {
                 )}
 
                 <button
-                  onClick={() => removeFromWishlist(product.id)}
+                  onClick={() => removeItem(product.id)}
                   className="ml-2 p-2 border cursor-pointer rounded-lg transition-all duration-150 border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-black"
                 >
                   🗑️
