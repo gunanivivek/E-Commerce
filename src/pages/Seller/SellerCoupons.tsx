@@ -16,6 +16,20 @@ import {
 import type { Coupon } from "../../api/couponApi";
 import CouponModal from "../../components/Admin/CouponModal";
 
+const SkeletonCard = () => (
+  <div className="bg-white rounded-xl shadow-sm border border-primary-400/10 overflow-hidden">
+    <div className="w-full h-36 bg-primary-400/10 animate-pulse"></div>
+    <div className="p-3 space-y-3">
+      <div className="w-2/3 h-4 bg-primary-400/10 rounded animate-pulse"></div>
+      <div className="w-1/3 h-3 bg-primary-400/10 rounded animate-pulse"></div>
+      <div className="flex gap-2 mt-3">
+        <div className="w-8 h-8 bg-primary-400/10 rounded animate-pulse"></div>
+        <div className="w-8 h-8 bg-primary-400/10 rounded animate-pulse"></div>
+      </div>
+    </div>
+  </div>
+);
+
 // Dummy static data
 
 const SellerCoupons: React.FC = () => {
@@ -39,11 +53,6 @@ const SellerCoupons: React.FC = () => {
     setModalOpen(false);
     setEditingCoupon(null);
   };
-
-  if (isLoading)
-    return (
-      <p className="text-center text-primary-400 mt-10">Loading coupons...</p>
-    );
 
   return (
     <div className="min-h-screen py-4 sm:py-6">
@@ -82,76 +91,81 @@ const SellerCoupons: React.FC = () => {
           />
         </div>
 
-        {/* Coupons Grid */}
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {filteredCoupons.length === 0 ? (
-            <p className="text-primary-400 text-sm col-span-full text-center">
-              No coupons found.
-            </p>
-          ) : (
-            filteredCoupons.map((coupon: Coupon) => {
-              return (
-                <div
-                  key={coupon.id}
-                  className="bg-white rounded-xl shadow-xl border border-primary-400/10 overflow-hidden hover:shadow-md transition flex flex-col justify-between min-h-[220px]"
-                >
-                  <div className="p-4 flex flex-col h-full justify-between">
-                    {/* Coupon Details */}
-                    <div>
-                      <h3 className="flex items-center justify-between text-primary-400 font-bold font-heading text-sm">
-                        <div className="flex items-center gap-1.5">
-                          <Tag className="w-4 h-4" />
-                          {coupon.coupon_code}
-                        </div>
+        {isLoading ? (
+          Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {filteredCoupons.length === 0 ? (
+              <p className="text-primary-400 text-sm col-span-full text-center">
+                No coupons found.
+              </p>
+            ) : (
+              filteredCoupons.map((coupon: Coupon) => {
+                return (
+                  <div
+                    key={coupon.id}
+                    className="bg-white rounded-xl shadow-xl border border-primary-400/10 overflow-hidden hover:shadow-md transition flex flex-col justify-between min-h-[220px]"
+                  >
+                    <div className="p-4 flex flex-col h-full justify-between">
+                      {/* Coupon Details */}
+                      <div>
+                        <h3 className="flex items-center justify-between text-primary-400 font-bold font-heading text-sm">
+                          <div className="flex items-center gap-1.5">
+                            <Tag className="w-4 h-4" />
+                            {coupon.coupon_code}
+                          </div>
+                          <button
+                            onClick={() => deleteMutation.mutate(coupon.id)}
+                            className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100 hover:cursor-pointer disabled:opacity-50"
+                            title="Delete"
+                            disabled={deleteMutation.isPending}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </h3>
+
+                        <p className="text-primary-400/70 text-sm mt-1">
+                          {coupon.coupon_description}
+                        </p>
+                        <p className="flex items-center gap-1 text-primary-400/80 text-sm mt-1 font-medium">
+                          <TicketPercent className="w-4 h-4" />
+                          Discount:{" "}
+                          {coupon.discount_type === "flat"
+                            ? `₹${coupon.discount_value} OFF`
+                            : `${coupon.discount_value}% OFF`}
+                        </p>
+                        <p className="flex items-center gap-1 text-primary-400/60 text-sm mt-1">
+                          <Calendar className="w-4 h-4" />
+                          Valid till:{" "}
+                          {new Date(coupon.expiry_date).toLocaleDateString()}
+                        </p>
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex gap-2 mt-2">
                         <button
-                          onClick={() => deleteMutation.mutate(coupon.id)}
-                          className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100 hover:cursor-pointer disabled:opacity-50"
-                          title="Delete"
-                          disabled={deleteMutation.isPending}
+                          onClick={() => handleEdit(coupon)}
+                          className="p-1.5 bg-surface-light text-accent-dark rounded hover:bg-surface hover:cursor-pointer"
+                          title="Edit"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Edit className="w-4 h-4" />
                         </button>
-                      </h3>
-
-                      <p className="text-primary-400/70 text-sm mt-1">
-                        {coupon.coupon_description}
-                      </p>
-                      <p className="flex items-center gap-1 text-primary-400/80 text-sm mt-1 font-medium">
-                        <TicketPercent className="w-4 h-4" />
-                        Discount:{" "}
-                        {coupon.discount_type === "flat"
-                          ? `₹${coupon.discount_value} OFF`
-                          : `${coupon.discount_value}% OFF`}
-                      </p>
-                      <p className="flex items-center gap-1 text-primary-400/60 text-sm mt-1">
-                        <Calendar className="w-4 h-4" />
-                        Valid till:{" "}
-                        {new Date(coupon.expiry_date).toLocaleDateString()}
-                      </p>
-                    </div>
-
-                    {/* Actions */}
-                    <div className="flex gap-2 mt-2">
-                      <button
-                        onClick={() => handleEdit(coupon)}
-                        className="p-1.5 bg-surface-light text-accent-dark rounded hover:bg-surface hover:cursor-pointer"
-                        title="Edit"
-                      >
-                        <Edit className="w-4 h-4" />
-                      </button>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })
-          )}
-        </div>
+                );
+              })
+            )}
+          </div>
+        )}
+
+        {/* Coupons Grid */}
       </div>
       {modalOpen && (
         <CouponModal
           isOpen={modalOpen}
           onClose={handleCloseModal}
-          coupon={editingCoupon}  // null for new, object for edit
+          coupon={editingCoupon} // null for new, object for edit
         />
       )}
     </div>

@@ -33,6 +33,11 @@ export const getCoupons = async (): Promise<Coupon[]> => {
   return res.data;
 };
 
+export const getAdminCoupons = async (): Promise<Coupon[]> => {
+  const res = await API.get("/coupons/?role=admin");
+  return res.data;
+};
+
 // Create coupon
 export const createCoupon = async (data: CouponInput): Promise<Coupon> => {
   const res = await API.post("/coupons/", data);
