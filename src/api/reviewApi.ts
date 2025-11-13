@@ -17,20 +17,34 @@ export const fetchReviews = async (productId: string | number): Promise<Review[]
     const res = await API.get<{ average_rating?: number; reviews?: Review[] } | Review[]>(path);
     return normalize(res.data);
   } catch (err: unknown) {
-  const status = (err as unknown as { response?: { status?: number } })?.response?.status;
-    // If server rejects the method (common when trailing slash is required or router differs), retry with trailing slash
+    const lastErr = err as { response?: { status?: number }; message?: string };
+    const status = lastErr?.response?.status;
+
+    // If server rejects the method (405) try a set of fallback GET URL patterns used by some backends
+    const fallbackPaths = [
+      path + "/",
+      `reviews?product_id=${productId}`,
+      `products/reviews?product_id=${productId}`,
+      `product-reviews?product_id=${productId}`,
+      `products/${productId}/reviews/list`,
+    ];
+
+    // Try the fallback paths sequentially and return on first success
     if (status === 405) {
-      try {
-        const res2 = await API.get<{ average_rating?: number; reviews?: Review[] } | Review[]>(path + "/");
-        return normalize(res2.data);
-      } catch (err2) {
-        // fall through to throw original error below
-        console.error("fetchReviews retry with trailing slash failed", err2);
+      for (const p of fallbackPaths) {
+        try {
+          // use get without typing the response precisely to avoid strict mismatches
+          const r = await API.get<{ average_rating?: number; reviews?: Review[] } | Review[]>(p);
+          console.info(`fetchReviews: succeeded with fallback path: ${p}`);
+          return normalize(r.data);
+        } catch (e) {
+          console.warn(`fetchReviews: fallback ${p} failed`, e);
+          // continue to next fallback
+        }
       }
     }
 
-    // If the request failed due to an OPTIONS preflight returning 405, the browser network tab will show an OPTIONS request with 405.
-    // Surface the error so calling code can inspect it.
+    // If none of the fallbacks succeeded, log and rethrow the original error so calling code can handle it.
     console.error("fetchReviews error", err);
     throw err;
   }
@@ -42,4 +56,13 @@ export const getProductReviews = fetchReviews;
 export default {
   fetchReviews,
   getProductReviews,
+};
+
+export const createReview = async (
+  productId: string | number,
+  payload: { rating?: number; comment?: string; author?: string }
+): Promise<Review> => {
+  const path = `products/${productId}/reviews`;
+  const res = await API.post<Review>(path, payload);
+  return res.data;
 };

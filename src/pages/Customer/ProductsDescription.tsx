@@ -1,6 +1,6 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import React from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as productsApi from "../../api/productsApi";
 import type { ProductResponse } from "../../types/product";
 import { useWishlistStore } from "../../store/wishlistStore";
@@ -16,7 +16,9 @@ import Header from "../../components/ui/Header";
 import Footer from "../../components/ui/Footer";
 import { Link } from "react-router-dom";
 import LoadingState from "../../components/LoadingState";
-import { getProductReviews } from "../../api/reviewApi"; // you'll create this file next
+import { getProductReviews, createReview } from "../../api/reviewApi";
+import { toast } from "react-toastify";
+import { useState } from "react";
 
 const ProductDescription: React.FC = () => {
   // route is defined as /product/:productId in App.tsx, so read productId here
@@ -45,10 +47,6 @@ const ProductDescription: React.FC = () => {
   const user = useAuthStore((s) => s.user);
   const location = useLocation();
 
-  const [activeTab, setActiveTab] = useState<
-    "description" | "specs" | "reviews"
-  >("description");
-
   // Fetch reviews using TanStack Query (lightweight, read-only)
   const { data: reviews = [], isLoading: reviewsLoading } = useQuery({
     queryKey: ["reviews", product?.id],
@@ -57,6 +55,56 @@ const ProductDescription: React.FC = () => {
     staleTime: 1000 * 60 * 5,
   });
   // use reviewsLoading only in the Reviews tab
+
+  const queryClient = useQueryClient();
+
+  // Review modal state
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [reviewRating, setReviewRating] = useState<number>(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewAuthor, setReviewAuthor] = useState<string>(user?.full_name ?? "");
+
+  const { mutateAsync: createReviewAsync, isPending: isCreatingReview } = useMutation({
+    mutationFn: (payload: { rating?: number; comment?: string; author?: string }) =>
+      createReview(product!.id, payload),
+    onSuccess: () => {
+      toast.success("Review added");
+      // refetch reviews for this product
+      queryClient.invalidateQueries({ queryKey: ["reviews", product?.id] });
+      setShowReviewModal(false);
+      setReviewComment("");
+      setReviewRating(5);
+    },
+    onError: (err: unknown) => {
+      const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+      toast.error(detail || "Failed to add review");
+    },
+  });
+
+  const handleAddReview = () => {
+    if (!user)
+      return navigate("/login", {
+        state: { from: location.pathname + location.search },
+      });
+    setShowReviewModal(true);
+  };
+
+  const handleSaveReview = async () => {
+    if (!product) return;
+    if (!reviewComment.trim()) {
+      toast.error("Please enter a comment");
+      return;
+    }
+    try {
+      await createReviewAsync({
+        rating: reviewRating,
+        comment: reviewComment.trim(),
+        author: reviewAuthor?.trim() || undefined,
+      });
+    } catch {
+      // error handled in onError
+    }
+  };
 
   // If product is still loading or failed, show early states
   if (isLoading)
@@ -326,109 +374,113 @@ const ProductDescription: React.FC = () => {
         </div>
       </section>
 
-      <div className="mx-20 mb-15 bg-surface rounded-xl shadow-md p-6">
-        {/* Tabs */}
-        <div className="flex flex-wrap border-b mb-4">
+      {/* Reviews */}
+      <div className="mx-20 mb-15 bg-accent-dark rounded-xl shadow-md p-6">
+        <div className="flex justify-between items-center">
+          <h3 className="text-xl font-semibold mb-4 text-primary-100">
+            Customer Reviews ({reviews?.length ?? 0})
+          </h3>
           <button
-            onClick={() => setActiveTab("description")}
-            className={`px-4 py-2 font-semibold cursor-pointer ${
-              activeTab === "description"
-                ? "text-[var(--color-primary-400)] border-b-2 border-[var(--color-accent)]"
-                : "text-gray-600 hover:text-[var(--color-primary-400)]"
-            }`}
+            className="bg-primary-200 px-5 py-2 rounded-md text-accent-darker hover:bg-primary-100 cursor-pointer"
+            onClick={handleAddReview}
           >
-            Description
-          </button>
-
-          <button
-            onClick={() => setActiveTab("specs")}
-            className={`px-4 py-2 font-semibold cursor-pointer ${
-              activeTab === "specs"
-                ? "text-[var(--color-primary-400)] border-b-2 border-[var(--color-accent)]"
-                : "text-gray-600 hover:text-[var(--color-primary-400)]"
-            }`}
-          >
-            Specifications
-          </button>
-
-          <button
-            onClick={() => setActiveTab("reviews")}
-            className={`px-4 py-2 font-semibold cursor-pointer ${
-              activeTab === "reviews"
-                ? "text-[var(--color-primary-400)] border-b-2 border-[var(--color-accent)]"
-                : "text-gray-600 hover:text-[var(--color-primary-400)]"
-            }`}
-          >
-            Reviews ({reviews?.length ?? 0})
+            Add Review
           </button>
         </div>
 
-        {/* Description Tab */}
-        {activeTab === "description" && (
-          <div className="mt-4 text-gray-700 leading-relaxed">
-            {product?.description ?? "No description available."}
-          </div>
-        )}
-
-        {/* Specifications Tab */}
-        {activeTab === "specs" && (
-          <div className="mt-4 text-gray-700 leading-relaxed">
-            {product.specifications ? (
-              <ul className="list-disc pl-6 space-y-1">
-                {Object.entries(product.specifications).map(([key, value]) => (
-                  <li key={key}>
-                    <strong>{key}: </strong> {value}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="text-gray-500">No specifications available.</p>
-            )}
-          </div>
-        )}
-
-        {/* Reviews Tab */}
-        {activeTab === "reviews" && (
-          <div className="mt-8">
-            <h3 className="text-xl font-semibold mb-4">Customer Reviews</h3>
-
-            {reviewsLoading ? (
-              <p className="text-gray-500">Loading reviews...</p>
-            ) : reviews.length === 0 ? (
-              <p className="text-gray-500">No reviews yet.</p>
-            ) : (
-              <div className="space-y-4">
-                {reviews.map((r) => (
-                  <div
-                    key={r.id}
-                    className="border border-gray-200 rounded-lg p-4 bg-[var(--color-background)]"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="font-semibold text-[var(--color-primary-400)]">
-                        {r.author ?? "Anonymous"}
-                      </div>
-                      <div className="flex">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            className={`w-4 h-4 ${
-                              i < (r.rating ?? 0)
-                                ? "text-yellow-400 fill-yellow-400"
-                                : "text-gray-300"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <p className="text-gray-700 text-sm">{r.comment}</p>
-                    <p className="text-xs text-gray-500 mt-1">{r.date}</p>
+        {reviewsLoading ? (
+          <p className="text-primary-100">Loading reviews...</p>
+        ) : reviews.length === 0 ? (
+          <p className="text-primary-100">No reviews yet.</p>
+        ) : (
+          <div className="space-y-4">
+            {reviews.map((r) => (
+              <div
+                key={r.id}
+                className="border border-primary-50 rounded-lg p-4 bg-background transition-shadow hover:shadow-md"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="font-semibold text-primary-400">
+                    {r.author ?? "Anonymous"}
                   </div>
-                ))}
+                  <div className="flex">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={`w-4 h-4 ${
+                          i < (r.rating ?? 0)
+                            ? "text-yellow-400 fill-yellow-400"
+                            : "text-primary-100"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <p className="text-primary-100 text-sm leading-relaxed">
+                  {r.comment}
+                </p>
+                <p className="text-xs text-primary-100 mt-1">{r.date}</p>
               </div>
-            )}
+            ))}
           </div>
         )}
       </div>
+      {/* Review Modal */}
+      {showReviewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black opacity-40" onClick={() => setShowReviewModal(false)} />
+          <div className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative z-10">
+            <h3 className="text-lg font-semibold mb-3">Add Review</h3>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm font-medium mb-1">Your name (optional)</label>
+                <input
+                  type="text"
+                  value={reviewAuthor}
+                  onChange={(e) => setReviewAuthor(e.target.value)}
+                  className="w-full border px-3 py-2 rounded-md"
+                  placeholder="Your name"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Rating</label>
+                <select
+                  value={reviewRating}
+                  onChange={(e) => setReviewRating(Number(e.target.value))}
+                  className="border rounded-md px-3 py-2"
+                >
+                  {[5, 4, 3, 2, 1].map((r) => (
+                    <option key={r} value={r}>{r} Star{r>1? 's':''}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Comment</label>
+                <textarea
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  className="w-full border rounded-md px-3 py-2 h-28"
+                />
+              </div>
+              <div className="flex justify-end gap-3 mt-4">
+                <button
+                  onClick={() => setShowReviewModal(false)}
+                  className="px-4 py-2 rounded-md border"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSaveReview}
+                  disabled={isCreatingReview}
+                  className="px-4 py-2 rounded-md bg-[var(--color-accent)] text-black"
+                >
+                  {isCreatingReview ? "Saving..." : "Save Review"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       <Footer />
     </>
   );

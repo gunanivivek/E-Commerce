@@ -73,6 +73,81 @@ const mapCartOutToState = (cart: CartOut): CartItem[] => {
   }));
 };
 
+// Helper to apply a server cart response in one place and handle coupon removal messaging
+const applyServerCartResponse = (cartRes: CartOut | unknown, setFn: (s: Partial<CartState>) => void) => {
+  const resp = cartRes as CartOut;
+  const mapped = mapCartOutToState(resp as CartOut);
+  const newCoupon: string | null = resp?.coupon ?? null;
+  const subtotal = resp?.subtotal ?? 0;
+  const discount = resp?.discount ?? 0;
+  const total = resp?.total ?? 0;
+
+  // previous coupon value available via getter on store at call-site if needed
+  setFn({
+    cartItems: mapped,
+    subtotal,
+    discount,
+    total,
+    coupon: newCoupon,
+  });
+
+  // propagate via BroadcastChannel if available
+  try {
+    postCartState?.({
+      cartItems: mapped,
+      subtotal,
+      discount,
+      total,
+      coupon: newCoupon,
+    });
+  } catch {
+    /* ignore */
+  }
+
+  // After state is applied: show a toast if a previously-applied coupon was removed by the server
+  try {
+    // get previous coupon from the store (if any)
+    const prevCoupon = useCartStore.getState().coupon;
+    if (prevCoupon && !newCoupon) {
+    const serverMsg: string | undefined = (cartRes as { message?: string })?.message;
+      let toastMsg =
+        serverMsg ||
+        "Applied coupon was removed because your cart no longer meets the coupon requirements.";
+
+      // Try to extract a minimum required amount from server message, common patterns like 'Minimum cart value is 500' or '₹500'
+      if (serverMsg) {
+    const m = /(?:minimum[^0-9]*|min[^0-9]*|minimum cart value[^0-9]*).{0,30}?([0-9]+(?:[.,][0-9]+)?)/i.exec(serverMsg);
+        if (m && m[1]) {
+          const minVal = parseFloat(m[1].replace(/,/g, ""));
+          const need = Math.max(0, minVal - subtotal);
+          if (need > 0) {
+            toastMsg = `${toastMsg} Add ₹${need.toFixed(2)} more to reapply the coupon.`;
+          }
+        } else {
+          // fallback: look for any currency-like number
+          const anyNum = /(?:₹|Rs\.?\s*)?\s*([0-9]+(?:[.,][0-9]+)?)/.exec(serverMsg);
+          if (anyNum && anyNum[1]) {
+            const minVal = parseFloat(anyNum[1].replace(/,/g, ""));
+            const need = Math.max(0, minVal - subtotal);
+            if (need > 0) {
+              toastMsg = `${toastMsg} Add ₹${need.toFixed(2)} more to reapply the coupon.`;
+            }
+          }
+        }
+      }
+
+      try {
+        toast.error(toastMsg);
+      } catch {
+        /* ignore toast errors */
+      }
+    }
+  } catch (e) {
+    // ignore
+    console.error("applyServerCartResponse error:", e);
+  }
+};
+
 export const useCartStore = create<CartState>((set) => {
   // start with empty in-memory cart; do not persist to localStorage anymore
   const initial: CartItem[] = [];
@@ -87,30 +162,13 @@ export const useCartStore = create<CartState>((set) => {
     fetchCart: async () => {
       try {
         const user = useAuthStore.getState().user;
-        if (!user) {
-          // not authenticated; no server cart available - keep current in-memory cart
+        // Only customers have server-side carts.
+        if (!user || user.role !== "customer") {
           return;
         }
         const data = await cartApi.getCart();
-        const mapped = mapCartOutToState(data);
-        set({
-          cartItems: mapped,
-          subtotal: data.subtotal ?? 0,
-          discount: data.discount ?? 0,
-          total: data.total ?? 0,
-          coupon: data.coupon ?? null,
-        });
-        try {
-          postCartState?.({
-            cartItems: mapped,
-            subtotal: data.subtotal ?? 0,
-            discount: data.discount ?? 0,
-            total: data.total ?? 0,
-            coupon: data.coupon ?? null,
-          });
-        } catch {
-          /* ignore */
-        }
+        // apply server response
+        applyServerCartResponse(data, set);
       } catch (err) {
         console.error("fetchCart error:", err);
       }
@@ -119,7 +177,8 @@ export const useCartStore = create<CartState>((set) => {
     addItem: async (item) => {
       try {
         const user = useAuthStore.getState().user;
-        if (!user) {
+        // treat guest or non-customer logins the same: operate in-memory only
+        if (!user || user.role !== "customer") {
           // guest: update in-memory cart only (no local persistence)
           const prevState = useCartStore.getState().cartItems ?? [];
           const existing = prevState.find((i) => i.id === item.id);
@@ -151,7 +210,7 @@ export const useCartStore = create<CartState>((set) => {
           return;
         }
 
-        // authenticated: perform optimistic update so UI reflects immediately
+  // authenticated customer: perform optimistic update so UI reflects immediately
         const prev = useCartStore.getState().cartItems;
         const existing = prev.find((i) => i.id === item.id);
         let optimistic: CartItem[];
@@ -188,25 +247,7 @@ export const useCartStore = create<CartState>((set) => {
           .addToCart(payload)
           .then((res) => {
             const cartRes = res as CartOut;
-            const mapped = mapCartOutToState(cartRes);
-            set({
-              cartItems: mapped,
-              subtotal: cartRes.subtotal ?? 0,
-              discount: cartRes.discount ?? 0,
-              total: cartRes.total ?? 0,
-              coupon: cartRes.coupon ?? null,
-            });
-            try {
-              postCartState?.({
-                cartItems: mapped,
-                subtotal: cartRes.subtotal ?? 0,
-                discount: cartRes.discount ?? 0,
-                total: cartRes.total ?? 0,
-                coupon: cartRes.coupon ?? null,
-              });
-            } catch {
-              /* ignore */
-            }
+            applyServerCartResponse(cartRes, set);
           })
           .catch((err) => {
             console.error("addToCart API error:", err);
@@ -221,7 +262,7 @@ export const useCartStore = create<CartState>((set) => {
     removeItem: async (id) => {
       try {
         const user = useAuthStore.getState().user;
-        if (!user) {
+        if (!user || user.role !== "customer") {
           // guest: remove from in-memory cart only
           const prevState = useCartStore.getState().cartItems ?? [];
           const next = prevState.filter((item) => item.id !== id);
@@ -241,25 +282,7 @@ export const useCartStore = create<CartState>((set) => {
         }
         const res = await cartApi.removeFromCart(id);
         const cartRes = res as CartOut;
-        const mapped = mapCartOutToState(cartRes);
-        set({
-          cartItems: mapped,
-          subtotal: cartRes.subtotal ?? 0,
-          discount: cartRes.discount ?? 0,
-          total: cartRes.total ?? 0,
-          coupon: cartRes.coupon ?? null,
-        });
-        try {
-          postCartState?.({
-            cartItems: mapped,
-            subtotal: cartRes.subtotal ?? 0,
-            discount: cartRes.discount ?? 0,
-            total: cartRes.total ?? 0,
-            coupon: cartRes.coupon ?? null,
-          });
-        } catch {
-          /* ignore */
-        }
+        applyServerCartResponse(cartRes, set);
         // server result applied above
       } catch (err) {
         console.error("removeItem error:", err);
@@ -269,7 +292,7 @@ export const useCartStore = create<CartState>((set) => {
     updateQuantity: async (id, delta) => {
       try {
         const user = useAuthStore.getState().user;
-        if (!user) {
+        if (!user || user.role !== "customer") {
           // guest: update in-memory cart only
           const current = useCartStore
             .getState()
@@ -362,31 +385,13 @@ export const useCartStore = create<CartState>((set) => {
     clearCart: async () => {
       try {
         const user = useAuthStore.getState().user;
-        if (!user) {
+        if (!user || user.role !== "customer") {
           // guest: clear in-memory cart only
           set({ cartItems: [] });
           return;
         }
         const res = await cartApi.clearCart();
-        const mapped = mapCartOutToState(res);
-        set({
-          cartItems: mapped,
-          subtotal: res.subtotal ?? 0,
-          discount: res.discount ?? 0,
-          total: res.total ?? 0,
-          coupon: res.coupon ?? null,
-        });
-        try {
-          postCartState?.({
-            cartItems: mapped,
-            subtotal: res.subtotal ?? 0,
-            discount: res.discount ?? 0,
-            total: res.total ?? 0,
-            coupon: res.coupon ?? null,
-          });
-        } catch {
-          /* ignore */
-        }
+        applyServerCartResponse(res, set);
       } catch (err) {
         console.error("clearCart error:", err);
       }
@@ -395,31 +400,13 @@ export const useCartStore = create<CartState>((set) => {
     applyCoupon: async (code: string) => {
       try {
         const user = useAuthStore.getState().user;
-        if (!user) {
-          // require login to apply coupon (server-side coupons require auth)
+        if (!user || user.role !== "customer") {
+          // require login as customer to apply coupon (server-side coupons require auth)
           throw new Error("Login required to apply coupon");
         }
         const res = await cartApi.applyCoupon(code);
         const cartRes = res as CartOut;
-        const mapped = mapCartOutToState(cartRes);
-        set({
-          cartItems: mapped,
-          subtotal: cartRes.subtotal ?? 0,
-          discount: cartRes.discount ?? 0,
-          total: cartRes.total ?? 0,
-          coupon: cartRes.coupon ?? null,
-        });
-        try {
-          postCartState?.({
-            cartItems: mapped,
-            subtotal: cartRes.subtotal ?? 0,
-            discount: cartRes.discount ?? 0,
-            total: cartRes.total ?? 0,
-            coupon: cartRes.coupon ?? null,
-          });
-        } catch {
-          /* ignore */
-        }
+        applyServerCartResponse(cartRes, set);
       } catch (err) {
         console.error("applyCoupon error:", err);
         throw err;
@@ -433,8 +420,8 @@ export const useCartStore = create<CartState>((set) => {
 try {
   useAuthStore.subscribe((authState) => {
     const user = authState.user;
-    if (user) {
-      // user logged in: if we have any guest in-memory items, push them to server then refresh from server
+    if (user && user.role === "customer") {
+      // customer logged in: if we have any guest in-memory items, push them to server then refresh from server
       (async () => {
         try {
           const guestItems = useCartStore.getState().cartItems ?? [];
@@ -458,25 +445,8 @@ try {
           // Refresh canonical server cart and set state
           try {
             const server = await cartApi.getCart();
-            const mappedServer = mapCartOutToState(server);
-            useCartStore.setState({
-              cartItems: mappedServer,
-              subtotal: server.subtotal ?? 0,
-              discount: server.discount ?? 0,
-              total: server.total ?? 0,
-              coupon: server.coupon ?? null,
-            });
-            try {
-              postCartState?.({
-                cartItems: mappedServer,
-                subtotal: server.subtotal ?? 0,
-                discount: server.discount ?? 0,
-                total: server.total ?? 0,
-                coupon: server.coupon ?? null,
-              });
-            } catch {
-              /* ignore */
-            }
+            // set state using the store's setState function
+            applyServerCartResponse(server, useCartStore.setState.bind(null));
             if (mergedCount > 0) {
               try {
                 toast.success(
@@ -495,6 +465,15 @@ try {
           console.error("auth subscribe handler error:", err);
         }
       })();
+    } else if (user) {
+      // Non-customer logged in (seller/admin): clear any existing in-memory cart to avoid leaking customer cart data
+      useCartStore.setState({
+        cartItems: [],
+        subtotal: 0,
+        discount: 0,
+        total: 0,
+        coupon: null,
+      });
     } else {
       // user logged out: clear in-memory cart
       useCartStore.setState({
@@ -515,7 +494,7 @@ try {
 // changes, so a pre-existing user won't trigger the subscribe callback.
 try {
   const existingUser = useAuthStore.getState().user;
-  if (existingUser) {
+  if (existingUser && existingUser.role === "customer") {
     (async () => {
       try {
         const guestItems = useCartStore.getState().cartItems ?? [];
@@ -534,32 +513,12 @@ try {
           }
         }
 
-        const server = await cartApi.getCart();
-        const mappedServer = mapCartOutToState(server);
-        useCartStore.setState({
-          cartItems: mappedServer,
-          subtotal: server.subtotal ?? 0,
-          discount: server.discount ?? 0,
-          total: server.total ?? 0,
-          coupon: server.coupon ?? null,
-        });
-        try {
-          postCartState?.({
-            cartItems: mappedServer,
-            subtotal: server.subtotal ?? 0,
-            discount: server.discount ?? 0,
-            total: server.total ?? 0,
-            coupon: server.coupon ?? null,
-          });
-        } catch {
-          /* ignore */
-        }
+  const server = await cartApi.getCart();
+  applyServerCartResponse(server, useCartStore.setState);
         if (mergedCount > 0) {
           try {
             toast.success(
-              `Merged ${mergedCount} item${
-                mergedCount > 1 ? "s" : ""
-              } into your cart`
+              `Merged ${mergedCount} item${mergedCount > 1 ? "s" : ""} into your cart`
             );
           } catch {
             // ignore toast issues
@@ -569,6 +528,9 @@ try {
         console.error("initial auth sync failed:", e);
       }
     })();
+  } else if (existingUser) {
+    // existing non-customer user (seller/admin) — ensure cart is empty
+    useCartStore.setState({ cartItems: [], subtotal: 0, discount: 0, total: 0, coupon: null });
   }
 } catch {
   /* ignore */
