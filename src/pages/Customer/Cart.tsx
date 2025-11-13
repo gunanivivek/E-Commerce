@@ -17,6 +17,7 @@ const Cart: React.FC = () => {
     discount: storeDiscount,
     total: storeTotal,
   } = useCartStore();
+  const storeCoupon = useCartStore((s) => s.coupon);
   const removeMutation = useRemoveCartItem();
   const applyCouponMutation = useApplyCoupon();
   const debouncedUpdater = useDebouncedUpdateCart();
@@ -33,6 +34,11 @@ const Cart: React.FC = () => {
   const tax = 0;
   const discount = storeDiscount ?? 0;
   const total = storeTotal ?? subtotal + shipping + tax - discount;
+
+  // Keep the coupon input in sync with the cart store so it remains visible after refresh
+  React.useEffect(() => {
+    setCouponCode(storeCoupon ?? "");
+  }, [storeCoupon]);
 
   if (cartItems.length === 0) {
     return (
@@ -210,13 +216,15 @@ const Cart: React.FC = () => {
             </div>
 
             <div className="mt-4 space-y-2">
-              <input
-                type="text"
-                value={couponCode}
-                onChange={(e) => setCouponCode(e.target.value)}
-                placeholder="Coupon code"
-                className="w-full border border-[var(--color-gray-300)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
-              />
+              <div className="relative">
+                <input
+                  type="text"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  placeholder="Coupon code"
+                  className="w-full border border-[var(--color-gray-300)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
+                />
+              </div>
               <div className="flex gap-2">
                 <button
                   onClick={async () => {
@@ -229,7 +237,7 @@ const Cart: React.FC = () => {
                       console.error(err);
                     }
                   }}
-                  className="flex-1 border border-[var(--color-accent)] text-[var(--color-accent)] py-2 rounded-lg hover:bg-[var(--color-accent-light)] hover:text-white transition"
+                  className="cursor-pointer flex-1 border border-[var(--color-accent)] text-[var(--color-accent)] py-2 rounded-lg hover:bg-[var(--color-accent-light)] hover:text-white transition"
                 >
                   Apply Coupon
                 </button>

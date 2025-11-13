@@ -3,6 +3,7 @@ import * as cartApi from "../../../api/cartApi";
 import { toast } from "react-toastify";
 import { useCartStore } from "../../../store/cartStore";
 import type { CartItem } from "../../../store/cartStore";
+import type { ProductResponse } from "../../../types/product";
 
 export const useAddToCart = () => {
   const queryClient = useQueryClient();
@@ -19,16 +20,43 @@ export const useAddToCart = () => {
       const previousCart = getCartState();
       const exists = previousCart.find((it) => it.id === id);
       let next: CartItem[];
+
+      // Try to populate optimistic name/price from products cache for a nicer UI
+      let optimisticName = "";
+      let optimisticPrice = 0;
+      try {
+        const products = queryClient.getQueryData<ProductResponse[]>(["products"]) as ProductResponse[] | undefined;
+        const prod = products?.find((p) => p.id === id);
+        if (prod) {
+          optimisticName = prod.name;
+          optimisticPrice = prod.discount_price ? Number(prod.discount_price) : Number(prod.price);
+        }
+      } catch {
+        // ignore
+      }
+
       if (exists) {
         next = previousCart.map((it) => (it.id === id ? { ...it, quantity: it.quantity + quantity } : it));
       } else {
-        next = [...previousCart, { id, name: "", price: 0, quantity }];
+        next = [...previousCart, { id, name: optimisticName, price: optimisticPrice, quantity }];
       }
       setCartState(next);
       return { previousCart, existed: Boolean(exists) };
     },
-    onError: (_err, _vars, context) => {
+    onError: (err: unknown, _vars, context) => {
       if (context?.previousCart) setCartState(context.previousCart as CartItem[]);
+      try {
+        // Try to show a helpful server message when available (e.g. coupon minimum)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const anyErr = err as any;
+        const detail = anyErr?.response?.data?.detail;
+        if (detail && typeof detail === "string") {
+          toast.error(detail);
+          return;
+        }
+      } catch {
+        // ignore
+      }
       toast.error("Failed to add to cart");
     },
     onSuccess: (_data, _vars, context) => {

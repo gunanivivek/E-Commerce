@@ -5,11 +5,25 @@ import { useAuthStore } from "./authStore";
 import type { CartItemOut, CartOut } from "../types/cart";
 
 // BroadcastChannel-based cross-tab sync (no localStorage)
-const instanceId = typeof window !== "undefined" ? Math.random().toString(36).slice(2) : "server";
-const channel: BroadcastChannel | null = typeof window !== "undefined" && "BroadcastChannel" in window ? new BroadcastChannel("ecom_cart_channel") : null;
+const instanceId =
+  typeof window !== "undefined"
+    ? Math.random().toString(36).slice(2)
+    : "server";
+const channel: BroadcastChannel | null =
+  typeof window !== "undefined" && "BroadcastChannel" in window
+    ? new BroadcastChannel("ecom_cart_channel")
+    : null;
 
 // Helper forward declaration — assigned after CartItem type is declared
-let postCartState: ((payload: { cartItems: unknown[]; subtotal: number; discount: number; total: number; coupon: string | null }) => void) | undefined;
+let postCartState:
+  | ((payload: {
+      cartItems: unknown[];
+      subtotal: number;
+      discount: number;
+      total: number;
+      coupon: string | null;
+    }) => void)
+  | undefined;
 
 // Migration: clear any legacy persisted guest cart left in localStorage.
 // Historically we used the key "cart_items" to persist guest carts; the
@@ -77,14 +91,26 @@ export const useCartStore = create<CartState>((set) => {
           // not authenticated; no server cart available - keep current in-memory cart
           return;
         }
-  const data = await cartApi.getCart();
-  const mapped = mapCartOutToState(data);
-    set({ cartItems: mapped, subtotal: data.subtotal ?? 0, discount: data.discount ?? 0, total: data.total ?? 0, coupon: data.coupon ?? null });
-    try {
-      postCartState?.({ cartItems: mapped, subtotal: data.subtotal ?? 0, discount: data.discount ?? 0, total: data.total ?? 0, coupon: data.coupon ?? null });
-    } catch {
-      /* ignore */
-    }
+        const data = await cartApi.getCart();
+        const mapped = mapCartOutToState(data);
+        set({
+          cartItems: mapped,
+          subtotal: data.subtotal ?? 0,
+          discount: data.discount ?? 0,
+          total: data.total ?? 0,
+          coupon: data.coupon ?? null,
+        });
+        try {
+          postCartState?.({
+            cartItems: mapped,
+            subtotal: data.subtotal ?? 0,
+            discount: data.discount ?? 0,
+            total: data.total ?? 0,
+            coupon: data.coupon ?? null,
+          });
+        } catch {
+          /* ignore */
+        }
       } catch (err) {
         console.error("fetchCart error:", err);
       }
@@ -99,13 +125,26 @@ export const useCartStore = create<CartState>((set) => {
           const existing = prevState.find((i) => i.id === item.id);
           let next: CartItem[];
           if (existing) {
-            next = prevState.map((i) => (i.id === item.id ? { ...i, quantity: i.quantity + (item.quantity ?? 1) } : i));
+            next = prevState.map((i) =>
+              i.id === item.id
+                ? { ...i, quantity: i.quantity + (item.quantity ?? 1) }
+                : i
+            );
           } else {
-            next = [...prevState, { id: item.id, name: "", price: 0, quantity: item.quantity ?? 1 }];
+            next = [
+              ...prevState,
+              { id: item.id, name: "", price: 0, quantity: item.quantity ?? 1 },
+            ];
           }
           set({ cartItems: next });
           try {
-            postCartState?.({ cartItems: next, subtotal: 0, discount: 0, total: 0, coupon: null });
+            postCartState?.({
+              cartItems: next,
+              subtotal: 0,
+              discount: 0,
+              total: 0,
+              coupon: null,
+            });
           } catch {
             /* ignore */
           }
@@ -118,16 +157,27 @@ export const useCartStore = create<CartState>((set) => {
         let optimistic: CartItem[];
         if (existing) {
           optimistic = prev.map((i) =>
-            i.id === item.id ? { ...i, quantity: i.quantity + (item.quantity ?? 1) } : i
+            i.id === item.id
+              ? { ...i, quantity: i.quantity + (item.quantity ?? 1) }
+              : i
           );
         } else {
-          optimistic = [...prev, { id: item.id, name: "", price: 0, quantity: item.quantity ?? 1 }];
+          optimistic = [
+            ...prev,
+            { id: item.id, name: "", price: 0, quantity: item.quantity ?? 1 },
+          ];
         }
 
         // apply optimistic state
         set({ cartItems: optimistic });
         try {
-          postCartState?.({ cartItems: optimistic, subtotal: 0, discount: 0, total: 0, coupon: null });
+          postCartState?.({
+            cartItems: optimistic,
+            subtotal: 0,
+            discount: 0,
+            total: 0,
+            coupon: null,
+          });
         } catch {
           /* ignore */
         }
@@ -139,9 +189,21 @@ export const useCartStore = create<CartState>((set) => {
           .then((res) => {
             const cartRes = res as CartOut;
             const mapped = mapCartOutToState(cartRes);
-            set({ cartItems: mapped, subtotal: cartRes.subtotal ?? 0, discount: cartRes.discount ?? 0, total: cartRes.total ?? 0, coupon: cartRes.coupon ?? null });
+            set({
+              cartItems: mapped,
+              subtotal: cartRes.subtotal ?? 0,
+              discount: cartRes.discount ?? 0,
+              total: cartRes.total ?? 0,
+              coupon: cartRes.coupon ?? null,
+            });
             try {
-              postCartState?.({ cartItems: mapped, subtotal: cartRes.subtotal ?? 0, discount: cartRes.discount ?? 0, total: cartRes.total ?? 0, coupon: cartRes.coupon ?? null });
+              postCartState?.({
+                cartItems: mapped,
+                subtotal: cartRes.subtotal ?? 0,
+                discount: cartRes.discount ?? 0,
+                total: cartRes.total ?? 0,
+                coupon: cartRes.coupon ?? null,
+              });
             } catch {
               /* ignore */
             }
@@ -165,21 +227,39 @@ export const useCartStore = create<CartState>((set) => {
           const next = prevState.filter((item) => item.id !== id);
           set({ cartItems: next });
           try {
-            postCartState?.({ cartItems: next, subtotal: 0, discount: 0, total: 0, coupon: null });
+            postCartState?.({
+              cartItems: next,
+              subtotal: 0,
+              discount: 0,
+              total: 0,
+              coupon: null,
+            });
           } catch {
             /* ignore */
           }
           return;
         }
-  const res = await cartApi.removeFromCart(id);
-  const cartRes = res as CartOut;
-  const mapped = mapCartOutToState(cartRes);
-  set({ cartItems: mapped, subtotal: cartRes.subtotal ?? 0, discount: cartRes.discount ?? 0, total: cartRes.total ?? 0, coupon: cartRes.coupon ?? null });
-  try {
-    postCartState?.({ cartItems: mapped, subtotal: cartRes.subtotal ?? 0, discount: cartRes.discount ?? 0, total: cartRes.total ?? 0, coupon: cartRes.coupon ?? null });
-  } catch {
-    /* ignore */
-  }
+        const res = await cartApi.removeFromCart(id);
+        const cartRes = res as CartOut;
+        const mapped = mapCartOutToState(cartRes);
+        set({
+          cartItems: mapped,
+          subtotal: cartRes.subtotal ?? 0,
+          discount: cartRes.discount ?? 0,
+          total: cartRes.total ?? 0,
+          coupon: cartRes.coupon ?? null,
+        });
+        try {
+          postCartState?.({
+            cartItems: mapped,
+            subtotal: cartRes.subtotal ?? 0,
+            discount: cartRes.discount ?? 0,
+            total: cartRes.total ?? 0,
+            coupon: cartRes.coupon ?? null,
+          });
+        } catch {
+          /* ignore */
+        }
         // server result applied above
       } catch (err) {
         console.error("removeItem error:", err);
@@ -191,12 +271,26 @@ export const useCartStore = create<CartState>((set) => {
         const user = useAuthStore.getState().user;
         if (!user) {
           // guest: update in-memory cart only
-          const current = useCartStore.getState().cartItems.find((c) => c.id === id);
-          const newQty = current ? Math.max(1, current.quantity + delta) : Math.max(1, 1 + delta);
-          const next = useCartStore.getState().cartItems.map((item) => (item.id === id ? { ...item, quantity: newQty } : item));
+          const current = useCartStore
+            .getState()
+            .cartItems.find((c) => c.id === id);
+          const newQty = current
+            ? Math.max(1, current.quantity + delta)
+            : Math.max(1, 1 + delta);
+          const next = useCartStore
+            .getState()
+            .cartItems.map((item) =>
+              item.id === id ? { ...item, quantity: newQty } : item
+            );
           set({ cartItems: next });
           try {
-            postCartState?.({ cartItems: next, subtotal: 0, discount: 0, total: 0, coupon: null });
+            postCartState?.({
+              cartItems: next,
+              subtotal: 0,
+              discount: 0,
+              total: 0,
+              coupon: null,
+            });
           } catch {
             /* ignore */
           }
@@ -205,12 +299,26 @@ export const useCartStore = create<CartState>((set) => {
 
         // server-side: optimistic update then persist when API returns
         try {
-          const current = useCartStore.getState().cartItems.find((c) => c.id === id);
-          const newQty = current ? Math.max(1, current.quantity + delta) : Math.max(1, 1 + delta);
-          const optimisticNext = useCartStore.getState().cartItems.map((item) => (item.id === id ? { ...item, quantity: newQty } : item));
+          const current = useCartStore
+            .getState()
+            .cartItems.find((c) => c.id === id);
+          const newQty = current
+            ? Math.max(1, current.quantity + delta)
+            : Math.max(1, 1 + delta);
+          const optimisticNext = useCartStore
+            .getState()
+            .cartItems.map((item) =>
+              item.id === id ? { ...item, quantity: newQty } : item
+            );
           set({ cartItems: optimisticNext });
           try {
-            postCartState?.({ cartItems: optimisticNext, subtotal: 0, discount: 0, total: 0, coupon: null });
+            postCartState?.({
+              cartItems: optimisticNext,
+              subtotal: 0,
+              discount: 0,
+              total: 0,
+              coupon: null,
+            });
           } catch {
             /* ignore */
           }
@@ -220,9 +328,21 @@ export const useCartStore = create<CartState>((set) => {
               try {
                 const cartRes = res as CartOut;
                 const mapped = mapCartOutToState(cartRes);
-                set({ cartItems: mapped, subtotal: cartRes.subtotal ?? 0, discount: cartRes.discount ?? 0, total: cartRes.total ?? 0, coupon: cartRes.coupon ?? null });
+                set({
+                  cartItems: mapped,
+                  subtotal: cartRes.subtotal ?? 0,
+                  discount: cartRes.discount ?? 0,
+                  total: cartRes.total ?? 0,
+                  coupon: cartRes.coupon ?? null,
+                });
                 try {
-                  postCartState?.({ cartItems: mapped, subtotal: cartRes.subtotal ?? 0, discount: cartRes.discount ?? 0, total: cartRes.total ?? 0, coupon: cartRes.coupon ?? null });
+                  postCartState?.({
+                    cartItems: mapped,
+                    subtotal: cartRes.subtotal ?? 0,
+                    discount: cartRes.discount ?? 0,
+                    total: cartRes.total ?? 0,
+                    coupon: cartRes.coupon ?? null,
+                  });
                 } catch {
                   /* ignore */
                 }
@@ -249,9 +369,21 @@ export const useCartStore = create<CartState>((set) => {
         }
         const res = await cartApi.clearCart();
         const mapped = mapCartOutToState(res);
-        set({ cartItems: mapped, subtotal: res.subtotal ?? 0, discount: res.discount ?? 0, total: res.total ?? 0, coupon: res.coupon ?? null });
+        set({
+          cartItems: mapped,
+          subtotal: res.subtotal ?? 0,
+          discount: res.discount ?? 0,
+          total: res.total ?? 0,
+          coupon: res.coupon ?? null,
+        });
         try {
-          postCartState?.({ cartItems: mapped, subtotal: res.subtotal ?? 0, discount: res.discount ?? 0, total: res.total ?? 0, coupon: res.coupon ?? null });
+          postCartState?.({
+            cartItems: mapped,
+            subtotal: res.subtotal ?? 0,
+            discount: res.discount ?? 0,
+            total: res.total ?? 0,
+            coupon: res.coupon ?? null,
+          });
         } catch {
           /* ignore */
         }
@@ -270,9 +402,21 @@ export const useCartStore = create<CartState>((set) => {
         const res = await cartApi.applyCoupon(code);
         const cartRes = res as CartOut;
         const mapped = mapCartOutToState(cartRes);
-        set({ cartItems: mapped, subtotal: cartRes.subtotal ?? 0, discount: cartRes.discount ?? 0, total: cartRes.total ?? 0, coupon: cartRes.coupon ?? null });
+        set({
+          cartItems: mapped,
+          subtotal: cartRes.subtotal ?? 0,
+          discount: cartRes.discount ?? 0,
+          total: cartRes.total ?? 0,
+          coupon: cartRes.coupon ?? null,
+        });
         try {
-          postCartState?.({ cartItems: mapped, subtotal: cartRes.subtotal ?? 0, discount: cartRes.discount ?? 0, total: cartRes.total ?? 0, coupon: cartRes.coupon ?? null });
+          postCartState?.({
+            cartItems: mapped,
+            subtotal: cartRes.subtotal ?? 0,
+            discount: cartRes.discount ?? 0,
+            total: cartRes.total ?? 0,
+            coupon: cartRes.coupon ?? null,
+          });
         } catch {
           /* ignore */
         }
@@ -282,9 +426,6 @@ export const useCartStore = create<CartState>((set) => {
       }
     },
   };
-
-  // NOTE: subscriptions moved outside of the create factory to avoid TDZ
-
   return store;
 });
 
@@ -302,7 +443,10 @@ try {
             // Sequentially add guest items to server to avoid race conditions and to let server apply its own rules
             for (const it of guestItems) {
               try {
-                await cartApi.addToCart({ product_id: it.id, quantity: it.quantity });
+                await cartApi.addToCart({
+                  product_id: it.id,
+                  quantity: it.quantity,
+                });
                 mergedCount += 1;
               } catch (e) {
                 // log and continue with next item
@@ -315,15 +459,31 @@ try {
           try {
             const server = await cartApi.getCart();
             const mappedServer = mapCartOutToState(server);
-            useCartStore.setState({ cartItems: mappedServer, subtotal: server.subtotal ?? 0, discount: server.discount ?? 0, total: server.total ?? 0, coupon: server.coupon ?? null });
+            useCartStore.setState({
+              cartItems: mappedServer,
+              subtotal: server.subtotal ?? 0,
+              discount: server.discount ?? 0,
+              total: server.total ?? 0,
+              coupon: server.coupon ?? null,
+            });
             try {
-              postCartState?.({ cartItems: mappedServer, subtotal: server.subtotal ?? 0, discount: server.discount ?? 0, total: server.total ?? 0, coupon: server.coupon ?? null });
+              postCartState?.({
+                cartItems: mappedServer,
+                subtotal: server.subtotal ?? 0,
+                discount: server.discount ?? 0,
+                total: server.total ?? 0,
+                coupon: server.coupon ?? null,
+              });
             } catch {
               /* ignore */
             }
             if (mergedCount > 0) {
               try {
-                toast.success(`Merged ${mergedCount} item${mergedCount > 1 ? "s" : ""} into your cart`);
+                toast.success(
+                  `Merged ${mergedCount} item${
+                    mergedCount > 1 ? "s" : ""
+                  } into your cart`
+                );
               } catch {
                 // ignore toast errors
               }
@@ -337,7 +497,13 @@ try {
       })();
     } else {
       // user logged out: clear in-memory cart
-      useCartStore.setState({ cartItems: [], subtotal: 0, discount: 0, total: 0, coupon: null });
+      useCartStore.setState({
+        cartItems: [],
+        subtotal: 0,
+        discount: 0,
+        total: 0,
+        coupon: null,
+      });
     }
   });
 } catch (err) {
@@ -357,7 +523,10 @@ try {
         if (guestItems && guestItems.length) {
           for (const it of guestItems) {
             try {
-              await cartApi.addToCart({ product_id: it.id, quantity: it.quantity });
+              await cartApi.addToCart({
+                product_id: it.id,
+                quantity: it.quantity,
+              });
               mergedCount += 1;
             } catch (e) {
               console.error("initial sync guest cart item failed:", e);
@@ -367,15 +536,31 @@ try {
 
         const server = await cartApi.getCart();
         const mappedServer = mapCartOutToState(server);
-        useCartStore.setState({ cartItems: mappedServer, subtotal: server.subtotal ?? 0, discount: server.discount ?? 0, total: server.total ?? 0, coupon: server.coupon ?? null });
+        useCartStore.setState({
+          cartItems: mappedServer,
+          subtotal: server.subtotal ?? 0,
+          discount: server.discount ?? 0,
+          total: server.total ?? 0,
+          coupon: server.coupon ?? null,
+        });
         try {
-          postCartState?.({ cartItems: mappedServer, subtotal: server.subtotal ?? 0, discount: server.discount ?? 0, total: server.total ?? 0, coupon: server.coupon ?? null });
+          postCartState?.({
+            cartItems: mappedServer,
+            subtotal: server.subtotal ?? 0,
+            discount: server.discount ?? 0,
+            total: server.total ?? 0,
+            coupon: server.coupon ?? null,
+          });
         } catch {
           /* ignore */
         }
         if (mergedCount > 0) {
           try {
-            toast.success(`Merged ${mergedCount} item${mergedCount > 1 ? "s" : ""} into your cart`);
+            toast.success(
+              `Merged ${mergedCount} item${
+                mergedCount > 1 ? "s" : ""
+              } into your cart`
+            );
           } catch {
             // ignore toast issues
           }
@@ -394,7 +579,12 @@ try {
   if (channel) {
     postCartState = (payload) => {
       try {
-        channel.postMessage({ type: "cart_update", source: instanceId, userId: useAuthStore.getState().user?.id ?? null, payload });
+        channel.postMessage({
+          type: "cart_update",
+          source: instanceId,
+          userId: useAuthStore.getState().user?.id ?? null,
+          payload,
+        });
       } catch {
         // ignore
       }
@@ -412,7 +602,13 @@ try {
         const p = msg.payload;
         if (!p) return;
         // apply incoming cart state
-        useCartStore.setState({ cartItems: p.cartItems ?? [], subtotal: p.subtotal ?? 0, discount: p.discount ?? 0, total: p.total ?? 0, coupon: p.coupon ?? null });
+        useCartStore.setState({
+          cartItems: p.cartItems ?? [],
+          subtotal: p.subtotal ?? 0,
+          discount: p.discount ?? 0,
+          total: p.total ?? 0,
+          coupon: p.coupon ?? null,
+        });
       } catch {
         /* ignore */
       }
