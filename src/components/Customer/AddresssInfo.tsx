@@ -119,10 +119,10 @@ const AddressInfo = () => {
       {!editingId && (
         <button
           onClick={startAdd}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium mb-5 transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+          className="flex items-center text-white font-semibold gap-2 px-4 py-2 rounded-lg  mb-5 transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
           style={{
             backgroundColor: "var(--color-accent)",
-            color: "black",
+           
           }}
         >
           <Plus size={18} /> Add New Address
@@ -158,7 +158,7 @@ const AddressInfo = () => {
                     val = "+91" + val.replace(/^(\+|91)/, "");
                   }
                   val = val.slice(0, 13); // limit to +91 + 10 digits
-                  setValue("phone_number", val); // ✅ this ensures form state updates
+                  setValue("phone_number", val); 
                 },
               })}
               placeholder="Phone Number"

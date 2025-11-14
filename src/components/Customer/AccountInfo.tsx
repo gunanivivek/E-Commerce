@@ -187,10 +187,10 @@ const AccountInfo = () => {
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
-            className="px-6 py-3 font-semibold rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+            className="px-6 py-3 text-white font-semibold rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
             style={{
               backgroundColor: "var(--color-accent)",
-              color: "black",
+
             }}
           >
             Edit Details
@@ -200,10 +200,10 @@ const AccountInfo = () => {
             <button
               onClick={handleSave}
               disabled={isUpdating}
-              className="px-6 py-3 font-semibold rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="px-6 py-3 text-white font-semibold rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
               style={{
                 backgroundColor: "var(--color-accent)",
-                color: "black",
+              
               }}
             >
               {isUpdating ? "Saving..." : "Save Changes"}
