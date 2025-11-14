@@ -5,3 +5,8 @@ export interface Review {
   comment?: string | null;
   date?: string | null;
 }
+
+export interface ReviewResponse {
+  reviews: Review[];
+  average_rating?: number | null;
+}

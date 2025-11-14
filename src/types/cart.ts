@@ -1,41 +1,58 @@
-export interface CartItemOut {
+// ---------------------- Cart Item ----------------------
+// Represents an individual item in the cart
+export interface CartItem {
   product_id: number;
   name: string;
   unit_price: number;
   quantity: number;
   line_total: number;
-  image_url?: string | null;
+  image_url: string | undefined;
 }
 
-export interface CartOut {
-  items: CartItemOut[];
+// ---------------------- Full Cart Response ----------------------
+// Represents the entire cart returned by the backend
+export interface CartResponse {
+  items: CartItem[];
   subtotal: number;
   discount: number;
   total: number;
-  coupon?: string | null;
+  coupon: string | null;
 }
 
-export interface AddItemRequest {
+// ---------------------- Add to Cart ----------------------
+// Request body for adding an item
+export interface AddToCartRequest {
   product_id: number;
   quantity: number;
 }
 
-export interface UpdateItemRequest {
-  product_id: number;
-  quantity: number;
-}
-
-export interface AddItemResponse {
+// Response returned after adding an item
+export interface AddToCartResponse {
   message: string;
-  items: CartItemOut[];
+  items: CartItem[];
   subtotal: number;
   discount: number;
   total: number;
   coupon?: string | null;
 }
 
-// Reuse AddItemResponse for update/remove responses; no extra fields needed.
-export type UpdateItemResponse = AddItemResponse;
-export type RemoveItemResponse = AddItemResponse;
+// ---------------------- Update Cart Quantity ----------------------
+export interface UpdateCartQuantityRequest {
+  product_id: number;
+  quantity: number;
+}
 
-// Use named exports only
+// Response returned after updating quantity (same as AddToCartResponse)
+export type UpdateCartQuantityResponse = AddToCartResponse;
+
+// ---------------------- Remove Item from Cart ----------------------
+export interface RemoveFromCartRequest {
+  product_id: number;
+}
+
+// Response returned after removing an item (same as AddToCartResponse)
+export type RemoveFromCartResponse = AddToCartResponse;
+
+// ---------------------- Clear Cart ----------------------
+// Response returned after clearing the cart
+export type ClearCartResponse = AddToCartResponse;
