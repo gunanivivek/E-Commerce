@@ -15,7 +15,7 @@ const WishlistCard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { wishlistItems, removeItem } = useWishlistStore();
-  const { data: cartData } = useCart(); // gives you cart items and totals
+  const { data: cartData } = useCart(true); // gives you cart items and totals
   const removeMutation = useRemoveFromCart();
   const updateMutation = useUpdateCart();
   const addMutation = useAddToCart();

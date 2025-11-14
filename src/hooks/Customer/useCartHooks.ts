@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import type { AddToCartRequest, AddToCartResponse, CartResponse, ClearCartResponse, RemoveFromCartRequest, RemoveFromCartResponse, UpdateCartQuantityRequest, UpdateCartQuantityResponse } from "../../types/cart";
 
 // ---------------------- useCart Hook ----------------------
-export const useCart = () => {
+export const useCart = (enabled: boolean) => {
   return useQuery<CartResponse>({
     queryKey: ["cart"],
     queryFn: async () => {
@@ -21,7 +21,7 @@ export const useCart = () => {
     },
     staleTime: 1000 * 60 * 2, // cache for 2 minutes
     refetchOnWindowFocus: false, // prevent flicker on tab change
-    // enabled: false
+    enabled,
   });
 };
 

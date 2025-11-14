@@ -128,7 +128,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   // product store kept for non-cart product helpers if needed
   const { wishlistItems, addToWishlist, removeFromWishlist } =
     useWishlistStore();
-  const { data: cartData } = useCart(); // gives you cart items and totals
+  const { data: cartData } = useCart(true); // gives you cart items and totals
   const removeMutation = useRemoveFromCart();
   const updateMutation = useUpdateCart();
   const addMutation = useAddToCart();
