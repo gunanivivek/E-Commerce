@@ -6,8 +6,32 @@ import Footer from "../../components/ui/Footer";
 import { useAddresses } from "../../hooks/useAddresses";
 import { useAddressStore } from "../../store/addressStore";
 import { useCartStore } from "../../store/cartStore";
-import LoadingState from "../../components/LoadingState";
+
 import CardPaymentModal from "../../components/Customer/PaymentModal";
+
+const AddressSkeleton = () => {
+  return (
+    <div className="grid md:grid-cols-2 gap-4">
+      {[1, 2].map((i) => (
+        <div
+          key={i}
+          className="p-5 border-2 rounded-xl bg-white animate-pulse"
+        >
+          <div className="flex items-start gap-3">
+            <div className="h-5 w-5 bg-gray-200 rounded-full" />
+            <div className="flex-1 space-y-3">
+              <div className="h-4 bg-gray-200 rounded w-3/4" />
+              <div className="h-3 bg-gray-200 rounded w-1/2" />
+              <div className="h-3 bg-gray-200 rounded w-2/3" />
+              <div className="h-3 bg-gray-200 rounded w-1/3" />
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 
 const Checkout: React.FC = () => {
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
@@ -73,15 +97,7 @@ const Checkout: React.FC = () => {
     );
   }
 
-  if (isLoadingAddresses) {
-    return (
-      <div className="min-h-screen bg-[var(--color-background)] py-12 text-center text-[var(--color-text-primary)]">
-        <Header />
-        <LoadingState message="Loading addresses..." />
-        <Footer />
-      </div>
-    );
-  }
+ 
 
   const addresses = fetchedAddresses || [];
 
@@ -143,73 +159,81 @@ const Checkout: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="p-6">
-                  {addresses.length === 0 ? (
-                    <div className="text-center py-12">
-                      <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                        <MapPin className="w-10 h-10 text-gray-400" />
-                      </div>
-                      <p className="text-[var(--color-text-muted)] mb-4">
-                        No saved addresses found
-                      </p>
-                      <Link
-                        to="/profile"
-                        className="text-primary-400 font-medium hover:underline"
-                      >
-                        Add an address in your profile
-                      </Link>
-                    </div>
-                  ) : (
-                    <div className="grid md:grid-cols-2 gap-4">
-                      {addresses.map((address) => (
-                        <label
-                          key={address.id}
-                          className={`group relative p-5 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
-                            selectedAddressId === String(address.id)
-                              ? "border-primary-400 bg-primary-50 shadow-md scale-[1.02]"
-                              : "border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm"
-                          }`}
-                        >
-                          <div className="flex items-start gap-3">
-                            <input
-                              type="radio"
-                              name="address-selection"
-                              value={String(address.id)}
-                              checked={selectedAddressId === String(address.id)}
-                              onChange={() => {
-                                setSelectedAddressId(String(address.id));
-                                setSelectedAddress(address);
-                              }}
-                              className="mt-1 h-5 w-5 text-primary-400 border-gray-300 focus:ring-primary-400 focus:ring-2"
-                            />
-                            <div className="flex-1">
-                              <h3 className="font-semibold text-[var(--color-text-primary)] mb-1 line-clamp-2">
-                                {address.address_line_1}
-                              </h3>
-                              <div className="text-sm text-[var(--color-text-muted)] space-y-1">
-                                <p>
-                                  {address.city}, {address.state}{" "}
-                                  {address.postal_code}
-                                </p>
-                                <p className="flex items-center gap-1">
-                                  <span className="font-medium">Phone:</span>{" "}
-                                  {address.phone_number}
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                          {selectedAddressId === String(address.id) && (
-                            <div className="absolute top-3 right-3">
-                              <div className="w-6 h-6 bg-primary-400 rounded-full flex items-center justify-center">
-                                <CheckCircle2 className="w-4 h-4 text-white" />
-                              </div>
-                            </div>
-                          )}
-                        </label>
-                      ))}
-                    </div>
-                  )}
+            <div className="p-6">
+  {isLoadingAddresses ? (
+    <AddressSkeleton />
+  ) : addresses.length === 0 ? (
+    <>
+      {/* Empty Address UI (unchanged) */}
+      <div className="text-center py-12">
+        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+          <MapPin className="w-10 h-10 text-gray-400" />
+        </div>
+        <p className="text-[var(--color-text-muted)] mb-4">No saved addresses found</p>
+        <Link
+          to="/profile"
+          className="text-primary-400 font-medium hover:underline"
+        >
+          Add an address in your profile
+        </Link>
+      </div>
+    </>
+  ) : (
+    <>
+      {/* Existing Address Cards — NO DESIGN CHANGE */}
+      <div className="grid md:grid-cols-2 gap-4">
+        {addresses.map((address) => (
+          <label
+            key={address.id}
+            className={`group relative p-5 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+              selectedAddressId === String(address.id)
+                ? "border-primary-400 bg-primary-50 shadow-md scale-[1.02]"
+                : "border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm"
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              <input
+                type="radio"
+                name="address-selection"
+                value={String(address.id)}
+                checked={selectedAddressId === String(address.id)}
+                onChange={() => {
+                  setSelectedAddressId(String(address.id));
+                  setSelectedAddress(address);
+                }}
+                className="mt-1 h-5 w-5 text-primary-400"
+              />
+
+              <div className="flex-1">
+                <h3 className="font-semibold text-[var(--color-text-primary)] mb-1 line-clamp-2">
+                  {address.address_line_1}
+                </h3>
+                <div className="text-sm text-[var(--color-text-muted)] space-y-1">
+                  <p>
+                    {address.city}, {address.state} {address.postal_code}
+                  </p>
+                  <p className="flex items-center gap-1">
+                    <span className="font-medium">Phone:</span>{" "}
+                    {address.phone_number}
+                  </p>
                 </div>
+              </div>
+            </div>
+
+            {selectedAddressId === String(address.id) && (
+              <div className="absolute top-3 right-3">
+                <div className="w-6 h-6 bg-primary-400 rounded-full flex items-center justify-center">
+                  <CheckCircle2 className="w-4 h-4 text-white" />
+                </div>
+              </div>
+            )}
+          </label>
+        ))}
+      </div>
+    </>
+  )}
+</div>
+
               </div>
 
               {/* Order Items Preview */}
