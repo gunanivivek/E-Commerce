@@ -21,7 +21,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const user = useAuthStore((s) => s.user);
   // product store left for wishlist helper; addToCart replaced by react-query hook
   const { addToWishlist } = useWishlistStore();
-  const { data: cartData } = useCart(); // gives you cart items and totals
+  const { data: cartData } = useCart(true); // gives you cart items and totals
   const removeMutation = useRemoveFromCart();
   const updateMutation = useUpdateCart();
   const addMutation = useAddToCart();

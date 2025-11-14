@@ -11,7 +11,7 @@ import {
 } from "../../hooks/Customer/useCartHooks";
 
 const Cart: React.FC = () => {
-  const { data: cartData, isLoading: cartLoading } = useCart();
+  const { data: cartData, isLoading: cartLoading } = useCart(true);
   const removeMutation = useRemoveFromCart();
   const cartItems = cartData?.items ?? [];
   const subtotal = cartData?.subtotal ?? 0;

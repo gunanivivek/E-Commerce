@@ -40,7 +40,7 @@ const Checkout: React.FC = () => {
   const { addresses: fetchedAddresses, isLoading: isLoadingAddresses } =
     useAddresses();
   const setSelectedAddress = useAddressStore((s) => s.setSelectedAddress);
-  const { data: cartData } = useCart();
+  const { data: cartData } = useCart(true);
   const cartItems = cartData?.items;
   const subtotal = cartData?.subtotal ?? 0;
   const discount = cartData?.discount ?? 0;

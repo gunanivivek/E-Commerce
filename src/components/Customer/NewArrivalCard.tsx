@@ -193,7 +193,7 @@ const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   const user = useAuthStore((s) => s.user);
   const { addToWishlist } = useWishlistStore();
   const location = useLocation();
-  const { data: cartData } = useCart();
+  const { data: cartData } = useCart(true);
   const addMutation = useAddToCart();
   const removeMutation = useRemoveFromCart();
   const updateMutation = useUpdateCart();

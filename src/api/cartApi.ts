@@ -32,17 +32,15 @@ export const updateCartQuantity = async (
 };
 
 // ---------------------- REMOVE ITEM FROM CART ----------------------
-export const removeFromCart = async (
-  payload: RemoveFromCartRequest
-): Promise<RemoveFromCartResponse> => {
-  const res = await api.delete<RemoveFromCartResponse>("/cart/remove/", {
-    data: payload,
-  });
-  return res.data;
-};
+  export const removeFromCart = async (
+    payload: RemoveFromCartRequest
+  ): Promise<RemoveFromCartResponse> => {
+    const res = await api.delete<RemoveFromCartResponse>(`/cart/remove/${payload.product_id}`);
+    return res.data;
+  };
 
 // ---------------------- CLEAR CART ----------------------
 export const clearCart = async (): Promise<ClearCartResponse> => {
-  const res = await api.post<ClearCartResponse>("/cart/clear");
+  const res = await api.delete<ClearCartResponse>("/cart/clear");
   return res.data;
 };
