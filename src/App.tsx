@@ -44,7 +44,9 @@ import SearchPage from "./pages/Customer/SearchPage";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+// Only call loadStripe when a publishable key is provided to avoid runtime errors
+const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY as string | undefined;
+const stripePromise = stripeKey ? loadStripe(stripeKey) : null;
 
 function App() {
   useFetchCategories();

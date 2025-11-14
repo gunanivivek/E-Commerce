@@ -6,7 +6,9 @@ export interface Review {
   date?: string | null;
 }
 
-export interface ReviewResponse {
+export interface CreateReviewPayload {
   reviews: Review[];
   average_rating?: number | null;
+  comment?: string;
+  author?: string;
 }

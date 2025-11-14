@@ -1,4 +1,3 @@
-// src/api/cartApi.ts
 import api from "./axiosInstance"; 
 import type {
   CartResponse,

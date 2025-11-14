@@ -1,6 +1,6 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import React from "react";
- 
+
 import * as productsApi from "../../api/productsApi";
 import { useQuery } from "@tanstack/react-query";
 import type { ProductResponse } from "../../types/product";
@@ -13,7 +13,10 @@ import Header from "../../components/ui/Header";
 import Footer from "../../components/ui/Footer";
 import { Link } from "react-router-dom";
 import LoadingState from "../../components/LoadingState";
-import { useReviews, useCreateReview } from "../../hooks/Customer/useReviewHooks";
+import {
+  useReviews,
+  useCreateReview,
+} from "../../hooks/Customer/useReviewHooks";
 import { toast } from "react-toastify";
 import { useState } from "react";
 import {
@@ -53,10 +56,58 @@ const ProductDescription: React.FC = () => {
   const cartItems = cartData?.items ?? [];
 
   // Fetch reviews using the centralized review hooks
-  const { data: reviews = [], isLoading: reviewsLoading } = useReviews(product?.id);
-  // use reviewsLoading only in the Reviews tab
+  const { data: reviews = [], isLoading: reviewsLoading } = useReviews(
+    product?.id
+  );
 
-  // query invalidation handled inside hooks
+  // Ensure `reviews` is always an array in the UI to avoid runtime errors
+  type LocalReview = {
+    id: string | number;
+    author?: string | null;
+    rating?: number | null;
+    comment?: string | null;
+    date?: string | null;
+  };
+
+  // normalize different backend shapes into LocalReview[]
+  const rawArray: unknown[] = Array.isArray(reviews)
+    ? (reviews as unknown[])
+    : reviews && typeof reviews === "object"
+    ? ((reviews as Record<string, unknown>).reviews as unknown[]) ??
+      ((reviews as Record<string, unknown>).data as unknown[]) ??
+      []
+    : [];
+
+  const normalizedReviews: LocalReview[] = rawArray.map((rev, idx) => {
+    const r = rev as Record<string, unknown>;
+    const id =
+      (r["id"] as string | number | undefined) ??
+      `${product?.id ?? "p"}-${idx}`;
+    const author =
+      (r["name"] as string | undefined) ??
+      (r["author"] as string | undefined) ??
+      null;
+    const ratingRaw = r["rating"];
+    const rating =
+      typeof ratingRaw === "number"
+        ? (ratingRaw as number)
+        : Number(String(ratingRaw ?? "0"));
+    const comment =
+      (r["comment"] as string | undefined) ??
+      (r["text"] as string | undefined) ??
+      null;
+    const date =
+      (r["date"] as string | undefined) ??
+      (r["created_at"] as string | undefined) ??
+      null;
+    return {
+      id,
+      author,
+      rating,
+      comment,
+      date,
+    };
+  });
 
   // Review modal state
   const [showReviewModal, setShowReviewModal] = useState(false);
@@ -66,10 +117,8 @@ const ProductDescription: React.FC = () => {
     user?.full_name ?? ""
   );
 
-  const {
-    mutateAsync: createReviewAsync,
-    isPending: isCreatingReview,
-  } = useCreateReview(product?.id);
+  const { mutateAsync: createReviewAsync, isPending: isCreatingReview } =
+    useCreateReview(product?.id);
 
   const handleAddReview = () => {
     if (!user)
@@ -85,12 +134,21 @@ const ProductDescription: React.FC = () => {
       toast.error("Please enter a comment");
       return;
     }
+
+    type CreateReviewPayload = {
+      rating: number;
+      comment: string;
+      author?: string;
+    };
+
+    const payload: CreateReviewPayload = {
+      rating: reviewRating,
+      comment: reviewComment.trim(),
+      author: reviewAuthor?.trim() || undefined,
+    };
+
     try {
-      await createReviewAsync({
-        rating: reviewRating,
-        comment: reviewComment.trim(),
-        author: reviewAuthor?.trim() || undefined,
-      });
+      await createReviewAsync(payload);
     } catch {
       // error handled in onError
     }
@@ -370,12 +428,12 @@ const ProductDescription: React.FC = () => {
             </div>
           </div>
 
-          <hr className="my-3 border-[var(--color-gray-300)]" />
+          <hr className="my-3 border-accent" />
           {/* Reviews */}
           <div className="mx-20 mb-15 p-6">
             <div className="flex justify-between items-center">
               <h3 className="text-xl font-semibold mb-4 text-accent-dark">
-                Customer Reviews ({reviews?.length ?? 0})
+                Customer Reviews ({normalizedReviews.length})
               </h3>
               <button
                 className="border border-accent px-5 py-2 rounded-md text-accent-darker hover:bg-accent hover:text-primary-100 cursor-pointer"
@@ -387,18 +445,26 @@ const ProductDescription: React.FC = () => {
 
             {reviewsLoading ? (
               <p className="text-accent-light">Loading reviews...</p>
-            ) : reviews.length === 0 ? (
+            ) : normalizedReviews.length === 0 ? (
               <p className="text-accent-light">No reviews yet.</p>
             ) : (
-              <div className="space-y-4">
-                {reviews.map((r) => (
+              <div className="space-y-4 my-5">
+                {(
+                  normalizedReviews as Array<{
+                    id: string | number;
+                    author?: string | null;
+                    rating?: number | null;
+                    comment?: string | null;
+                    date?: string | null;
+                  }>
+                ).map((r) => (
                   <div
                     key={r.id}
-                    className="border border-primary-50 rounded-lg p-4 bg-background transition-shadow hover:shadow-md"
+                    className="border border-primary-50 rounded-lg p-4 bg-background transition-shadow hover:shadow-md cursor-pointer"
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="font-semibold text-primary-400">
-                        {r.author ?? "Anonymous"}
+                        {r.comment}
                       </div>
                       <div className="flex">
                         {[...Array(5)].map((_, i) => (
@@ -413,10 +479,10 @@ const ProductDescription: React.FC = () => {
                         ))}
                       </div>
                     </div>
-                    <p className="text-primary-100 text-sm leading-relaxed">
-                      {r.comment}
+                    <p className="text-accent-light text-sm leading-relaxed">
+                      -{r.author ?? "Anonymous"}
                     </p>
-                    <p className="text-xs text-primary-100 mt-1">{r.date}</p>
+                    <p className="text-xs text-accent-light mt-1">{r.date}</p>
                   </div>
                 ))}
               </div>

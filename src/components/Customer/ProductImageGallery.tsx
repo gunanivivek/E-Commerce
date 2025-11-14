@@ -8,15 +8,20 @@ interface Props {
 
 const ProductImageGallery: React.FC<Props> = ({ image, thumbnails, images }) => {
   // thumbnails -> images -> fallback to main image
-  const thumbList: string[] = thumbnails ?? images ?? (image ? [image] : []);
+  const rawThumbs: (string | undefined | null)[] = thumbnails ?? images ?? (image ? [image] : []);
+  // filter out empty or falsy values to avoid empty src warnings
+  const thumbList: string[] = rawThumbs.filter((s): s is string => !!s && s.trim() !== "");
   const [selected, setSelected] = useState(0);
-
-  const mainSrc = thumbList[selected] ?? image;
+  const mainSrc = thumbList[selected] ?? (image && image.trim() !== "" ? image : null);
 
   return (
     <div className="flex flex-col items-center">
       <div className="w-full h-96 rounded-lg overflow-hidden flex items-center justify-center bg-white">
-        <img src={mainSrc} alt="product" className="object-contain w-full h-full" />
+        {mainSrc ? (
+          <img src={mainSrc} alt="product" className="object-contain w-full h-full" />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-400">No Image</div>
+        )}
       </div>
 
       <div className="flex gap-3 mt-4">
