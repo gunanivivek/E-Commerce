@@ -125,7 +125,7 @@ const Cart: React.FC = () => {
               >
                 <div className="flex items-center gap-6">
                   <img
-                    src={item.image_url ?? ""}
+                    src={item.image_url || undefined}
                     alt={item.name}
                     className="w-24 h-24 object-cover rounded-lg"
                   />

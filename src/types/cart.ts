@@ -6,7 +6,7 @@ export interface CartItem {
   unit_price: number;
   quantity: number;
   line_total: number;
-  image_url: string | null;
+  image_url: string | undefined;
 }
 
 // ---------------------- Full Cart Response ----------------------

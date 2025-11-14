@@ -318,7 +318,7 @@ const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
             </div>
  
             {/* Order Summary - Right Side (2 columns on lg) */}
-            <div className="lg:col-span-2 bg-gradient-to-br from-gray-50 to-primary-50 rounded-2xl p-3 sm:p-4 border border-gray-200 h-fit md:sticky top-0 lg:order-2 order-1 z-10 mb-4 lg:mb-0 lg:sticky lg:top-0">
+            <div className="lg:col-span-2 bg-gradient-to-br from-gray-50 to-primary-50 rounded-2xl p-3 sm:p-4 border border-gray-200 h-fit  lg:sticky top-0 lg:order-2 order-1 z-10 mb-4 lg:mb-0 lg:sticky lg:top-0">
               <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-0">
                 <div className="w-8 h-8 sm:w-10 sm:h-10 bg-primary-400 rounded-xl flex items-center justify-center flex-shrink-0">
                   <ShoppingBag className="w-4 h-4 sm:w-5 sm:h-5 text-white" />

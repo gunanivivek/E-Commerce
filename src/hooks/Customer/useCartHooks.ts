@@ -21,7 +21,7 @@ export const useCart = () => {
     },
     staleTime: 1000 * 60 * 2, // cache for 2 minutes
     refetchOnWindowFocus: false, // prevent flicker on tab change
-    enabled: false
+    // enabled: false
   });
 };
 
