@@ -6,7 +6,7 @@ import Footer from "../../components/ui/Footer";
 import { useCategoryStore } from "../../store/categoryStore";
 import ProductsCard from "../../components/Customer/ProductsCard";
 
-const NewArrivals: React.FC = () => {
+const Products: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<number | null>(null);
   type FilterShape = {
     category?: string | null;
@@ -257,4 +257,4 @@ const NewArrivals: React.FC = () => {
   );
 };
 
-export default NewArrivals;
+export default Products;

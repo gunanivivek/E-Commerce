@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // src/hooks/Customer/CartHooks/useCartHooks.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as cartApi from "../../api/cartApi"
@@ -88,6 +89,25 @@ export const useClearCart = () => {
     },
     onError: (err) => {
       toast.error(err.message || "Failed to clear cart");
+    },
+  });
+};
+
+export const useApplyCoupon = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (code: string) => cartApi.applyCoupon(code),
+
+    onSuccess: (updatedCart) => {
+      toast.success("Coupon applied successfully!");
+
+      // Replace cart data directly for fast UI update
+      queryClient.setQueryData(["cart"], updatedCart);
+    },
+
+    onError: (err: any) => {
+      toast.error(err?.response?.data?.message || "Invalid or expired coupon");
     },
   });
 };

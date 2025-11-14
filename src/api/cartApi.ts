@@ -44,3 +44,8 @@ export const clearCart = async (): Promise<ClearCartResponse> => {
   const res = await api.delete<ClearCartResponse>("/cart/clear");
   return res.data;
 };
+
+export const applyCoupon = async (code: string): Promise<CartResponse> => {
+  const res = await api.post("/cart/apply-coupon", { code });
+  return res.data;
+};
