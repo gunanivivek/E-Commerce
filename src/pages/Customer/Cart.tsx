@@ -107,7 +107,7 @@ const Cart: React.FC = () => {
     applyCoupon(couponCode);
   };
 
-  if (cartItems.length === 0) {
+  if (cartItems.length === 0 && !cartLoading) {
     return (
       <>
         <Header />
