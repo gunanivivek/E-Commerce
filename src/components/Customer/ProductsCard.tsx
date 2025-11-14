@@ -2,10 +2,13 @@ import React, { useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import { useWishlistStore } from "../../store/wishlistStore";
-import { useCartStore } from "../../store/cartStore";
-import useRemoveCartItem from "../../hooks/Customer/CartHooks/useRemoveCartItem";
-import useDebouncedUpdateCart from "../../hooks/Customer/CartHooks/useDebouncedUpdateCart";
-import useAddToCart from "../../hooks/Customer/CartHooks/useAddToCart";
+import {
+  useCart,
+  useRemoveFromCart,
+  useAddToCart,
+  useUpdateCart,
+} from "../../hooks/Customer/useCartHooks";
+
 import { useQuery } from "@tanstack/react-query";
 import * as productsApi from "../../api/productsApi";
 import type {
@@ -34,7 +37,6 @@ type FilterShape = {
   in_stock?: boolean | null;
   search?: string | null;
 };
-
 
 const ProductSkeleton = () => (
   <div className="bg-white rounded-lg shadow-md p-4 flex flex-col animate-pulse">
@@ -124,11 +126,12 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   const location = useLocation();
   const user = useAuthStore((s) => s.user);
   // product store kept for non-cart product helpers if needed
-  const { wishlistItems, addToWishlist, removeFromWishlist } = useWishlistStore();
-  const { cartItems } = useCartStore();
-  const removeMutation = useRemoveCartItem();
-  const debouncedUpdater = useDebouncedUpdateCart();
-  const addToCartMutation = useAddToCart();
+  const { wishlistItems, addToWishlist, removeFromWishlist } =
+    useWishlistStore();
+  const { data: cartData } = useCart(); // gives you cart items and totals
+  const removeMutation = useRemoveFromCart();
+  const updateMutation = useUpdateCart();
+  const addMutation = useAddToCart();
 
   const table = useReactTable({
     data: filteredAndSorted,
@@ -172,7 +175,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredProducts.map((product) => {
           const stock = Number(product.stock ?? NaN);
-          const inCart = cartItems.find((c) => c.id === product.id);
+          const inCart = cartData?.items.find((c) => c.product_id === product.id);
           const inWishlist = wishlistItems.find((w) => w.id === product.id);
 
           const handleNavigate = () => navigate(`/product/${product.id}`);
@@ -184,7 +187,10 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                 state: { from: location.pathname + location.search },
               });
             try {
-              await addToCartMutation.mutateAsync({ id: product.id, quantity: 1 });
+              await addMutation.mutateAsync({
+                product_id: product.id,
+                quantity: 1,
+              });
             } catch {
               // handled in hook
             }
@@ -289,12 +295,13 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                     const c = inCart;
                     const dec = (ev: React.MouseEvent) => {
                       ev.stopPropagation();
-                      if (c.quantity <= 1) removeMutation.mutate(c.id);
-                      else debouncedUpdater.scheduleUpdate({ id: c.id, quantity: Math.max(1, c.quantity - 1) });
+                      if (c.quantity <= 1) removeMutation.mutate({ product_id: c.product_id });
+                      else
+                        updateMutation.mutate({ product_id: c.product_id, quantity: Math.max(1, c.quantity - 1)});
                     };
                     const inc = (ev: React.MouseEvent) => {
                       ev.stopPropagation();
-                      debouncedUpdater.scheduleUpdate({ id: c.id, quantity: c.quantity + 1 });
+                      updateMutation.mutate({ product_id: c.product_id, quantity: Math.max(1, c.quantity + 1)});
                     };
                     return (
                       <div className="flex items-center gap-2">
@@ -333,7 +340,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                   onClick={handleWishlist}
                   className="ml-2 p-2 border rounded-lg transition-all duration-150 border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-white"
                 >
-                  { inWishlist ? (
+                  {inWishlist ? (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"

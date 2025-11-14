@@ -5,10 +5,6 @@ import * as productsApi from "../../api/productsApi";
 import type { ProductResponse } from "../../types/product";
 import { useWishlistStore } from "../../store/wishlistStore";
 import type { Product } from "../../store/useProductStore";
-import { useCartStore } from "../../store/cartStore";
-import useRemoveCartItem from "../../hooks/Customer/CartHooks/useRemoveCartItem";
-import useDebouncedUpdateCart from "../../hooks/Customer/CartHooks/useDebouncedUpdateCart";
-import useAddToCart from "../../hooks/Customer/CartHooks/useAddToCart";
 import { useAuthStore } from "../../store/authStore";
 import ProductImageGallery from "../../components/Customer/ProductImageGallery";
 import { Star, Truck, RotateCcw, Shield } from "lucide-react";
@@ -17,6 +13,12 @@ import Footer from "../../components/ui/Footer";
 import { Link } from "react-router-dom";
 import LoadingState from "../../components/LoadingState";
 import { getProductReviews } from "../../api/reviewApi"; // you'll create this file next
+import {
+  useCart,
+  useRemoveFromCart,
+  useAddToCart,
+  useUpdateCart,
+} from "../../hooks/Customer/useCartHooks";
 
 const ProductDescription: React.FC = () => {
   // route is defined as /product/:productId in App.tsx, so read productId here
@@ -38,12 +40,14 @@ const ProductDescription: React.FC = () => {
 
   // use centralized wishlist store so wishlist is consistent across the app
   const { addToWishlist } = useWishlistStore();
-  const { cartItems } = useCartStore();
-  const removeMutation = useRemoveCartItem();
-  const debouncedUpdater = useDebouncedUpdateCart();
-  const addToCartMutation = useAddToCart();
+  const { data: cartData } = useCart(); // gives you cart items and totals
+  const removeMutation = useRemoveFromCart();
+  const updateMutation = useUpdateCart();
+  const addMutation = useAddToCart();
   const user = useAuthStore((s) => s.user);
   const location = useLocation();
+
+  const cartItems = cartData?.items ?? [];
 
   const [activeTab, setActiveTab] = useState<
     "description" | "specs" | "reviews"
@@ -220,20 +224,24 @@ const ProductDescription: React.FC = () => {
             {/* Bottom Actions */}
             <div className="flex items-center gap-4 mb-6">
               {/* If product in cart show quantity controls, else show add button */}
-              {cartItems.find((c) => c.id === product.id) ? (
+              {cartItems.find((c) => c.product_id === product.id) ? (
                 (() => {
-                  const c = cartItems.find((ci) => ci.id === product.id)!;
+                  const c = cartItems.find(
+                    (ci) => ci.product_id === product.id
+                  )!;
                   const dec = () => {
-                    if (c.quantity <= 1) removeMutation.mutate(c.id);
+                    if (c.quantity <= 1)
+                      removeMutation.mutate({ product_id: c.product_id });
                     else
-                      debouncedUpdater.scheduleUpdate({
-                        id: c.id,
+                      updateMutation.mutate({
+                        product_id: c.product_id,
                         quantity: Math.max(1, c.quantity - 1),
                       });
                   };
+
                   const inc = () =>
-                    debouncedUpdater.scheduleUpdate({
-                      id: c.id,
+                    updateMutation.mutate({
+                      product_id: c.product_id,
                       quantity: c.quantity + 1,
                     });
 
@@ -267,8 +275,8 @@ const ProductDescription: React.FC = () => {
                         state: { from: location.pathname + location.search },
                       });
                     try {
-                      await addToCartMutation.mutateAsync({
-                        id: storeProduct.id,
+                      await addMutation.mutateAsync({
+                        product_id: storeProduct.id,
                         quantity: 1,
                       });
                     } catch {

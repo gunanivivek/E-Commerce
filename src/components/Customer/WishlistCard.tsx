@@ -1,10 +1,12 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useWishlistStore } from "../../store/wishlistStore";
-import { useCartStore } from "../../store/cartStore";
-import useRemoveCartItem from "../../hooks/Customer/CartHooks/useRemoveCartItem";
-import useDebouncedUpdateCart from "../../hooks/Customer/CartHooks/useDebouncedUpdateCart";
-import useAddToCart from "../../hooks/Customer/CartHooks/useAddToCart";
+import {
+  useCart,
+  useRemoveFromCart,
+  useAddToCart,
+  useUpdateCart,
+} from "../../hooks/Customer/useCartHooks";
 import type { Product } from "../../store/useProductStore";
 import { useAuthStore } from "../../store/authStore";
 import { Link } from "react-router-dom";
@@ -13,13 +15,14 @@ const WishlistCard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { wishlistItems, removeItem } = useWishlistStore();
-  const { cartItems } = useCartStore();
-  const removeMutation = useRemoveCartItem();
-  const debouncedUpdater = useDebouncedUpdateCart();
-  const addToCartMutation = useAddToCart();
+  const { data: cartData } = useCart(); // gives you cart items and totals
+  const removeMutation = useRemoveFromCart();
+  const updateMutation = useUpdateCart();
+  const addMutation = useAddToCart();
   const user = useAuthStore((s) => s.user);
   const filteredWishlist = wishlistItems.filter(
-    (product) => !cartItems.some((cartItem) => cartItem.id === product.id)
+    (product) =>
+      !cartData?.items.some((cartItem) => cartItem.product_id === product.id)
   );
 
   if (!filteredWishlist || filteredWishlist.length === 0) {
@@ -49,7 +52,9 @@ const WishlistCard: React.FC = () => {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredWishlist.map((product: Product) => {
-          const inCart = cartItems.find((c) => c.id === product.id);
+          const inCart = cartData?.items.find(
+            (c) => c.product_id === product.id
+          );
           const stock = Number(product.stock ?? 0);
 
           const handleAdd = async (e: React.MouseEvent) => {
@@ -60,7 +65,10 @@ const WishlistCard: React.FC = () => {
                 state: { from: location.pathname + location.search },
               });
             try {
-              await addToCartMutation.mutateAsync({ id: product.id, quantity: 1 });
+              await addMutation.mutateAsync({
+                product_id: product.id,
+                quantity: 1,
+              });
             } catch {
               // handled in hook
             }
@@ -151,12 +159,20 @@ const WishlistCard: React.FC = () => {
                     const c = inCart!;
                     const dec = (ev: React.MouseEvent) => {
                       ev.stopPropagation();
-                      if (c.quantity <= 1) removeMutation.mutate(c.id);
-               else debouncedUpdater.scheduleUpdate({ id: c.id, quantity: Math.max(1, c.quantity - 1) });
+                      if (c.quantity <= 1)
+                        removeMutation.mutate({ product_id: c.product_id });
+                      else
+                        updateMutation.mutate({
+                          product_id: c.product_id,
+                          quantity: Math.max(1, c.quantity - 1),
+                        });
                     };
                     const inc = (ev: React.MouseEvent) => {
                       ev.stopPropagation();
-                      debouncedUpdater.scheduleUpdate({ id: c.id, quantity: c.quantity + 1 });
+                      updateMutation.mutate({
+                        product_id: c.product_id,
+                        quantity: Math.max(1, c.quantity + 1),
+                      });
                     };
                     return (
                       <div className="flex items-center gap-2">

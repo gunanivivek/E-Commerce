@@ -1,46 +1,48 @@
-import API from "./axiosInstance";
+// src/api/cartApi.ts
+import api from "./axiosInstance"; // pre-configured Axios instance
 import type {
-  CartOut,
-  AddItemRequest,
-  AddItemResponse,
-  UpdateItemRequest,
+  CartResponse,
+  AddToCartRequest,
+  AddToCartResponse,
+  UpdateCartQuantityRequest,
+  UpdateCartQuantityResponse,
+  RemoveFromCartRequest,
+  RemoveFromCartResponse,
+  ClearCartResponse,
 } from "../types/cart";
 
-export const getCart = async (): Promise<CartOut> => {
-  const res = await API.get<CartOut>("cart/");
+// ---------------------- GET CART ----------------------
+export const getCart = async (): Promise<CartResponse> => {
+  const res = await api.get<CartResponse>("/cart/");
   return res.data;
 };
 
-export const addToCart = async (payload: AddItemRequest): Promise<AddItemResponse> => {
-  const res = await API.post<AddItemResponse>("cart/add", payload);
+// ---------------------- ADD TO CART ----------------------
+export const addToCart = async (payload: AddToCartRequest): Promise<AddToCartResponse> => {
+  const res = await api.post<AddToCartResponse>("/cart/add", payload);
   return res.data;
 };
 
-export const updateCart = async (payload: UpdateItemRequest): Promise<AddItemResponse> => {
-  const res = await API.put<AddItemResponse>("cart/update", payload);
+// ---------------------- UPDATE CART ITEM QUANTITY ----------------------
+export const updateCartQuantity = async (
+  payload: UpdateCartQuantityRequest
+): Promise<UpdateCartQuantityResponse> => {
+  const res = await api.put<UpdateCartQuantityResponse>("/cart/update", payload);
   return res.data;
 };
 
-export const removeFromCart = async (productId: number): Promise<AddItemResponse> => {
-  const res = await API.delete<AddItemResponse>(`cart/remove/${productId}`);
+// ---------------------- REMOVE ITEM FROM CART ----------------------
+export const removeFromCart = async (
+  payload: RemoveFromCartRequest
+): Promise<RemoveFromCartResponse> => {
+  const res = await api.delete<RemoveFromCartResponse>("/cart/remove/", {
+    data: payload,
+  });
   return res.data;
 };
 
-export const clearCart = async (): Promise<CartOut> => {
-  const res = await API.delete<CartOut>("cart/clear");
+// ---------------------- CLEAR CART ----------------------
+export const clearCart = async (): Promise<ClearCartResponse> => {
+  const res = await api.post<ClearCartResponse>("/cart/clear");
   return res.data;
-};
-
-export const applyCoupon = async (code: string): Promise<CartOut> => {
-  const res = await API.post<CartOut>("cart/apply-coupon", { code });
-  return res.data;
-};
-
-export default {
-  getCart,
-  addToCart,
-  updateCart,
-  removeFromCart,
-  clearCart,
-  applyCoupon,
 };

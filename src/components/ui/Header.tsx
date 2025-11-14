@@ -9,14 +9,13 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useStore } from "../../store/headerStore";
 import { useAuthStore } from "../../store/authStore";
 import { toast } from "react-toastify";
+import { useCart } from "../../hooks/Customer/useCartHooks";
 
 const Header = () => {
   const navigate = useNavigate();
   const user = useAuthStore((state) => state.user);
-  const { cartCount } = useStore();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -38,6 +37,15 @@ const Header = () => {
     navigate(path);
     setIsMobileMenuOpen(false);
   };
+
+   const handleNavigationCart = (path: string) => {
+    refetchCart(); // fetch the latest cart items
+    navigate(path); // navigate to the cart page
+  };
+
+    const { refetch: refetchCart, data: cartData } = useCart();
+
+     const cartCount = cartData?.items?.length ?? 0;
 
   return (
     <>
@@ -128,7 +136,7 @@ const Header = () => {
 
                 {/* Cart */}
                 <button
-                  onClick={() => handleNavigation("/cart")}
+                  onClick={() => handleNavigationCart("/cart")}
                   className="relative p-2 hover:cursor-pointer text-accent-dark hover:text-light"
                   aria-label="Cart"
                 >

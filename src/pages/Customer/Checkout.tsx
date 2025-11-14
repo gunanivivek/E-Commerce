@@ -5,16 +5,14 @@ import Header from "../../components/ui/Header";
 import Footer from "../../components/ui/Footer";
 import { useAddresses } from "../../hooks/useAddresses";
 import { useAddressStore } from "../../store/addressStore";
-import { useCartStore } from "../../store/cartStore";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createOrder } from "../../api/orderApi";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import type { AxiosError } from "axios";
 import type { Address as UserAddress } from "../../types/Address";
-import type { CartItem as StoreCartItem } from "../../store/cartStore";
 import LoadingState from "../../components/LoadingState";
-import useClearCart from "../../hooks/Customer/CartHooks/useClearCart";
+import { useCart, useClearCart } from "../../hooks/Customer/useCartHooks";
 
 // Use real API createOrder via react-query
 
@@ -36,12 +34,14 @@ const Checkout: React.FC = () => {
   const { addresses: fetchedAddresses, isLoading: isLoadingAddresses } =
     useAddresses();
   const setSelectedAddress = useAddressStore((s) => s.setSelectedAddress);
-  const cartItems = useCartStore((s) => s.cartItems);
-  const fetchCart = useCartStore((s) => s.fetchCart);
-  const storeSubtotal = useCartStore((s) => s.subtotal);
-  const storeDiscount = useCartStore((s) => s.discount);
-  const storeTotal = useCartStore((s) => s.total);
-  const storeCoupon = useCartStore((s) => s.coupon);
+
+  const { data: cartData, isLoading: isCartLoading } = useCart();
+
+  const cartItems = cartData?.items ?? [];
+  const storeSubtotal = cartData?.subtotal ?? 0;
+  const storeDiscount = cartData?.discount ?? 0;
+  const storeTotal = cartData?.total ?? 0;
+  const storeCoupon = cartData?.coupon ?? null;
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -121,16 +121,6 @@ const Checkout: React.FC = () => {
 
   const addresses: UserAddress[] = fetchedAddresses || [];
 
-  // Ensure cart is fresh when arriving on checkout
-  useEffect(() => {
-    try {
-      fetchCart?.();
-    } catch {
-      // swallow: fetchCart logs internally
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   // If addresses loaded and none selected, auto-select the first one
   useEffect(() => {
     if (!selectedAddressId && addresses && addresses.length > 0) {
@@ -139,6 +129,10 @@ const Checkout: React.FC = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [addresses]);
+
+  if(isCartLoading) {
+    return (<div>Loading...</div>)
+  }
 
   const handlePlaceOrder = () => {
     if (!selectedAddressId) {
@@ -149,7 +143,7 @@ const Checkout: React.FC = () => {
       address_id: selectedAddressId,
       payment_method: selectedPaymentMethod,
       items: cartItems.map((item) => ({
-        product_id: item.id,
+        product_id: item.product_id,
         quantity: item.quantity,
       })),
     };
@@ -442,10 +436,10 @@ const Checkout: React.FC = () => {
                   Order Summary
                 </h2>
                 <div className="space-y-4 mb-6 max-h-60 overflow-y-auto pr-2">
-                  {cartItems.map((item: StoreCartItem) => (
-                    <div key={item.id} className="flex gap-4 items-center">
+                  {cartItems.map((item) => (
+                    <div key={item.product_id} className="flex gap-4 items-center">
                       <img
-                        src={item.image ?? undefined}
+                        src={item.image_url ?? undefined}
                         alt={item.name}
                         className="w-16 h-16 object-cover rounded-[var(--radius-sm)] bg-[var(--color-gray-100)]"
                       />
@@ -457,7 +451,7 @@ const Checkout: React.FC = () => {
                           Qty: {item.quantity}
                         </p>
                         <p className="font-semibold text-sm text-[var(--color-text-primary)]">
-                          ₹{item.price.toFixed(2)}
+                          ₹{item.unit_price.toFixed(2)}
                         </p>
                       </div>
                     </div>
