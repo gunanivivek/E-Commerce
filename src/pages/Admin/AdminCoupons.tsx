@@ -15,19 +15,34 @@ import {
   useDeleteCoupon,
 } from "../../hooks/Seller/useSellerCoupons";
 
-const SkeletonCard = () => (
-  <div className="bg-white rounded-xl shadow-sm border border-primary-400/10 overflow-hidden">
-    <div className="w-full h-36 bg-primary-400/10 animate-pulse"></div>
-    <div className="p-3 space-y-3">
-      <div className="w-2/3 h-4 bg-primary-400/10 rounded animate-pulse"></div>
-      <div className="w-1/3 h-3 bg-primary-400/10 rounded animate-pulse"></div>
-      <div className="flex gap-2 mt-3">
-        <div className="w-8 h-8 bg-primary-400/10 rounded animate-pulse"></div>
-        <div className="w-8 h-8 bg-primary-400/10 rounded animate-pulse"></div>
+const SkeletonCard = () => {
+  return (
+    <div className="bg-white rounded-xl border border-primary-400/10 p-4 min-h-[220px] animate-pulse">
+      <div className="flex justify-between items-center">
+        <div className="h-4 w-24 bg-primary-200/40 rounded"></div>
+       
+      </div>
+
+      <div className="mt-3 h-3 w-32 bg-primary-200/40 rounded"></div>
+      <div className="mt-2 h-3 w-40 bg-primary-200/40 rounded"></div>
+
+      <div className="mt-3 flex items-center gap-2">
+        <div className="h-4 w-4 bg-primary-200/40 rounded"></div>
+        <div className="h-3 w-24 bg-primary-200/40 rounded"></div>
+      </div>
+
+      <div className="mt-2 flex items-center gap-2">
+        <div className="h-4 w-4 bg-primary-200/40 rounded"></div>
+        <div className="h-3 w-28 bg-primary-200/40 rounded"></div>
+      </div>
+
+      <div className="mt-4 flex gap-2">
+        <div className="h-8 w-8 bg-primary-200/40 rounded"></div>
+        <div className="h-8 w-8 bg-primary-200/40 rounded"></div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 const AdminCoupons: React.FC = () => {
   const [viewMode, setViewMode] = useState<"admin" | "seller">("admin");
@@ -114,9 +129,12 @@ const AdminCoupons: React.FC = () => {
             className="pl-9 pr-3 py-1.5 w-full border border-border-light rounded-lg bg-primary-100/30 text-primary-300 focus:outline-none focus:ring-2 focus:ring-border text-sm"
           />
         </div>
-
         {isLoading ? (
-          Array.from({ length: 8 }).map((_, i) => <SkeletonCard key={i} />)
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <SkeletonCard key={i} />
+            ))}
+          </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {filteredCoupons.length === 0 ? (
@@ -142,14 +160,7 @@ const AdminCoupons: React.FC = () => {
                             <Tag className="w-4 h-4" />
                             {coupon.coupon_code}
                           </div>
-                          <button
-                            onClick={() => deleteMutation.mutate(coupon.id)}
-                            className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100 hover:cursor-pointer disabled:opacity-50"
-                            title="Delete"
-                            disabled={deleteMutation.isPending}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          
                         </h3>
 
                         <p className="text-primary-400/70 text-sm mt-1">
@@ -177,6 +188,14 @@ const AdminCoupons: React.FC = () => {
                         >
                           <Edit className="w-4 h-4" />
                         </button>
+                        <button
+                            onClick={() => deleteMutation.mutate(coupon.id)}
+                            className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100 hover:cursor-pointer disabled:opacity-50"
+                            title="Delete"
+                            disabled={deleteMutation.isPending}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
                       </div>
                     </div>
                   </div>

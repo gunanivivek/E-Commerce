@@ -5,7 +5,6 @@ import RoleBasedRoute from "./routes/RoleBasedRoute";
 import Login from "./pages/Login";
 import CustomerLayouts from "./layouts/CustomerLayouts";
 import Products from "./pages/Customer/Products";
-import TestDashboard from "./pages/TestDashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 import AdminLayouts from "./layouts/AdminLayouts";
@@ -43,6 +42,8 @@ import NewArrivals from "./pages/Customer/NewArrivals";
 import SearchPage from "./pages/Customer/SearchPage";
 import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
+import SellerDashboard from "./pages/Seller/SellerDashboard";
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
@@ -81,7 +82,7 @@ function App() {
           {/* Admin */}
           <Route element={<RoleBasedRoute allowedRoles={["admin"]} />}>
             <Route path="/admin" element={<AdminLayouts />}>
-              <Route index element={<TestDashboard />} />
+              <Route index element={<AdminDashboard />} />
               <Route path="sellers" element={<SellerList />} />
               <Route path="products" element={<AdminProductList />} />
               <Route path="category" element={<CategoryList />} />
@@ -95,7 +96,7 @@ function App() {
           {/* Seller */}
           <Route element={<RoleBasedRoute allowedRoles={["seller"]} />}>
             <Route path="/seller" element={<SellerLayouts />}>
-              <Route index element={<TestDashboard />} />
+              <Route index element={<SellerDashboard />} />
               <Route path="products" element={<SellerProductList />} />
               <Route path="orders" element={<SellerOrders />} />
               <Route path="coupons" element={<SellerCoupons />} />
