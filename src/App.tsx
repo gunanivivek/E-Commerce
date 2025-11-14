@@ -41,12 +41,16 @@ import AdminCoupons from "./pages/Admin/AdminCoupons";
 import CategoryPage from "./pages/Customer/CategoryPage";
 import NewArrivals from "./pages/Customer/NewArrivals";
 import SearchPage from "./pages/Customer/SearchPage";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
 function App() {
    useFetchCategories();
   return (
     <>
+      <Elements stripe={stripePromise}>
       <Routes>
         {/* Public routes (only for guests) */}
         <Route element={<PublicRoute />}>
@@ -115,6 +119,7 @@ function App() {
         {/*  Always show NotFound for missing paths (even if not logged in) */}
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </Elements>
     </>
   );
 }
