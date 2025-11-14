@@ -1,7 +1,6 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
-// import { useProductStore } from "../../store/useProductStore";
 import { useWishlistStore } from "../../store/wishlistStore";
 import {
   useCart,
@@ -51,11 +50,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     addToWishlist(product);
   };
 
+  const isUpdating = updateMutation.isPending || removeMutation.isPending;
+
   return (
     <div
       key={product.id}
       className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-transform transform flex flex-col justify-between"
-      onClick={handleNavigate} // ✅ Entire card clickable (except buttons)
+      onClick={handleNavigate}
     >
       <div className="relative h-40 w-full rounded-md overflow-hidden mb-3 flex items-center justify-center">
         {stock === 0 && (
@@ -102,17 +103,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           )}
         </p>
       </div>
-
       {/* Buttons */}
       <div
         className="flex items-center justify-between mt-3"
-        onClick={(e) => e.stopPropagation()} // ✅ prevent card click on button clicks
+        onClick={(e) => e.stopPropagation()}
       >
         {inCart ? (
           (() => {
             const c = inCart!;
             const dec = (ev: React.MouseEvent) => {
               ev.stopPropagation();
+              if (isUpdating) return;
               if (c.quantity <= 1)
                 removeMutation.mutate({ product_id: c.product_id });
               else
@@ -123,6 +124,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             };
             const inc = (ev: React.MouseEvent) => {
               ev.stopPropagation();
+              if (isUpdating) return;
               updateMutation.mutate({
                 product_id: c.product_id,
                 quantity: Math.max(1, c.quantity + 1),
@@ -131,17 +133,31 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             return (
               <div className="flex items-center gap-2">
                 <button
+                  disabled={isUpdating}
                   onClick={dec}
-                  className="px-3 py-1 bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)] cursor-pointer rounded-md"
+                  className={`px-3 py-1 rounded-md cursor-pointer ${
+                    isUpdating
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)]"
+                  }`}
                 >
                   -
                 </button>
                 <span className="px-3 py-1 border rounded-md min-w-[70px] text-center">
-                  {c.quantity}
+                  {isUpdating ? (
+                    <div className="w-5 h-5 rounded-full border-2 border-gray-300 border-t-[var(--color-accent)] animate-spin"></div>
+                  ) : (
+                    c.quantity
+                  )}
                 </span>
                 <button
+                  disabled={isUpdating}
                   onClick={inc}
-                  className="px-3 py-1 bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)] cursor-pointer rounded-md"
+                  className={`px-3 py-1 rounded-md cursor-pointer ${
+                    isUpdating
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : "bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)]"
+                  }`}
                 >
                   +
                 </button>

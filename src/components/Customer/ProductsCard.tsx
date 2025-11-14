@@ -56,6 +56,11 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
+  const [pagination, setPagination] = useState({
+  pageIndex: 0,
+  pageSize: 12,
+});
+
   const { data: apiProducts, isLoading } = useQuery<ProductResponse[], Error>({
     queryKey: ["products"],
     queryFn: () => productsApi.getProducts(),
@@ -133,10 +138,13 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   const updateMutation = useUpdateCart();
   const addMutation = useAddToCart();
 
+  const isUpdating = updateMutation.isPending || removeMutation.isPending;
+
   const table = useReactTable({
     data: filteredAndSorted,
     columns: [] as ColumnDef<Product>[],
-    state: { globalFilter, columnFilters },
+    state: { globalFilter, columnFilters, pagination },
+    onPaginationChange: setPagination,
     onGlobalFilterChange: setGlobalFilter,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -145,9 +153,9 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  const filteredProducts = table
-    .getFilteredRowModel()
-    .rows.map((r) => r.original);
+  const paginatedProducts = table
+  .getPaginationRowModel()
+  .rows.map((r) => r.original);
 
   const hasProducts = Array.isArray(apiProducts) && apiProducts.length > 0;
 
@@ -163,7 +171,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
       </section>
     );
 
-  if (!filteredProducts.length)
+  if (!paginatedProducts.length)
     return (
       <p className="text-center py-10 text-gray-600">
         No products available right now.
@@ -173,9 +181,11 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   return (
     <section className="py-5 px-6 md:px-20">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredProducts.map((product) => {
+        {paginatedProducts.map((product) => {
           const stock = Number(product.stock ?? NaN);
-          const inCart = cartData?.items.find((c) => c.product_id === product.id);
+          const inCart = cartData?.items.find(
+            (c) => c.product_id === product.id
+          );
           const inWishlist = wishlistItems.find((w) => w.id === product.id);
 
           const handleNavigate = () => navigate(`/product/${product.id}`);
@@ -292,31 +302,54 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
               >
                 {inCart ? (
                   (() => {
-                    const c = inCart;
+                    const c = inCart!;
                     const dec = (ev: React.MouseEvent) => {
                       ev.stopPropagation();
-                      if (c.quantity <= 1) removeMutation.mutate({ product_id: c.product_id });
+                      if (isUpdating) return;
+                      if (c.quantity <= 1)
+                        removeMutation.mutate({ product_id: c.product_id });
                       else
-                        updateMutation.mutate({ product_id: c.product_id, quantity: Math.max(1, c.quantity - 1)});
+                        updateMutation.mutate({
+                          product_id: c.product_id,
+                          quantity: Math.max(1, c.quantity - 1),
+                        });
                     };
                     const inc = (ev: React.MouseEvent) => {
                       ev.stopPropagation();
-                      updateMutation.mutate({ product_id: c.product_id, quantity: Math.max(1, c.quantity + 1)});
+                      if (isUpdating) return;
+                      updateMutation.mutate({
+                        product_id: c.product_id,
+                        quantity: Math.max(1, c.quantity + 1),
+                      });
                     };
                     return (
                       <div className="flex items-center gap-2">
                         <button
+                          disabled={isUpdating}
                           onClick={dec}
-                          className="px-3 py-1 bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)] rounded-md"
+                          className={`px-3 py-1 rounded-md cursor-pointer ${
+                            isUpdating
+                              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                              : "bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)]"
+                          }`}
                         >
                           -
                         </button>
                         <span className="px-3 py-1 border rounded-md min-w-[70px] text-center">
-                          {c.quantity}
+                          {isUpdating ? (
+                            <div className="w-5 h-5 rounded-full flex items-center ml-3 border-2 border-gray-300 border-t-[var(--color-accent)] animate-spin"></div>
+                          ) : (
+                            c.quantity
+                          )}
                         </span>
                         <button
+                          disabled={isUpdating}
                           onClick={inc}
-                          className="px-3 py-1 bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)] rounded-md"
+                          className={`px-3 py-1 rounded-md cursor-pointer ${
+                            isUpdating
+                              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                              : "bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)]"
+                          }`}
                         >
                           +
                         </button>
@@ -329,7 +362,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                     disabled={stock === 0}
                     className={`flex-1 py-2 rounded-lg font-semibold transition-all duration-150 shadow-sm ${
                       stock === 0
-                        ? "bg-accent text-primary-100 cursor-not-allowed"
+                        ? "bg-accent-light text-accent-light cursor-not-allowed"
                         : "bg-[var(--color-accent)] text-primary-100 hover:bg-[var(--color-accent-dark)] hover:shadow-md transform hover:-translate-y-0.5"
                     }`}
                   >
@@ -338,7 +371,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                 )}
                 <button
                   onClick={handleWishlist}
-                  className="ml-2 p-2 border rounded-lg transition-all duration-150 border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-white"
+                  className="ml-2 p-2 border rounded-lg transition-all duration-150 border-border-light text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-white"
                 >
                   {inWishlist ? (
                     <svg
@@ -373,14 +406,14 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
         <button
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
-          className="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+          className="px-4 py-2 bg-primary-100 hover:cursor-pointer disabled:cursor-not-allowed  font-heading rounded-md disabled:opacity-50"
         >
           Prev
         </button>
         <button
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
-          className="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+          className="px-4 py-2 bg-primary-100 hover:cursor-pointer disabled:cursor-not-allowed font-heading rounded-md disabled:opacity-50"
         >
           Next
         </button>
