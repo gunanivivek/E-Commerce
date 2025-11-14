@@ -1,5 +1,4 @@
-// src/api/cartApi.ts
-import api from "./axiosInstance"; // pre-configured Axios instance
+import api from "./axiosInstance"; 
 import type {
   CartResponse,
   AddToCartRequest,

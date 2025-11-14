@@ -62,7 +62,7 @@ export const useWishlistStore = create<WishlistState>((set) => {
     fetchWishlist: async () => {
       try {
         const user = useAuthStore.getState().user;
-        if (!user) return; // guest: no server wishlist
+        if (!user || user.role !== "customer") return; 
         const data = await wishlistApi.getWishlist();
         const mapped = mapWishlistOutToState(data);
         set({ wishlistItems: mapped });
@@ -79,7 +79,7 @@ export const useWishlistStore = create<WishlistState>((set) => {
         const prev = useWishlistStore.getState().wishlistItems;
 
         // Guest flow: keep in-memory only
-        if (!user) {
+        if (!user || user.role !== "customer") {
           const exists = prev.find((i) => i.id === item.id);
           if (exists) {
             toast.info("Already in your wishlist");
@@ -154,7 +154,7 @@ export const useWishlistStore = create<WishlistState>((set) => {
         }
 
         // Guest flow: in-memory add
-        if (!user) {
+        if (!user || user.role !== "customer") {
           const next = [...prev, product];
           set({ wishlistItems: next });
           postWishlistState?.({ wishlistItems: next });
@@ -185,7 +185,7 @@ export const useWishlistStore = create<WishlistState>((set) => {
         const prev = useWishlistStore.getState().wishlistItems;
 
         // Guest: in-memory removal
-        if (!user) {
+        if (!user || user.role !== "customer") {
           const next = prev.filter((i) => i.id !== id);
           set({ wishlistItems: next });
           postWishlistState?.({ wishlistItems: next });
@@ -217,7 +217,7 @@ export const useWishlistStore = create<WishlistState>((set) => {
     clearWishlist: async () => {
       try {
         const user = useAuthStore.getState().user;
-        if (!user) {
+        if (!user || user.role !== "customer") {
           set({ wishlistItems: [] });
           return;
         }

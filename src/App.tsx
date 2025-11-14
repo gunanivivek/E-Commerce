@@ -45,10 +45,12 @@ import { loadStripe } from "@stripe/stripe-js";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import SellerDashboard from "./pages/Seller/SellerDashboard";
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
+// Only call loadStripe when a publishable key is provided to avoid runtime errors
+const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY as string | undefined;
+const stripePromise = stripeKey ? loadStripe(stripeKey) : null;
 
 function App() {
-   useFetchCategories();
+  useFetchCategories();
   return (
     <>
       <Elements stripe={stripePromise}>
@@ -61,21 +63,30 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
         </Route>
 
-      {/* Open Customer Routes (accessible to everyone) */}
-      <Route element={<OpenCustomerRoute />}>
-        <Route path="/" element={<CustomerLayouts />} />
-        <Route path="about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/category/:category_name" element={<CategoryPage />} />
-        <Route path="/new-arrivals" element={<NewArrivals />} />
-        <Route path="/product/:productId" element={<ProductsDescription />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/search" element={<SearchPage />} />
+        {/* Open Customer Routes (accessible to everyone) */}
+        <Route element={<OpenCustomerRoute />}>
+          <Route path="/" element={<CustomerLayouts />} />
+          <Route path="about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/category/:category_name" element={<CategoryPage />} />
+          <Route path="/new-arrivals" element={<NewArrivals />} />
+          <Route path="/product/:productId" element={<ProductsDescription />} />
+          <Route path="/search" element={<SearchPage />} />
+        </Route>
 
-        <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/checkout" element={<Checkout />} />
-      </Route>
+        {/* Customer private pages */}
+        <Route element={<RoleBasedRoute allowedRoles={["customer"]} />}>
+          <Route path="profile" element={<Profile />}>
+            <Route index element={<AccountInfo />} />
+            <Route path="orders" element={<Orders />} />
+            <Route path="address" element={<AddresssInfo />} />
+            <Route path="change-password" element={<ChangePassword />} />
+          </Route>
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/checkout" element={<Checkout />} />
+        </Route>
 
         {/* Protected routes */}
         <Route element={<ProtectedRoute />}>
@@ -89,7 +100,7 @@ function App() {
               <Route path="customers" element={<CustomerList />} />
               <Route path="coupons" element={<AdminCoupons />} />
               <Route path="profile" element={<AdminProfile />} />
-                <Route path="orders" element={<AdminOrderList />} />
+              <Route path="orders" element={<AdminOrderList />} />
             </Route>
           </Route>
 
@@ -101,16 +112,6 @@ function App() {
               <Route path="orders" element={<SellerOrders />} />
               <Route path="coupons" element={<SellerCoupons />} />
               <Route path=":sellerId" element={<SellerProfilePage />} />
-            </Route>
-          </Route>
-
-          {/* Customer private pages */}
-          <Route element={<RoleBasedRoute allowedRoles={["customer"]} />}>
-            <Route path="profile" element={<Profile />}>
-              <Route index element={<AccountInfo />} />
-              <Route path="orders" element={<Orders />} />
-                <Route path="address" element={<AddresssInfo />} />
-              <Route path="change-password" element={<ChangePassword />} />
             </Route>
           </Route>
 

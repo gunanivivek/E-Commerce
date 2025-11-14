@@ -18,8 +18,41 @@ const queryClient = new QueryClient({
       refetchOnMount: false,
       refetchOnReconnect: false,
     },
+    // Provide a safe default for mutations so internals don't need to call
+    // a missing `defaultMutationOptions` helper on the client.
+    mutations: {
+      // no-op defaults; callers can still override per-mutation
+    },
   },
 });
+
+// Compatibility shim: ensure QueryClient exposes a defaultMutationOptions function
+// Some versions/patches of @tanstack/react-query expect this to be callable from
+// MutationObserver. If it's missing (or not a function), provide a noop merger.
+type QCWithDefaultMutation = {
+  defaultMutationOptions?: (opts?: unknown) => unknown;
+};
+
+const qcWithDefaultMutation = queryClient as unknown as QCWithDefaultMutation;
+
+if (typeof qcWithDefaultMutation.defaultMutationOptions !== "function") {
+  qcWithDefaultMutation.defaultMutationOptions = (opts?: unknown) => opts ?? {};
+}
+
+// Also ensure the QueryClient prototype exposes the method for any internals
+// that check the prototype rather than the instance.
+try {
+  const QCP = (QueryClient as unknown) as { prototype?: Record<string, unknown> };
+  if (QCP?.prototype) {
+    const proto = QCP.prototype as { defaultMutationOptions?: (opts?: unknown) => unknown };
+    if (typeof proto.defaultMutationOptions !== "function") {
+      proto.defaultMutationOptions = (opts?: unknown) => opts ?? {};
+    }
+  }
+} catch (err) {
+  // best-effort shim; log if something unexpected happens
+  console.warn("QueryClient prototype shim failed:", err);
+}
 
 // prefetch products at app startup to reduce perceived load when navigating to products page
 queryClient
