@@ -153,7 +153,7 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
           labelLine={{ stroke: gray300, strokeWidth: 1 }}
           label={({ percent }) => `${(percent! * 100).toFixed(0)}%`}
         >
-          {categoryRevenue.map((entry, index) => (
+          {categoryRevenue.map((_entry, index) => (
             <Cell
               key={index}
               fill={grayShades[index % grayShades.length]}
