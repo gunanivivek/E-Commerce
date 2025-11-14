@@ -5,7 +5,9 @@ import Header from "../../components/ui/Header";
 import Footer from "../../components/ui/Footer";
 import { useAddresses } from "../../hooks/useAddresses";
 import { useAddressStore } from "../../store/addressStore";
-import { useCartStore } from "../../store/cartStore";
+import {
+  useCart,
+} from "../../hooks/Customer/useCartHooks";
 
 import CardPaymentModal from "../../components/Customer/PaymentModal";
 
@@ -13,10 +15,7 @@ const AddressSkeleton = () => {
   return (
     <div className="grid md:grid-cols-2 gap-4">
       {[1, 2].map((i) => (
-        <div
-          key={i}
-          className="p-5 border-2 rounded-xl bg-white animate-pulse"
-        >
+        <div key={i} className="p-5 border-2 rounded-xl bg-white animate-pulse">
           <div className="flex items-start gap-3">
             <div className="h-5 w-5 bg-gray-200 rounded-full" />
             <div className="flex-1 space-y-3">
@@ -32,7 +31,6 @@ const AddressSkeleton = () => {
   );
 };
 
-
 const Checkout: React.FC = () => {
   const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
     null
@@ -42,16 +40,12 @@ const Checkout: React.FC = () => {
   const { addresses: fetchedAddresses, isLoading: isLoadingAddresses } =
     useAddresses();
   const setSelectedAddress = useAddressStore((s) => s.setSelectedAddress);
-  const cartItems = useCartStore((s) => s.cartItems);
-  const subtotal = useCartStore((s) => s.subtotal) || 0;
-  const discount = useCartStore((s) => s.discount) || 0;
-  const total = useCartStore((s) => s.total) || 0;
-  const coupon = useCartStore((s) => s.coupon);
-  const fetchCart = useCartStore((s) => s.fetchCart);
-
-  useEffect(() => {
-    fetchCart?.();
-  }, []);
+  const { data: cartData } = useCart();
+  const cartItems = cartData?.items;
+  const subtotal = cartData?.subtotal ?? 0;
+  const discount = cartData?.discount ?? 0;
+  const total = cartData?.total ?? 0;
+  const coupon = cartData?.coupon;
 
   useEffect(() => {
     if (!selectedAddressId && fetchedAddresses && fetchedAddresses.length > 0) {
@@ -96,8 +90,6 @@ const Checkout: React.FC = () => {
       </>
     );
   }
-
- 
 
   const addresses = fetchedAddresses || [];
 
@@ -159,81 +151,85 @@ const Checkout: React.FC = () => {
                   </div>
                 </div>
 
-            <div className="p-6">
-  {isLoadingAddresses ? (
-    <AddressSkeleton />
-  ) : addresses.length === 0 ? (
-    <>
-      {/* Empty Address UI (unchanged) */}
-      <div className="text-center py-12">
-        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <MapPin className="w-10 h-10 text-gray-400" />
-        </div>
-        <p className="text-[var(--color-text-muted)] mb-4">No saved addresses found</p>
-        <Link
-          to="/profile"
-          className="text-primary-400 font-medium hover:underline"
-        >
-          Add an address in your profile
-        </Link>
-      </div>
-    </>
-  ) : (
-    <>
-      {/* Existing Address Cards — NO DESIGN CHANGE */}
-      <div className="grid md:grid-cols-2 gap-4">
-        {addresses.map((address) => (
-          <label
-            key={address.id}
-            className={`group relative p-5 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
-              selectedAddressId === String(address.id)
-                ? "border-primary-400 bg-primary-50 shadow-md scale-[1.02]"
-                : "border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm"
-            }`}
-          >
-            <div className="flex items-start gap-3">
-              <input
-                type="radio"
-                name="address-selection"
-                value={String(address.id)}
-                checked={selectedAddressId === String(address.id)}
-                onChange={() => {
-                  setSelectedAddressId(String(address.id));
-                  setSelectedAddress(address);
-                }}
-                className="mt-1 h-5 w-5 text-primary-400"
-              />
+                <div className="p-6">
+                  {isLoadingAddresses ? (
+                    <AddressSkeleton />
+                  ) : addresses.length === 0 ? (
+                    <>
+                      {/* Empty Address UI (unchanged) */}
+                      <div className="text-center py-12">
+                        <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <MapPin className="w-10 h-10 text-gray-400" />
+                        </div>
+                        <p className="text-[var(--color-text-muted)] mb-4">
+                          No saved addresses found
+                        </p>
+                        <Link
+                          to="/profile"
+                          className="text-primary-400 font-medium hover:underline"
+                        >
+                          Add an address in your profile
+                        </Link>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* Existing Address Cards — NO DESIGN CHANGE */}
+                      <div className="grid md:grid-cols-2 gap-4">
+                        {addresses.map((address) => (
+                          <label
+                            key={address.id}
+                            className={`group relative p-5 border-2 rounded-xl cursor-pointer transition-all duration-200 ${
+                              selectedAddressId === String(address.id)
+                                ? "border-primary-400 bg-primary-50 shadow-md scale-[1.02]"
+                                : "border-gray-200 bg-white hover:border-primary-300 hover:shadow-sm"
+                            }`}
+                          >
+                            <div className="flex items-start gap-3">
+                              <input
+                                type="radio"
+                                name="address-selection"
+                                value={String(address.id)}
+                                checked={
+                                  selectedAddressId === String(address.id)
+                                }
+                                onChange={() => {
+                                  setSelectedAddressId(String(address.id));
+                                  setSelectedAddress(address);
+                                }}
+                                className="mt-1 h-5 w-5 text-primary-400"
+                              />
 
-              <div className="flex-1">
-                <h3 className="font-semibold text-[var(--color-text-primary)] mb-1 line-clamp-2">
-                  {address.address_line_1}
-                </h3>
-                <div className="text-sm text-[var(--color-text-muted)] space-y-1">
-                  <p>
-                    {address.city}, {address.state} {address.postal_code}
-                  </p>
-                  <p className="flex items-center gap-1">
-                    <span className="font-medium">Phone:</span>{" "}
-                    {address.phone_number}
-                  </p>
+                              <div className="flex-1">
+                                <h3 className="font-semibold text-[var(--color-text-primary)] mb-1 line-clamp-2">
+                                  {address.address_line_1}
+                                </h3>
+                                <div className="text-sm text-[var(--color-text-muted)] space-y-1">
+                                  <p>
+                                    {address.city}, {address.state}{" "}
+                                    {address.postal_code}
+                                  </p>
+                                  <p className="flex items-center gap-1">
+                                    <span className="font-medium">Phone:</span>{" "}
+                                    {address.phone_number}
+                                  </p>
+                                </div>
+                              </div>
+                            </div>
+
+                            {selectedAddressId === String(address.id) && (
+                              <div className="absolute top-3 right-3">
+                                <div className="w-6 h-6 bg-primary-400 rounded-full flex items-center justify-center">
+                                  <CheckCircle2 className="w-4 h-4 text-white" />
+                                </div>
+                              </div>
+                            )}
+                          </label>
+                        ))}
+                      </div>
+                    </>
+                  )}
                 </div>
-              </div>
-            </div>
-
-            {selectedAddressId === String(address.id) && (
-              <div className="absolute top-3 right-3">
-                <div className="w-6 h-6 bg-primary-400 rounded-full flex items-center justify-center">
-                  <CheckCircle2 className="w-4 h-4 text-white" />
-                </div>
-              </div>
-            )}
-          </label>
-        ))}
-      </div>
-    </>
-  )}
-</div>
-
               </div>
 
               {/* Order Items Preview */}
@@ -254,12 +250,12 @@ const Checkout: React.FC = () => {
                 <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
                   {cartItems.map((item) => (
                     <div
-                      key={item.id}
+                      key={item.product_id}
                       className="flex gap-4 items-center p-4 rounded-xl bg-gray-50 hover:bg-gray-100 transition-colors"
                     >
                       <div className="relative">
                         <img
-                          src={item.image ?? undefined}
+                          src={item.image_url ?? undefined}
                           alt={item.name}
                           className="w-20 h-20 object-cover rounded-lg bg-white border border-gray-200"
                         />
@@ -275,7 +271,7 @@ const Checkout: React.FC = () => {
                           Quantity: {item.quantity}
                         </p>
                         <p className="font-bold text-primary-400">
-                          ₹{item.price.toFixed(2)}
+                          ₹{item.unit_price.toFixed(2)}
                         </p>
                       </div>
                     </div>
@@ -372,8 +368,8 @@ const Checkout: React.FC = () => {
           selectedAddressId={selectedAddressId}
           cartItems={cartItems.map((item) => ({
             ...item,
-            id: String(item.id),
-            image: item.image ?? undefined,
+            id: String(item.product_id),
+            image: item.image_url ?? undefined,
           }))}
           total={total}
           onClose={() => setShowPaymentModal(false)}

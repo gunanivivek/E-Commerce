@@ -8,36 +8,37 @@ import {
 } from "@stripe/react-stripe-js";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "react-toastify";
-import { 
-  CreditCard, 
-  Lock, 
-  X, 
-  CheckCircle, 
-  XCircle, 
+import {
+  CreditCard,
+  Lock,
+  X,
+  CheckCircle,
+  XCircle,
   ShoppingBag,
   Calendar,
   Shield,
   Loader2,
 } from "lucide-react";
 import { createOrder, createPaymentIntent, confirmPayment } from "../../api/orderApi";
-import { useCartStore } from "../../store/cartStore";
-import { useNavigate } from "react-router";
 
+import { useNavigate } from "react-router";
+import { useCart } from "../../hooks/Customer/useCartHooks";
+ 
 interface OrderItem {
   id: string;
   name: string;
   quantity: number;
-  price: number;
+  unit_price: number;
   image?: string;
 }
-
+ 
 interface CardPaymentModalProps {
   cartItems: OrderItem[];
   total: number;
   selectedAddressId: string;
   onClose: () => void;
 }
-
+ 
 const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
   cartItems,
   total,
@@ -46,35 +47,36 @@ const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
 }) => {
   const stripe = useStripe();
   const elements = useElements();
-  const subtotal = useCartStore((s) => s.subtotal) || 0;
-  const discount = useCartStore((s) => s.discount) || 0;
-  const coupon = useCartStore((s) => s.coupon);
+  const { data: cartData } = useCart();
+  const subtotal = cartData?.subtotal ?? 0;
+  const discount = cartData?.discount ?? 0;
+  const coupon = cartData?.coupon;
   const [paymentStatus, setPaymentStatus] = useState<"success" | "failed" | null>(null);
   const [zip, setZip] = useState("");
   const navigate = useNavigate();
-
+ 
   const orderMutation = useMutation({
     mutationFn: () =>
       createOrder({ address_id: Number(selectedAddressId), payment_method: "card" }),
     onSuccess: async (orderData) => {
       if (!stripe || !elements) throw new Error("Stripe not loaded");
-
+ 
       const paymentIntentResp = await createPaymentIntent(orderData.id);
       const clientSecret = paymentIntentResp.client_secret;
-
+ 
       const cardElement = elements.getElement(CardNumberElement);
       if (!cardElement) throw new Error("Card element not found");
-
+ 
       const { paymentIntent: pi, error } = await stripe.confirmCardPayment(clientSecret, {
         payment_method: {
           card: cardElement,
           billing_details: { address: { postal_code: zip } },
         },
       });
-
+ 
       if (error) throw new Error(error.message || "Payment failed");
       if (pi?.status !== "succeeded") throw new Error("Payment did not succeed");
-
+ 
       await confirmPayment(pi.id);
       setPaymentStatus("success");
     },
@@ -83,7 +85,7 @@ const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
       toast.error(err.message || "Payment failed.");
     },
   });
-
+ 
   const handlePayNow = () => {
     if (!zip) {
       toast.error("Please enter ZIP / Postal code.");
@@ -91,7 +93,7 @@ const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
     }
     orderMutation.mutate();
   };
-
+ 
   // Success/Failed Status Screen
   if (paymentStatus) {
     return (
@@ -104,12 +106,12 @@ const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
                   <CheckCircle className="w-12 h-12 sm:w-16 sm:h-16 text-green-500" strokeWidth={3} />
                 </div>
               </div>
-              
+             
               <div className="space-y-2">
                 <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Payment Successful!</h2>
                 <p className="text-gray-600 text-sm sm:text-base">Your order has been confirmed</p>
               </div>
-
+ 
               <div className="space-y-3">
                 <button
                   onClick={() => { navigate('/profile/orders'); }}
@@ -127,18 +129,18 @@ const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
               <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center mx-auto bg-red-50">
                 <XCircle className="w-12 h-12 sm:w-16 sm:h-16 text-red-400" strokeWidth={3} />
               </div>
-              
+             
               <div className="space-y-2">
                 <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Payment Failed</h2>
                 <p className="text-gray-600 text-sm sm:text-base">Something went wrong with your payment</p>
               </div>
-
+ 
               <div className="bg-red-50 rounded-2xl p-3 sm:p-4 border border-red-200">
                 <p className="text-sm text-red-800 text-center">
                   Please check your card details and try again
                 </p>
               </div>
-
+ 
               <div className="space-y-3">
                 <button
                   onClick={() => setPaymentStatus(null)}
@@ -159,14 +161,14 @@ const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
       </div>
     );
   }
-
+ 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-2 sm:px-4 py-4 sm:py-8">
       <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-4xl sm:max-w-5xl max-h-[95vh] overflow-hidden relative">
         {/* Header */}
         <div className="bg-primary-400 p-3 sm:p-4 relative overflow-hidden">
           <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJ3aGl0ZSIgc3Ryb2tlLW9wYWNpdHk9IjAuMSIgc3Ryb2tlLXdpZHRoPSIxIi8+PC9wYXR0ZXJuPjwvZGVmcz48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSJ1cmwoI2dyaWQpIi8+PC9zdmc+')] opacity-30"></div>
-          
+         
           <div className="relative flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
             <div className="flex items-center gap-3 sm:gap-4 flex-1">
               <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white/20 backdrop-blur-md rounded-2xl sm:rounded-xl flex items-center justify-center flex-shrink-0">
@@ -180,7 +182,7 @@ const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
                 <p className="text-primary-100 text-xs sm:text-sm">Protected by Stripe</p>
               </div>
             </div>
-            
+           
             <button
               onClick={onClose}
               className="w-10 h-10 bg-white/20 backdrop-blur-md hover:bg-white/30 rounded-xl flex items-center justify-center text-white transition-all flex-shrink-0 ml-auto"
@@ -189,7 +191,7 @@ const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
             </button>
           </div>
         </div>
-
+ 
         {/* Content */}
         <div className="p-4 sm:p-6 lg:py-4 lg:px-8 max-h-[calc(95vh-100px)] sm:max-h-[calc(95vh-120px)] overflow-y-auto">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 sm:gap-6 lg:gap-8">
@@ -198,7 +200,7 @@ const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
               <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-0">
                 <h3 className="text-base sm:text-lg font-bold text-gray-900">Card Information</h3>
               </div>
-
+ 
               <div className="space-y-4 sm:space-y-5 mt-2">
                 <div>
                   <label className="mb-2 text-xs sm:text-sm font-semibold text-gray-700 flex items-center gap-2">
@@ -206,20 +208,20 @@ const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
                     Card Number
                   </label>
                   <div className="p-2 border-2 border-gray-200 rounded-xl focus-within:border-primary-400 focus-within:ring-4 focus-within:ring-primary-100 transition-all bg-gray-50">
-                    <CardNumberElement 
-                      options={{ 
-                        style: { 
-                          base: { 
+                    <CardNumberElement
+                      options={{
+                        style: {
+                          base: {
                             fontSize: "16px",
                             color: "#1f2937",
                             "::placeholder": { color: "#9ca3af" }
-                          } 
-                        } 
-                      }} 
+                          }
+                        }
+                      }}
                     />
                   </div>
                 </div>
-
+ 
                 <div className="grid grid-cols-2 gap-3 sm:gap-4">
                   <div>
                     <label className="mb-2 text-xs sm:text-sm font-semibold text-gray-700 flex items-center gap-2">
@@ -227,41 +229,41 @@ const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
                       Expiry Date
                     </label>
                     <div className="p-2 border-2 border-gray-200 rounded-xl focus-within:border-primary-400 focus-within:ring-4 focus-within:ring-primary-100 transition-all bg-gray-50">
-                      <CardExpiryElement 
-                        options={{ 
-                          style: { 
-                            base: { 
+                      <CardExpiryElement
+                        options={{
+                          style: {
+                            base: {
                               fontSize: "16px",
                               color: "#1f2937",
                               "::placeholder": { color: "#9ca3af" }
-                            } 
-                          } 
-                        }} 
+                            }
+                          }
+                        }}
                       />
                     </div>
                   </div>
-
+ 
                   <div>
                     <label className="mb-2 text-xs sm:text-sm font-semibold text-gray-700 flex items-center gap-2">
                       <Lock className="w-4 h-4 text-primary-400 flex-shrink-0" />
                       CVC
                     </label>
                     <div className="p-2 border-2 border-gray-200 rounded-xl focus-within:border-primary-400 focus-within:ring-4 focus-within:ring-primary-100 transition-all bg-gray-50">
-                      <CardCvcElement 
-                        options={{ 
-                          style: { 
-                            base: { 
+                      <CardCvcElement
+                        options={{
+                          style: {
+                            base: {
                               fontSize: "16px",
                               color: "#1f2937",
                               "::placeholder": { color: "#9ca3af" }
-                            } 
-                          } 
-                        }} 
+                            }
+                          }
+                        }}
                       />
                     </div>
                   </div>
                 </div>
-
+ 
                 <div>
                   <label className="block mb-2 text-xs sm:text-sm font-semibold text-gray-700">
                     ZIP / Postal Code
@@ -275,7 +277,7 @@ const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
                   />
                 </div>
               </div>
-
+ 
               {/* Security Badge */}
               <div className=" rounded-2xl p-3 sm:p-4 border border-primary-200">
                 <div className="flex items-start gap-3">
@@ -290,7 +292,7 @@ const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
                   </div>
                 </div>
               </div>
-
+ 
               {/* Pay Button */}
               <button
                 onClick={handlePayNow}
@@ -314,7 +316,7 @@ const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
                 )}
               </button>
             </div>
-
+ 
             {/* Order Summary - Right Side (2 columns on lg) */}
             <div className="lg:col-span-2 bg-gradient-to-br from-gray-50 to-primary-50 rounded-2xl p-3 sm:p-4 border border-gray-200 h-fit md:sticky top-0 lg:order-2 order-1 z-10 mb-4 lg:mb-0 lg:sticky lg:top-0">
               <div className="flex items-center gap-2 sm:gap-3 mb-2 sm:mb-0">
@@ -323,7 +325,7 @@ const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-gray-900">Order Summary</h3>
               </div>
-
+ 
               <div className="space-y-3 mt-2 mb-3 sm:mb-6 max-h-48 sm:max-h-64 overflow-y-auto pr-1 sm:pr-2">
                 {cartItems.map((item) => (
                   <div key={item.id} className="flex gap-2 sm:gap-3 items-center bg-white rounded-xl p-2 shadow-sm border border-gray-100">
@@ -338,24 +340,24 @@ const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
                       <h4 className="font-semibold text-xs sm:text-sm text-gray-900 truncate">{item.name}</h4>
                       <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
                     </div>
-                    <span className="font-bold text-xs sm:text-sm text-primary-400 whitespace-nowrap">₹{item.price.toFixed(2)}</span>
+                    <span className="font-bold text-xs sm:text-sm text-primary-400 whitespace-nowrap">₹{item.unit_price.toFixed(2)}</span>
                   </div>
                 ))}
               </div>
-
+ 
               <div className="space-y-1 pt-2 border-t-2 border-gray-200">
                 <div className="flex justify-between items-center text-gray-600 text-xs sm:text-sm">
                   <span>Subtotal</span>
                   <span className="font-semibold">₹{subtotal.toFixed(2)}</span>
                 </div>
-
+ 
                 {discount > 0 && (
                   <div className="flex justify-between items-center text-xs sm:text-sm text-green-600">
                     <span className="font-medium">Discount</span>
                     <span className="font-bold">- ₹{discount.toFixed(2)}</span>
                   </div>
                 )}
-
+ 
                 {coupon && (
                   <div className="flex justify-between items-center">
                     <span className="text-xs sm:text-sm text-gray-600">Coupon</span>
@@ -364,7 +366,7 @@ const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
                     </span>
                   </div>
                 )}
-
+ 
                 <div className="flex justify-between text-gray-600 items-center pt-1">
                   <span className="text-sm sm:text-base font-semibold">Total Amount</span>
                   <span className="text-base sm:text-lg font-bold text-gray-900">₹{total.toFixed(2)}</span>
@@ -377,5 +379,5 @@ const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
     </div>
   );
 };
-
+ 
 export default CardPaymentModal;
