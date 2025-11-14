@@ -40,7 +40,7 @@ const ProductDescription: React.FC = () => {
 
   // use centralized wishlist store so wishlist is consistent across the app
   const { addToWishlist } = useWishlistStore();
-  const { data: cartData } = useCart(); // gives you cart items and totals
+  const { data: cartData } = useCart(true); // gives you cart items and totals
   const removeMutation = useRemoveFromCart();
   const updateMutation = useUpdateCart();
   const addMutation = useAddToCart();

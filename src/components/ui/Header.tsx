@@ -43,7 +43,7 @@ const Header = () => {
     navigate(path); // navigate to the cart page
   };
 
-    const { refetch: refetchCart, data: cartData } = useCart();
+    const { refetch: refetchCart, data: cartData } = useCart(false);
 
      const cartCount = cartData?.items?.length ?? 0;
 
