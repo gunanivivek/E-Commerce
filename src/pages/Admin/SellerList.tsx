@@ -87,9 +87,7 @@ const handleBlockToggle = useCallback(
     setIsModalOpen(true);
   };
 
- 
- console.log(sellers);
-  // --- FILTER + SEARCH LOGIC ---
+
   const filteredData = useMemo(() => {
     let filtered = sellers.filter(
       (s) =>

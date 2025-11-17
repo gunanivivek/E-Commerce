@@ -70,17 +70,27 @@ createRoot(document.getElementById("root")!).render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ToastContainer
-          position="bottom-right" 
-          autoClose={3000} 
-          hideProgressBar={false}
-          newestOnTop={true}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-        />
+  position="bottom-right"
+  autoClose={2800}
+  hideProgressBar={true}
+  newestOnTop={false}
+  closeOnClick
+  pauseOnHover={true}
+  draggable={false}
+  theme="light"
+  toastStyle={{
+    background: "var(--color-surface-light)",
+    color: "var(--color-text-primary)",
+    borderRadius: "var(--radius-xl)",
+    border: "1px solid var(--color-border-light)",
+    fontSize: "0.9rem",
+    fontFamily: "var(--font-body)",
+    boxShadow: "var(--shadow-accent)",
+    padding: "14px 18px",
+  }}
+
+/>
+
         <App />
       </QueryClientProvider>
     </StrictMode>

@@ -93,7 +93,7 @@ const CustomerProfileLayout = () => {
             <button
               onClick={handleLogout}
               disabled={isLoggingOut}
-              className="mt-6 flex font-semibold items-center justify-center gap-2 w-full py-2 text-sm  text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-200 transition-all duration-150 disabled:opacity-50"
+              className="cursor-pointer mt-6 flex font-semibold items-center justify-center gap-2 w-full py-2 text-sm  text-gray-700 border border-gray-200 rounded-lg hover:bg-gray-200 transition-all duration-150 disabled:opacity-50"
             >
               <LogOut size={18} />
               {isLoggingOut ? "Logging out..." : "Logout"}

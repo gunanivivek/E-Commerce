@@ -119,7 +119,7 @@ const AddressInfo = () => {
       {!editingId && (
         <button
           onClick={startAdd}
-          className="flex items-center text-white font-semibold gap-2 px-4 py-2 rounded-lg  mb-5 transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+          className="cursor-pointer flex items-center text-white font-semibold gap-2 px-4 py-2 rounded-lg  mb-5 transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
           style={{
             backgroundColor: "var(--color-accent)",
            
@@ -205,16 +205,16 @@ const AddressInfo = () => {
             <button
               type="button"
               onClick={cancelForm}
-              className="px-4 py-2 rounded-lg border border-gray-300 font-medium transition-all hover:bg-gray-50"
+              className="cursor-pointer px-4 py-2 rounded-lg border border-gray-300 font-medium transition-all hover:bg-gray-50"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+              className="cursor-pointer px-4 py-2 text-surface-light rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
               style={{
                 backgroundColor: "var(--color-accent)",
-                color: "black",
+             
               }}
             >
               Save
@@ -227,12 +227,12 @@ const AddressInfo = () => {
         {addresses?.map((address) => (
           <div
             key={address.id}
-            className="bg-white border border-gray-200 rounded-lg p-5 shadow-md hover:shadow-lg transition-transform transform"
+            className="bg-white border border-gray-200 rounded-lg p-5 shadow-md  transition-transform transform"
           >
             <div className="flex justify-between items-start">
               <div
                 onClick={() => setSelectedAddress(address)}
-                className="cursor-pointer flex-1"
+                className=" flex-1"
               >
                 <p className="text-[var(--color-primary-400)] font-semibold">
                   {address.full_name}
@@ -250,17 +250,17 @@ const AddressInfo = () => {
               <div className="flex gap-2 ml-4">
                 <button
                   onClick={() => startEdit(address)}
-                  className="p-2 rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+                  className="cursor-pointer p-2 text-surface-light rounded-lg transition-all duration-150 shadow-sm hover:shadow-md "
                   style={{
                     backgroundColor: "var(--color-accent)",
-                    color: "black",
+                   
                   }}
                 >
                   <Pencil size={16} />
                 </button>
                 <button
                   onClick={() => onDelete(address.id)}
-                  className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+                  className="cursor-pointer p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all duration-150 shadow-sm hover:shadow-md "
                 >
                   <Trash2 size={16} />
                 </button>
