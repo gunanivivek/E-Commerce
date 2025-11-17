@@ -21,7 +21,6 @@ import {
 } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Product } from "../../store/useProductStore";
-import LoadingState from "../LoadingState";
 import {
   useAddToCart,
   useCart,
@@ -40,6 +39,24 @@ type FilterShape = {
   in_stock?: boolean | null;
   search?: string | null;
 };
+
+const ProductSkeleton = () => (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    {Array.from({ length: 8 }).map((_, index) => (
+      <div key={index} className="bg-white rounded-lg shadow-md p-4 flex flex-col animate-pulse">
+        <div className="h-40 bg-gray-200 rounded-md mb-3"></div>
+        <div className="h-5 bg-gray-200 rounded-md mb-2 w-3/4"></div>
+        <div className="h-4 bg-gray-200 rounded-md mb-2 w-full"></div>
+        <div className="h-4 bg-gray-200 rounded-md mb-3 w-2/3"></div>
+    <div className="h-6 bg-gray-200 rounded-md w-1/2 mb-4"></div>
+    <div className="flex gap-2 mt-auto">
+      <div className="h-9 flex-1 bg-gray-200 rounded-md"></div>
+      <div className="h-9 w-9 bg-gray-200 rounded-md"></div>
+    </div>
+  </div>
+    ))}
+  </div>
+);
 
 const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   const { data: apiNewArrivals, isLoading } = useQuery<
@@ -204,7 +221,7 @@ const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   const hasProducts =
     Array.isArray(apiNewArrivals) && apiNewArrivals.length > 0;
   if (isLoading && !hasProducts)
-    return <LoadingState message="Loading products..." />;
+    return <ProductSkeleton/>;
 
   if (!filteredProducts.length) return <p>No products available right now.</p>;
 

@@ -9,8 +9,11 @@ import { toast } from "react-toastify";
 const AccountInfo = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingImage, setIsEditingImage] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
-  const [previousProfileImage, setPreviousProfileImage] = useState<string | null>(null);
+  const [previousProfileImage, setPreviousProfileImage] = useState<
+    string | null
+  >(null);
   const [formData, setFormData] = useState({ full_name: "", phone: "" });
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -50,7 +53,6 @@ const AccountInfo = () => {
     }
   }, [user]);
 
-  
   const handleAddProfileClick = () => fileInputRef.current?.click();
 
   const handleProfileImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -59,6 +61,8 @@ const AccountInfo = () => {
 
     const localPreview = URL.createObjectURL(file);
     setProfilePreview(localPreview);
+    setIsUploading(true);
+    setIsEditingImage(false);
 
     const formData = new FormData();
     formData.append("file", file);
@@ -67,15 +71,14 @@ const AccountInfo = () => {
       onSuccess: (data) => {
         setProfilePreview(data.image_url);
         setPreviousProfileImage(data.image_url);
-       
+        setIsUploading(false);
       },
       onError: () => {
         toast.error("Failed to upload image");
         setProfilePreview(previousProfileImage);
+        setIsUploading(false);
       },
     });
-
-    setIsEditingImage(false);
   };
 
   const handleSave = () => updateProfile(formData);
@@ -90,17 +93,25 @@ const AccountInfo = () => {
         Personal Information
       </h2>
 
-    
       <div className="flex items-center gap-4 mb-8">
         <div className="w-20 h-20 rounded-full border border-gray-300 overflow-hidden flex items-center justify-center bg-gray-100">
           {profilePreview ? (
-            <img src={profilePreview} alt="Profile" className="w-full h-full object-cover" />
+            <img
+              src={profilePreview}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
           ) : (
             <UserIcon className="w-8 h-8 text-gray-500" />
           )}
         </div>
 
-        {!isEditingImage ? (
+        {isUploading ? (
+          <div className="flex items-center gap-2">
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
+            <span className="text-sm text-gray-600">Uploading...</span>
+          </div>
+        ) : !isEditingImage ? (
           <button
             type="button"
             onClick={() => setIsEditingImage(true)}
@@ -145,7 +156,9 @@ const AccountInfo = () => {
           label="Full Name"
           value={formData.full_name}
           readOnly={!isEditing}
-          onChange={(e) => setFormData((p) => ({ ...p, full_name: e.target.value }))}
+          onChange={(e) =>
+            setFormData((p) => ({ ...p, full_name: e.target.value }))
+          }
         />
 
         <InputField
@@ -153,7 +166,7 @@ const AccountInfo = () => {
           value={formData.phone}
           readOnly={!isEditing}
           onChange={(e) => {
-            let val = e.target.value.replace(/[^\d]/g, ""); 
+            let val = e.target.value.replace(/[^\d]/g, "");
 
             if (val === "") {
               setFormData((p) => ({ ...p, phone: "" }));
@@ -168,11 +181,7 @@ const AccountInfo = () => {
         />
 
         <div className="md:col-span-2 space-y-2">
-          <label
-            className="text-sm font-medium text-gray-700"
-          >
-            Email
-          </label>
+          <label className="text-sm font-medium text-gray-700">Email</label>
           <input
             type="email"
             value={user?.email || ""}
@@ -190,7 +199,6 @@ const AccountInfo = () => {
             className="px-6 py-3 text-white font-semibold rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
             style={{
               backgroundColor: "var(--color-accent)",
-
             }}
           >
             Edit Details
@@ -203,7 +211,6 @@ const AccountInfo = () => {
               className="cursor-pointer px-6 py-3 text-white font-semibold rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
               style={{
                 backgroundColor: "var(--color-accent)",
-              
               }}
             >
               {isUpdating ? "Saving..." : "Save Changes"}
@@ -233,11 +240,7 @@ const InputField = ({
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }) => (
   <div className="space-y-2">
-    <label
-      className="text-sm font-medium text-gray-700"
-    >
-      {label}
-    </label>
+    <label className="text-sm font-medium text-gray-700">{label}</label>
     <input
       type="text"
       value={value}
