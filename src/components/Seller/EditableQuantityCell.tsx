@@ -45,10 +45,11 @@ export const EditableQuantityCell: React.FC<EditableQuantityCellProps> = ({
       <button
         onClick={isEditing ? handleSave : () => setIsEditing(true)}
         disabled={isPending}
+        type="button"
         title="Add product's Quantity"
         className={`p-1.5 rounded-md transition ${
           isEditing
-            ? "bg-green-50 text-green-600 hover:bg-green-100"
+            ? "bg-green-50 text-green-600 hover:cursor-pointer hover:bg-green-100"
             : "bg-blue-50 text-blue-600 hover:bg-blue-100"
         }`}
       >
@@ -57,7 +58,7 @@ export const EditableQuantityCell: React.FC<EditableQuantityCellProps> = ({
         ) : isEditing ? (
           <Check className="w-4 h-4" />
         ) : (
-          <Edit2 className="w-4 h-4" />
+          <Edit2 className="w-4 h-4 hover:cursor-pointer" />
         )}
       </button>
     </div>

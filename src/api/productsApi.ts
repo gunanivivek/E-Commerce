@@ -1,10 +1,8 @@
 import API from "./axiosInstance";
 import type { ProductResponse } from "../types/product";
 
-export const getProducts = async (
-  params?: Record<string, unknown>
-): Promise<ProductResponse[]> => {
-  const res = await API.get<ProductResponse[]>("products/approved/", { params });
+export const getProducts = async (): Promise<ProductResponse[]> => {
+  const res = await API.get<ProductResponse[]>("products/approved/",);
   return res.data;
 };
 

@@ -131,7 +131,7 @@ const AdminOrderList: React.FC = () => {
         cell: ({ row }: { row: Row<Order> }) => (
           <button
             onClick={() => handleView(row.original.id)}
-            className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+            className="p-1.5 bg-blue-50 text-blue-600 hover:cursor-pointer hover:bg-blue-100 rounded transition-colors"
             title="View Order"
           >
             <Eye className="w-3.5 h-3.5" />
