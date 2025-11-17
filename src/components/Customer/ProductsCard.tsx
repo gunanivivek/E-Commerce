@@ -2,10 +2,13 @@ import React, { useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import { useWishlistStore } from "../../store/wishlistStore";
-import { useCartStore } from "../../store/cartStore";
-import useRemoveCartItem from "../../hooks/Customer/CartHooks/useRemoveCartItem";
-import useDebouncedUpdateCart from "../../hooks/Customer/CartHooks/useDebouncedUpdateCart";
-import useAddToCart from "../../hooks/Customer/CartHooks/useAddToCart";
+import {
+  useCart,
+  useRemoveFromCart,
+  useAddToCart,
+  useUpdateCart,
+} from "../../hooks/Customer/useCartHooks";
+
 import { useQuery } from "@tanstack/react-query";
 import * as productsApi from "../../api/productsApi";
 import type {
@@ -35,7 +38,6 @@ type FilterShape = {
   search?: string | null;
 };
 
-
 const ProductSkeleton = () => (
   <div className="bg-white rounded-lg shadow-md p-4 flex flex-col animate-pulse">
     <div className="h-40 bg-gray-200 rounded-md mb-3"></div>
@@ -53,6 +55,11 @@ const ProductSkeleton = () => (
 const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   const [globalFilter, setGlobalFilter] = useState("");
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
+  const [pagination, setPagination] = useState({
+  pageIndex: 0,
+  pageSize: 12,
+});
 
   const { data: apiProducts, isLoading } = useQuery<ProductResponse[], Error>({
     queryKey: ["products"],
@@ -124,16 +131,20 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   const location = useLocation();
   const user = useAuthStore((s) => s.user);
   // product store kept for non-cart product helpers if needed
-  const { addToWishlist, removeFromWishlist, wishlist } = useWishlistStore();
-  const { cartItems } = useCartStore();
-  const removeMutation = useRemoveCartItem();
-  const debouncedUpdater = useDebouncedUpdateCart();
-  const addToCartMutation = useAddToCart();
+  const { wishlistItems, addToWishlist, removeFromWishlist } =
+    useWishlistStore();
+  const { data: cartData } = useCart(true); // gives you cart items and totals
+  const removeMutation = useRemoveFromCart();
+  const updateMutation = useUpdateCart();
+  const addMutation = useAddToCart();
+
+  const isUpdating = updateMutation.isPending || removeMutation.isPending;
 
   const table = useReactTable({
     data: filteredAndSorted,
     columns: [] as ColumnDef<Product>[],
-    state: { globalFilter, columnFilters },
+    state: { globalFilter, columnFilters, pagination },
+    onPaginationChange: setPagination,
     onGlobalFilterChange: setGlobalFilter,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -142,9 +153,9 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
     getPaginationRowModel: getPaginationRowModel(),
   });
 
-  const filteredProducts = table
-    .getFilteredRowModel()
-    .rows.map((r) => r.original);
+  const paginatedProducts = table
+  .getPaginationRowModel()
+  .rows.map((r) => r.original);
 
   const hasProducts = Array.isArray(apiProducts) && apiProducts.length > 0;
 
@@ -160,7 +171,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
       </section>
     );
 
-  if (!filteredProducts.length)
+  if (!paginatedProducts.length)
     return (
       <p className="text-center py-10 text-gray-600">
         No products available right now.
@@ -170,9 +181,12 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   return (
     <section className="py-5 px-6 md:px-20">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredProducts.map((product) => {
+        {paginatedProducts.map((product) => {
           const stock = Number(product.stock ?? NaN);
-          const inCart = cartItems.find((c) => c.id === product.id);
+          const inCart = cartData?.items.find(
+            (c) => c.product_id === product.id
+          );
+          const inWishlist = wishlistItems.find((w) => w.id === product.id);
 
           const handleNavigate = () => navigate(`/product/${product.id}`);
           const handleAddToCart = async (e: React.MouseEvent) => {
@@ -183,20 +197,30 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                 state: { from: location.pathname + location.search },
               });
             try {
-              await addToCartMutation.mutateAsync({ id: product.id, quantity: 1 });
+              await addMutation.mutateAsync({
+                product_id: product.id,
+                quantity: 1,
+              });
             } catch {
               // handled in hook
             }
           };
-          const handleWishlist = (e: React.MouseEvent) => {
+          const handleWishlist = async (e: React.MouseEvent) => {
             e.stopPropagation();
             if (!user)
               return navigate("/login", {
                 state: { from: location.pathname + location.search },
               });
-            const inWishlist = wishlist.some((w) => w.id === product.id);
-            if (inWishlist) removeFromWishlist(product.id);
-            else addToWishlist(product);
+
+            try {
+              if (inWishlist) {
+                await removeFromWishlist(product.id);
+              } else {
+                await addToWishlist(product as Product);
+              }
+            } catch {
+              // errors are logged inside the store; optionally show toast here
+            }
           };
 
           return (
@@ -278,30 +302,54 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
               >
                 {inCart ? (
                   (() => {
-                    const c = inCart;
+                    const c = inCart!;
                     const dec = (ev: React.MouseEvent) => {
                       ev.stopPropagation();
-                      if (c.quantity <= 1) removeMutation.mutate(c.id);
-                      else debouncedUpdater.scheduleUpdate({ id: c.id, quantity: Math.max(1, c.quantity - 1) });
+                      if (isUpdating) return;
+                      if (c.quantity <= 1)
+                        removeMutation.mutate({ product_id: c.product_id });
+                      else
+                        updateMutation.mutate({
+                          product_id: c.product_id,
+                          quantity: Math.max(1, c.quantity - 1),
+                        });
                     };
                     const inc = (ev: React.MouseEvent) => {
                       ev.stopPropagation();
-                      debouncedUpdater.scheduleUpdate({ id: c.id, quantity: c.quantity + 1 });
+                      if (isUpdating) return;
+                      updateMutation.mutate({
+                        product_id: c.product_id,
+                        quantity: Math.max(1, c.quantity + 1),
+                      });
                     };
                     return (
                       <div className="flex items-center gap-2">
                         <button
+                          disabled={isUpdating}
                           onClick={dec}
-                          className="px-3 py-1 bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)] rounded-md"
+                          className={`px-3 py-1 rounded-md cursor-pointer ${
+                            isUpdating
+                              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                              : "bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)]"
+                          }`}
                         >
                           -
                         </button>
                         <span className="px-3 py-1 border rounded-md min-w-[70px] text-center">
-                          {c.quantity}
+                          {isUpdating ? (
+                            <div className="w-5 h-5 rounded-full flex items-center ml-3 border-2 border-gray-300 border-t-[var(--color-accent)] animate-spin"></div>
+                          ) : (
+                            c.quantity
+                          )}
                         </span>
                         <button
+                          disabled={isUpdating}
                           onClick={inc}
-                          className="px-3 py-1 bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)] rounded-md"
+                          className={`px-3 py-1 rounded-md cursor-pointer ${
+                            isUpdating
+                              ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                              : "bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)]"
+                          }`}
                         >
                           +
                         </button>
@@ -314,7 +362,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                     disabled={stock === 0}
                     className={`flex-1 py-2 rounded-lg font-semibold transition-all duration-150 shadow-sm ${
                       stock === 0
-                        ? "bg-accent text-primary-100 cursor-not-allowed"
+                        ? "bg-accent-light text-accent-light cursor-not-allowed"
                         : "bg-[var(--color-accent)] text-primary-100 hover:bg-[var(--color-accent-dark)] hover:shadow-md transform hover:-translate-y-0.5"
                     }`}
                   >
@@ -323,14 +371,14 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                 )}
                 <button
                   onClick={handleWishlist}
-                  className="ml-2 p-2 border rounded-lg transition-all duration-150 border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-black"
+                  className="ml-2 p-2 border rounded-lg transition-all duration-150 border-border-light text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-white"
                 >
-                  {wishlist.some((w) => w.id === product.id) ? (
+                  {inWishlist ? (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
                       fill="currentColor"
-                      className="w-5 h-5 text-[var(--color-error)]"
+                      className="w-5 h-5"
                     >
                       <path d="M12 21C12 21 4 13.647 4 8.75C4 6.17893 6.17893 4 8.75 4C10.2355 4 11.6028 4.80549 12 6.00613C12.3972 4.80549 13.7645 4 15.25 4C17.8211 4 20 6.17893 20 8.75C20 13.647 12 21 12 21Z" />
                     </svg>
@@ -358,14 +406,14 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
         <button
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
-          className="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+          className="px-4 py-2 bg-primary-100 hover:cursor-pointer disabled:cursor-not-allowed  font-heading rounded-md disabled:opacity-50"
         >
           Prev
         </button>
         <button
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
-          className="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+          className="px-4 py-2 bg-primary-100 hover:cursor-pointer disabled:cursor-not-allowed font-heading rounded-md disabled:opacity-50"
         >
           Next
         </button>

@@ -2,9 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
-import { useProductStore } from "../../store/useProductStore";
 import { useWishlistStore } from "../../store/wishlistStore";
-import { useCartStore } from "../../store/cartStore";
 import { useQuery } from "@tanstack/react-query";
 import * as productsApi from "../../api/productsApi";
 import type {
@@ -24,6 +22,12 @@ import {
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Product } from "../../store/useProductStore";
 import LoadingState from "../LoadingState";
+import {
+  useAddToCart,
+  useCart,
+  useRemoveFromCart,
+  useUpdateCart,
+} from "../../hooks/Customer/useCartHooks";
 
 type LocalProduct = Product & { category?: string | null };
 
@@ -187,10 +191,12 @@ const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
 
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
-  const { addToCart } = useProductStore();
   const { addToWishlist } = useWishlistStore();
   const location = useLocation();
-  const { cartItems, updateQuantity, removeItem } = useCartStore();
+  const { data: cartData } = useCart(true);
+  const addMutation = useAddToCart();
+  const removeMutation = useRemoveFromCart();
+  const updateMutation = useUpdateCart();
 
   const filteredProducts = table.getRowModel().rows.map((r) => r.original);
 
@@ -224,7 +230,7 @@ const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                 state: { from: location.pathname + location.search },
               });
             // add via product store which already syncs to cartStore
-            addToCart(product as Product);
+            addMutation.mutate({ product_id: product.id, quantity: 1 });
           };
 
           const handleWishlist = (e: React.MouseEvent) => {
@@ -324,20 +330,27 @@ const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
               {/* Buttons */}
               <div className="flex items-center justify-between mt-3">
                 {/* If product exists in cart, show quantity controls */}
-                {cartItems.find((c) => c.id === product.id) ? (
+                {cartData?.items.find((c) => c.product_id === product.id) ? (
                   (() => {
-                    const c = cartItems.find((ci) => ci.id === product.id)!;
+                    const c = cartData.items.find((ci) => ci.product_id === product.id)!;
                     const dec = (ev: React.MouseEvent) => {
                       ev.stopPropagation();
                       if (c.quantity <= 1) {
-                        removeItem(c.id);
+                        removeMutation.mutate({ product_id: c.product_id });
                       } else {
-                        updateQuantity(c.id, -1);
+                        updateMutation.mutate({
+                          product_id: c.product_id,
+                          quantity: c.quantity - 1,
+                        });
                       }
                     };
+
                     const inc = (ev: React.MouseEvent) => {
                       ev.stopPropagation();
-                      updateQuantity(c.id, 1);
+                      updateMutation.mutate({
+                        product_id: c.product_id,
+                        quantity: c.quantity + 1,
+                      });
                     };
 
                     return (

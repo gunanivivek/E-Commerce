@@ -1,4 +1,3 @@
-// src/api/axiosInstance.ts
 import axios from "axios";
 import { useAuthStore } from "../store/authStore";
 import { toast } from "react-toastify";
@@ -8,6 +7,15 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
 });
+
+// secondary API instance (optional) - use when you need to call the alternate backend
+const api2 = axios.create({
+  baseURL: import.meta.env.VITE_API_URL_2 ?? import.meta.env.VITE_API_URL,
+  withCredentials: true,
+});
+
+// helper to pick instance at call site
+export const getAPI = (useAlt = false) => (useAlt ? api2 : api);
 
 const handleLogout = () => {
   try {
@@ -49,4 +57,5 @@ api.interceptors.response.use(
   }
 );
 
+export { api2 };
 export default api;

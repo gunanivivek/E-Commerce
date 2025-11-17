@@ -5,7 +5,6 @@ import RoleBasedRoute from "./routes/RoleBasedRoute";
 import Login from "./pages/Login";
 import CustomerLayouts from "./layouts/CustomerLayouts";
 import Products from "./pages/Customer/Products";
-import TestDashboard from "./pages/TestDashboard";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import NotFound from "./pages/NotFound";
 import AdminLayouts from "./layouts/AdminLayouts";
@@ -40,12 +39,21 @@ import SellerCoupons from "./pages/Seller/SellerCoupons";
 import AdminCoupons from "./pages/Admin/AdminCoupons";
 import CategoryPage from "./pages/Customer/CategoryPage";
 import NewArrivals from "./pages/Customer/NewArrivals";
+import SearchPage from "./pages/Customer/SearchPage";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
+import SellerDashboard from "./pages/Seller/SellerDashboard";
 
+// Only call loadStripe when a publishable key is provided to avoid runtime errors
+const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY as string | undefined;
+const stripePromise = stripeKey ? loadStripe(stripeKey) : null;
 
 function App() {
-   useFetchCategories();
+  useFetchCategories();
   return (
     <>
+      <Elements stripe={stripePromise}>
       <Routes>
         {/* Public routes (only for guests) */}
         <Route element={<PublicRoute />}>
@@ -55,54 +63,55 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
         </Route>
 
-      {/* Open Customer Routes (accessible to everyone) */}
-      <Route element={<OpenCustomerRoute />}>
-        <Route path="/" element={<CustomerLayouts />} />
-        <Route path="about" element={<About />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/products" element={<Products />} />
-        <Route path="/category/:category_name" element={<CategoryPage />} />
-        <Route path="/new-arrivals" element={<NewArrivals />} />
-        <Route path="/product/:productId" element={<ProductsDescription />} />
-        <Route path="/cart" element={<Cart />} />
-        <Route path="/wishlist" element={<Wishlist />} />
-        <Route path="/checkout" element={<Checkout />} />
-      </Route>
+        {/* Open Customer Routes (accessible to everyone) */}
+        <Route element={<OpenCustomerRoute />}>
+          <Route path="/" element={<CustomerLayouts />} />
+          <Route path="about" element={<About />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/products" element={<Products />} />
+          <Route path="/category/:category_name" element={<CategoryPage />} />
+          <Route path="/new-arrivals" element={<NewArrivals />} />
+          <Route path="/product/:productId" element={<ProductsDescription />} />
+          <Route path="/search" element={<SearchPage />} />
+        </Route>
+
+        {/* Customer private pages */}
+        <Route element={<RoleBasedRoute allowedRoles={["customer"]} />}>
+          <Route path="profile" element={<Profile />}>
+            <Route index element={<AccountInfo />} />
+            <Route path="orders" element={<Orders />} />
+            <Route path="address" element={<AddresssInfo />} />
+            <Route path="change-password" element={<ChangePassword />} />
+          </Route>
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/wishlist" element={<Wishlist />} />
+          <Route path="/checkout" element={<Checkout />} />
+        </Route>
 
         {/* Protected routes */}
         <Route element={<ProtectedRoute />}>
           {/* Admin */}
           <Route element={<RoleBasedRoute allowedRoles={["admin"]} />}>
             <Route path="/admin" element={<AdminLayouts />}>
-              <Route index element={<TestDashboard />} />
+              <Route index element={<AdminDashboard />} />
               <Route path="sellers" element={<SellerList />} />
               <Route path="products" element={<AdminProductList />} />
               <Route path="category" element={<CategoryList />} />
               <Route path="customers" element={<CustomerList />} />
               <Route path="coupons" element={<AdminCoupons />} />
               <Route path="profile" element={<AdminProfile />} />
-                <Route path="orders" element={<AdminOrderList />} />
+              <Route path="orders" element={<AdminOrderList />} />
             </Route>
           </Route>
 
           {/* Seller */}
           <Route element={<RoleBasedRoute allowedRoles={["seller"]} />}>
             <Route path="/seller" element={<SellerLayouts />}>
-              <Route index element={<TestDashboard />} />
+              <Route index element={<SellerDashboard />} />
               <Route path="products" element={<SellerProductList />} />
               <Route path="orders" element={<SellerOrders />} />
               <Route path="coupons" element={<SellerCoupons />} />
               <Route path=":sellerId" element={<SellerProfilePage />} />
-            </Route>
-          </Route>
-
-          {/* Customer private pages */}
-          <Route element={<RoleBasedRoute allowedRoles={["customer"]} />}>
-            <Route path="profile" element={<Profile />}>
-              <Route index element={<AccountInfo />} />
-              <Route path="orders" element={<Orders />} />
-                <Route path="address" element={<AddresssInfo />} />
-              <Route path="change-password" element={<ChangePassword />} />
             </Route>
           </Route>
 
@@ -112,6 +121,7 @@ function App() {
         {/*  Always show NotFound for missing paths (even if not logged in) */}
         <Route path="*" element={<NotFound />} />
       </Routes>
+      </Elements>
     </>
   );
 }

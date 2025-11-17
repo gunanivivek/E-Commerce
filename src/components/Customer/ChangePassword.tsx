@@ -39,7 +39,7 @@ const ChangePassword = () => {
           reset();
         },
         onError: (err: Error) => {
-          toast.error(err?.message || "❌ Failed to change password");
+          toast.error(err?.message || "Failed to change password");
         },
       }
     );
@@ -129,10 +129,10 @@ const ChangePassword = () => {
           <button
             type="submit"
             disabled={changePasswordMutation.isPending}
-            className="px-6 py-3 font-semibold rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed w-full"
+            className="cursor-pointer px-6 py-3 text-white font-semibold rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed w-full"
             style={{
               backgroundColor: "var(--color-accent)",
-              color: "black",
+           
             }}
           >
             {changePasswordMutation.isPending ? "Updating..." : "Change Password"}
