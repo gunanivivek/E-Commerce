@@ -7,6 +7,7 @@ import { useParams } from "react-router";
 import { useUploadProfilePicture } from "../../hooks/useUploadProfilePicture";
 import { useSellerProfile } from "../../hooks/Seller/useSellerProfile";
 import { useUpdateSellerProfile } from "../../hooks/Seller/useUpdateSellerProfile";
+import SellerProfileSkeleton from "../../components/Seller/SellerProfileSkeleton";
 
 interface SellerProfileForm {
   fullName: string;
@@ -173,11 +174,7 @@ const SellerProfilePage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-[70vh]">
-        <span className="text-primary-400 font-medium text-lg animate-pulse">
-          Loading profile...
-        </span>
-      </div>
+      <SellerProfileSkeleton />
     );
   }
 

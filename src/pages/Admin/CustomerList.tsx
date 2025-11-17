@@ -161,7 +161,7 @@ const CustomerList: React.FC = () => {
                   setSelectedCustomer(customer);
                   setIsModalOpen(true);
                 }}
-                className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded"
+                className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:cursor-pointer rounded"
                 title="View Details"
               >
                 <Eye className="w-3.5 h-3.5" />
@@ -171,8 +171,8 @@ const CustomerList: React.FC = () => {
                 onClick={() => handleBlockToggle(customer.id)}
                 className={`p-1.5 ${
                   customer.is_blocked
-                    ? "bg-green-50 text-green-600 hover:bg-green-100"
-                    : "bg-yellow-50 text-yellow-600 hover:bg-yellow-100"
+                    ? "bg-green-50 text-green-600 hover:cursor-pointer hover:bg-green-100"
+                    : "bg-yellow-50 text-yellow-600 hover:cursor-pointer hover:bg-yellow-100"
                 } rounded disabled:opacity-50`}
                 title={customer.is_blocked ? "Unblock" : "Block"}
               >

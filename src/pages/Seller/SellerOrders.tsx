@@ -39,7 +39,12 @@ const SellerOrders: React.FC = () => {
   });
 
   const filteredData = useMemo(() => {
-    let filtered = orders.filter(
+    const sorted = [...orders].sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+
+    let filtered = sorted.filter(
       (order) =>
         order.customer_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
         order.order_number.toLowerCase().includes(searchTerm.toLowerCase())
@@ -232,7 +237,7 @@ const SellerOrders: React.FC = () => {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+              className="border border-border-light rounded-lg hover:cursor-pointer bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
             >
               <option value="">All</option>
               <option value="pending">Pending</option>
@@ -249,7 +254,7 @@ const SellerOrders: React.FC = () => {
               type="date"
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
-              className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+              className="border border-border-light rounded-lg hover:cursor-pointer bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
             />
           </div>
 
@@ -260,7 +265,7 @@ const SellerOrders: React.FC = () => {
               type="date"
               value={dateTo}
               onChange={(e) => setDateTo(e.target.value)}
-              className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+              className="border border-border-light rounded-lg hover:cursor-pointer bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
             />
           </div>
         </div>
