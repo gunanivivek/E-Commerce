@@ -24,7 +24,7 @@ const ProductImageGallery: React.FC<Props> = ({ image, thumbnails, images }) => 
         )}
       </div>
 
-      <div className="flex gap-3 mt-4">
+      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 mt-4 w-full max-w-xl">
         {thumbList.slice(0, 6).map((img, idx) => {
           const active = idx === selected;
           return (

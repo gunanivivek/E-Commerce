@@ -40,4 +40,5 @@ export const useUploadProfilePicture = () => {
       console.error("❌ Upload error:", msg);
     },
   });
+  
 };

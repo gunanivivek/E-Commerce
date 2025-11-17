@@ -226,13 +226,11 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
     </ResponsiveContainer>
   );
 
-  // ------------------------------
-  // Top Sellers (Horizontal Bars)
-  // ------------------------------
+
   const topSellersChart = (
     <ResponsiveContainer width="100%" height={380}>
       <BarChart data={topSellers} layout="vertical">
-        <CartesianGrid strokeDasharray="3 3" stroke={gray200} />
+        <CartesianGrid strokeDasharray="1 1" stroke={gray200} />
 
         <XAxis
           type="number"
@@ -249,14 +247,14 @@ export const DashboardCharts: React.FC<DashboardChartsProps> = ({
         <Tooltip
           contentStyle={{
             borderRadius: "12px",
-            border: `1px solid ${gray200}`,
+            border: `1px solid ${gray300}`,
             backgroundColor: white,
           }}
         />
 
         <Bar
           dataKey="revenue"
-          fill={primaryLight}
+          fill={gray300}
           radius={[6, 6, 6, 6]}
           barSize={24}
         />
