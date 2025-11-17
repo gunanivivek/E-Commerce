@@ -104,7 +104,7 @@ const AccountInfo = () => {
           <button
             type="button"
             onClick={() => setIsEditingImage(true)}
-            className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-all"
+            className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50 cursor-pointer transition-all"
           >
             Change Image
           </button>
@@ -113,7 +113,7 @@ const AccountInfo = () => {
             <button
               type="button"
               onClick={handleAddProfileClick}
-              className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
+              className="cursor-pointer px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
               style={{
                 backgroundColor: "var(--color-accent)",
                 color: "black",
@@ -131,7 +131,7 @@ const AccountInfo = () => {
             <button
               type="button"
               onClick={() => setIsEditingImage(false)}
-              className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-all"
+              className="cursor-pointer px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-all"
             >
               Cancel
             </button>
@@ -200,7 +200,7 @@ const AccountInfo = () => {
             <button
               onClick={handleSave}
               disabled={isUpdating}
-              className="px-6 py-3 text-white font-semibold rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
+              className="cursor-pointer px-6 py-3 text-white font-semibold rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
               style={{
                 backgroundColor: "var(--color-accent)",
               
@@ -210,7 +210,7 @@ const AccountInfo = () => {
             </button>
             <button
               onClick={handleCancel}
-              className="px-6 py-3 rounded-lg border border-gray-300 font-medium transition-all hover:bg-gray-50"
+              className="cursor-pointer px-6 py-3 rounded-lg border border-gray-300 font-medium transition-all hover:bg-gray-50"
             >
               Cancel
             </button>

@@ -138,7 +138,7 @@ const Orders: React.FC = () => {
                     order.status === "pending" && (
                       <button
                         onClick={() => cancelMutation.mutate(order.id)}
-                        className="flex items-center gap-1 text-sm px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-sm hover:shadow-md transition"
+                        className="cursor-pointer flex items-center gap-1 text-sm px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-sm hover:shadow-md transition"
                       >
                         <XCircle size={16} />
                         Cancel
@@ -150,7 +150,7 @@ const Orders: React.FC = () => {
                   {!isPaymentFailed && order.status === "delivered" && (
                     <button
                       onClick={() => downloadInvoiceMutation.mutate(order.id)}
-                      className="flex items-center gap-1 text-sm px-3 py-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent-dark)] text-black rounded-lg shadow-sm hover:shadow-md transition"
+                      className="cursor-pointer text-surface-light flex items-center gap-1 text-sm px-3 py-2 bg-[var(--color-accent)] hover:bg-[var(--color-accent-dark)]  rounded-lg shadow-sm hover:shadow-md transition"
                     >
                       <FileDown size={16} />
                       Invoice
