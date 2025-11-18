@@ -65,7 +65,7 @@ const CategoryPage: React.FC = () => {
       images: p.images?.map((i: ProductImageResponse) => i.url),
       is_active: p.is_active,
       created_at: p.created_at,
-      rating: (p as ProductResponse & { rating?: number }).rating ?? 4.5,
+      average_rating: p.average_rating,
       category: p.category?.name ?? null,
     }));
   }, [apiProducts]);
