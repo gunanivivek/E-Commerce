@@ -1,9 +1,16 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// src/hooks/Customer/CartHooks/useCartHooks.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import * as cartApi from "../../api/cartApi"
+import * as cartApi from "../../api/cartApi";
 import { toast } from "react-toastify";
-import type { AddToCartRequest, AddToCartResponse, CartResponse, ClearCartResponse, RemoveFromCartRequest, RemoveFromCartResponse, UpdateCartQuantityRequest, UpdateCartQuantityResponse } from "../../types/cart";
+import type {
+  AddToCartRequest,
+  AddToCartResponse,
+  CartResponse,
+  ClearCartResponse,
+  RemoveFromCartRequest,
+  RemoveFromCartResponse,
+  UpdateCartQuantityRequest,
+  UpdateCartQuantityResponse,
+} from "../../types/cart";
 
 // ---------------------- useCart Hook ----------------------
 export const useCart = (enabled: boolean) => {
@@ -47,7 +54,11 @@ export const useAddToCart = () => {
 export const useUpdateCart = () => {
   const queryClient = useQueryClient();
 
-  return useMutation<UpdateCartQuantityResponse, Error, UpdateCartQuantityRequest>({
+  return useMutation<
+    UpdateCartQuantityResponse,
+    Error,
+    UpdateCartQuantityRequest
+  >({
     mutationFn: async (payload) => {
       return await cartApi.updateCartQuantity(payload);
     },
