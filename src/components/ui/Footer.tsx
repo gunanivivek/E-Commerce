@@ -1,8 +1,8 @@
-import { Link, useNavigate } from "react-router-dom";
-import { Facebook, Twitter, Instagram, Mail } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Mail } from "lucide-react";
 
 const Footer = () => {
-  const navigate = useNavigate()
+  // const navigate = useNavigate()
   return (
     <footer className="bg-[var(--color-surface)] text-[var(--color-text-secondary)] border-t border-[var(--color-border-light)]">
       <div className="max-w-7xl mx-auto px-6 md:px-12 py-16">
@@ -18,7 +18,7 @@ const Footer = () => {
               Your trusted destination for premium products at unbeatable
               prices.
             </p>
-            <div className="flex gap-4">
+            {/* <div className="flex gap-4">
               {[Facebook, Twitter, Instagram].map((Icon, i) => (
                 <button
                   key={i}
@@ -29,7 +29,7 @@ const Footer = () => {
                   <Icon className="h-4 w-4 text-[var(--color-text-primary)]" />
                 </button>
               ))}
-            </div>
+            </div> */}
           </div>
 
           {/* Shop */}
@@ -40,9 +40,8 @@ const Footer = () => {
             <ul className="space-y-3">
               {[
                 { name: "All Products", link: "/products" },
-                { name: "Categories", link: "/categories" },
                 { name: "About", link: "/about" },
-                { name: "New Arrivals", link: "/new-arrivals" },
+                { name: "Fresh Drops", link: "/new-arrivals" },
               ].map((item, i) => (
                 <li key={i}>
                   <Link
@@ -65,7 +64,6 @@ const Footer = () => {
               {[
                 { name: "Help Center", link: "/help-center" },
                 { name: "Contact Us", link: "/contact" },
-                { name: "Shipping Info", link: "/shipping-info" },
                 { name: "Returns & Refunds", link: "/returns-refunds" },
               ].map((item, i) => (
                 <li key={i}>

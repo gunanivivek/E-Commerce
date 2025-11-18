@@ -109,7 +109,10 @@ const ProductDescription: React.FC = () => {
     };
   });
 
-  // Review modal state
+  // Show Review Visible Count State
+  const [visibleCount, setVisibleCount] = useState(3);
+
+  // Add Review modal state
   const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewRating, setReviewRating] = useState<number>(5);
   const [reviewComment, setReviewComment] = useState("");
@@ -223,6 +226,14 @@ const ProductDescription: React.FC = () => {
     rating: ratingValue,
   };
 
+  const handleShowMore = () => {
+    setVisibleCount((prev) => Math.min(prev + 3, normalizedReviews.length));
+  };
+
+  const handleShowLess = () => {
+    setVisibleCount((prev) => Math.max(prev - 3, 3));
+  };
+
   return (
     <>
       <Header />
@@ -252,9 +263,9 @@ const ProductDescription: React.FC = () => {
       </div>
 
       {/* Main section */}
-      <section className="pb-8 px-6 md:px-20">
-        <div className="bg-[var(--color-background)] p-6 rounded-xl shadow-md">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 ">
+      <section>
+        <div className="bg-[var(--color-background)] px-6 md:px-20">
+          <div className="mx-auto max-w-7xl grid grid-cols-1 md:grid-cols-2 gap-10 ">
             {/* Left - Images */}
             <div className="p-4">
               <ProductImageGallery
@@ -430,13 +441,13 @@ const ProductDescription: React.FC = () => {
 
           <hr className="my-3 border-accent" />
           {/* Reviews */}
-          <div className="mx-20 mb-15 p-6">
+          <div className="mx-20 p-6 pb-10">
             <div className="flex justify-between items-center">
               <h3 className="text-xl font-semibold mb-4 text-accent-dark">
                 Customer Reviews ({normalizedReviews.length})
               </h3>
               <button
-                className="border border-accent px-5 py-2 rounded-md text-accent-darker hover:bg-accent hover:text-primary-100 cursor-pointer"
+                className="border border-accent px-5 py-2 rounded-lg text-accent-darker hover:bg-accent hover:text-primary-100 transition-all"
                 onClick={handleAddReview}
               >
                 Add Review
@@ -448,29 +459,28 @@ const ProductDescription: React.FC = () => {
             ) : normalizedReviews.length === 0 ? (
               <p className="text-accent-light">No reviews yet.</p>
             ) : (
-              <div className="space-y-4 my-5">
-                {(
-                  normalizedReviews as Array<{
-                    id: string | number;
-                    author?: string | null;
-                    rating?: number | null;
-                    comment?: string | null;
-                    date?: string | null;
-                  }>
-                ).map((r) => (
+              <div className="space-y-5 my-6">
+                {normalizedReviews.slice(0, visibleCount).map((r) => (
                   <div
                     key={r.id}
-                    className="border border-primary-50 rounded-lg p-4 bg-background transition-shadow hover:shadow-md cursor-pointer"
+                    className="rounded-xl border border-primary-50 bg-background shadow-sm hover:shadow-lg p-5 transition-all duration-200 hover:-translate-y-[2px]"
                   >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="font-semibold text-primary-400">
-                        {r.comment}
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center gap-3">
+                        {/* Optional avatar */}
+                        <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-sm font-semibold text-primary-400">
+                          {(r.author ?? "A")[0].toUpperCase()}
+                        </div>
+                        <span className="font-medium text-primary-400">
+                          {r.author ?? "Anonymous"}
+                        </span>
                       </div>
+
                       <div className="flex">
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
-                            className={`w-4 h-4 ${
+                            className={`w-5 h-5 ${
                               i < (r.rating ?? 0)
                                 ? "text-yellow-400 fill-yellow-400"
                                 : "text-primary-100"
@@ -479,12 +489,48 @@ const ProductDescription: React.FC = () => {
                         ))}
                       </div>
                     </div>
-                    <p className="text-accent-light text-sm leading-relaxed">
-                      -{r.author ?? "Anonymous"}
-                    </p>
-                    <p className="text-xs text-accent-light mt-1">{r.date}</p>
+
+                    <div className="relative group cursor-pointer">
+                      {r.comment && r.comment.length > 200 ? (
+                        <>
+                          {/* Truncated preview */}
+                          <p className="mt-3 text-gray-700 leading-relaxed">
+                            {r.comment && r.comment.length > 200
+                              ? r.comment.slice(0, 200) + "..."
+                              : r.comment}
+                          </p>
+                          {/* Tooltip */}
+                          <div className="absolute z-50 hidden group-hover:block p-3 bg-accent-dark w-auto text-white text-xs rounded shadow-lg top-full left-0 mt-2">
+                            {r.comment}
+                          </div>
+                        </>
+                      ) : (
+                        <p className="mt-3 text-gray-700 leading-relaxed">
+                          {r.comment}
+                        </p>
+                      )}
+                    </div>
                   </div>
                 ))}
+                {/* Review Visiblity Buttons */}
+                <div className="flex gap-4 mt-10">
+                  {visibleCount > 3 && (
+                    <button
+                      className="hover:underline text-accent-dark cursor-pointer"
+                      onClick={handleShowLess}
+                    >
+                      Read less
+                    </button>
+                  )}
+                  {visibleCount < normalizedReviews.length && (
+                    <button
+                      className="hover:underline text-accent-dark cursor-pointer"
+                      onClick={handleShowMore}
+                    >
+                      Read more
+                    </button>
+                  )}
+                </div>
               </div>
             )}
           </div>
