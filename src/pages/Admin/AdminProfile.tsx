@@ -13,7 +13,9 @@ interface AdminProfileForm {
 const AdminProfile = () => {
   const [isEditingImage, setIsEditingImage] = useState(false);
   const [profilePreview, setProfilePreview] = useState<string | null>(null);
-  const [previousProfileImage, setPreviousProfileImage] = useState<string | null>(null);
+  const [previousProfileImage, setPreviousProfileImage] = useState<
+    string | null
+  >(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const { user } = useAuthStore();
 
@@ -79,7 +81,9 @@ const AdminProfile = () => {
       <div className="max-w-3xl px-5 space-y-6">
         {/* Header */}
         <div>
-           <h1 className="text-2xl sm:text-3xl font-heading font-bold text-accent-dark">Admin Profile</h1>
+          <h1 className="text-2xl sm:text-3xl font-heading font-bold text-accent-dark">
+            Admin Profile
+          </h1>
           <p className="text-primary-300 text-sm sm:text-base">
             View and manage your personal information
           </p>
@@ -87,7 +91,9 @@ const AdminProfile = () => {
 
         {/* Profile Image Section */}
         <div className="bg-white rounded-lg p-4 shadow-sm">
-          <h2 className="text-accent-dark font-normal mb-3 font-heading text-xl">Profile Image</h2>
+          <h2 className="text-accent-dark font-normal mb-3 font-heading text-xl">
+            Profile Image
+          </h2>
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 rounded-full bg-primary-100 flex items-center justify-center overflow-hidden">
               {profilePreview ? (
@@ -133,14 +139,21 @@ const AdminProfile = () => {
                 </button>
               </>
             )}
-            {isPending && <p>Uploading...</p>}
+            {isPending && (
+              <div className="flex items-center gap-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
+                <span className="text-sm text-gray-600">Uploading...</span>
+              </div>
+            )}
           </div>
         </div>
 
         {/* Profile Details Section */}
         <div className="bg-white rounded-lg p-4 shadow-sm">
           <div className="flex justify-between items-center mb-3">
-            <h2 className="text-accent-dark font-normal mb-3 font-heading text-xl">Personal Info</h2>
+            <h2 className="text-accent-dark font-normal mb-3 font-heading text-xl">
+              Personal Info
+            </h2>
           </div>
           <form className="space-y-3">
             <div>

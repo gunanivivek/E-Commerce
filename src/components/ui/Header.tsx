@@ -52,11 +52,11 @@ const Header = () => {
       <header className="sticky top-0 z-50 w-full bg-background ">
         <div className="flex mx-auto max-w-7xl h-16 items-center justify-between px-4 md:px-6 lg:px-8">
           {/* 🔹 Left Section */}
-          <div className="flex items-center gap-2 md:gap-4 flex-1">
+          <div className="flex items-center gap-2 md:gap-4 flex-1 ">
             {/* Hamburger (mobile) */}
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="md:hidden p-2 text-accent-dark hover:text-light"
+              className="md:hidden p-2 hover:cursor-pointer text-accent-dark hover:text-light"
               aria-label="Toggle menu"
             >
               {isMobileMenuOpen ? (
@@ -117,7 +117,7 @@ const Header = () => {
             {/* Mobile search icon */}
             <button
               onClick={() => setIsMobileSearchOpen(!isMobileSearchOpen)}
-              className="md:hidden p-2 text-accent-dark hover:text-light"
+              className="md:hidden p-2 text-accent-dark hover:text-light hover:cursor-pointer"
               aria-label="Search"
             >
               <Search className="h-5 w-5" />
@@ -178,7 +178,7 @@ const Header = () => {
               <div className="relative w-full">
                 <Search
                   onClick={() => handleSearch()}
-                  className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 cursor-pointer"
+                  className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400 hover:cursor-pointer"
                 />
                 <input
                   type="search"
@@ -225,13 +225,13 @@ const Header = () => {
           <nav className="flex flex-col p-4 gap-2">
             <button
               onClick={() => handleNavigation("/products")}
-              className="text-left text-lg font-semibold font-logo text-accent-dark hover:text-light py-3 px-2 rounded transition-colors"
+              className="text-left text-lg font-semibold font-logo text-accent-dark hover:text-light hover:cursor-pointer py-3 px-2 rounded transition-colors"
             >
               Products
             </button>
             <button
               onClick={() => handleNavigation("/new-arrivals")}
-              className="text-left text-lg font-semibold font-logo text-accent-dark hover:text-light py-3 px-2 rounded transition-colors"
+              className="text-left text-lg font-semibold font-logo text-accent-dark hover:text-light hover:cursor-pointer py-3 px-2 rounded transition-colors"
             >
               Fresh Drops
             </button>

@@ -7,6 +7,7 @@ import { useParams } from "react-router";
 import { useUploadProfilePicture } from "../../hooks/useUploadProfilePicture";
 import { useSellerProfile } from "../../hooks/Seller/useSellerProfile";
 import { useUpdateSellerProfile } from "../../hooks/Seller/useUpdateSellerProfile";
+import SellerProfileSkeleton from "../../components/Seller/SellerProfileSkeleton";
 
 interface SellerProfileForm {
   fullName: string;
@@ -173,11 +174,7 @@ const SellerProfilePage = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-[70vh]">
-        <span className="text-primary-400 font-medium text-lg animate-pulse">
-          Loading profile...
-        </span>
-      </div>
+      <SellerProfileSkeleton />
     );
   }
 
@@ -197,7 +194,9 @@ const SellerProfilePage = () => {
 
         {/* -------- Profile Image Section -------- */}
         <div className="bg-white rounded-lg p-4 shadow-sm">
-          <h2 className="text-accent-dark font-normal mb-3 font-heading text-xl">Profile Image</h2>
+          <h2 className="text-accent-dark font-normal mb-3 font-heading text-xl">
+            Profile Image
+          </h2>
 
           <div className="flex items-center gap-4">
             <div className="w-20 h-20 rounded-full bg-primary-100 flex items-center justify-center overflow-hidden">
@@ -245,7 +244,12 @@ const SellerProfilePage = () => {
                 </button>
               </>
             )}
-            {isPending && <p>Uploading...</p>}
+            {isPending && (
+              <div className="flex items-center gap-2">
+                <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
+                <span className="text-sm text-gray-600">Uploading...</span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -273,7 +277,7 @@ const SellerProfilePage = () => {
                 }
                 setIsEditingDetails(!isEditingDetails);
               }}
-              type="button" 
+              type="button"
               className="px-4 py-1.5 bg-surface text-base hover:bg-accent-light/25 text-accent-dark hover:cursor-pointer rounded-lg transition-colors font-medium"
             >
               {isEditingDetails ? "Close" : "Edit Details"}

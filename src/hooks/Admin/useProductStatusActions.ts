@@ -3,65 +3,70 @@ import { updateProductStatus } from "../../api/adminApi";
 import { toast } from "react-toastify";
 import { useAdminProductStore } from "../../store/Admin/adminProductStore";
 import type { AxiosError } from "axios";
+import { useState } from "react";
 
 export const useProductStatusActions = () => {
   const queryClient = useQueryClient();
   const { updateProductStatusLocal } = useAdminProductStore();
 
+  const [loadingId, setLoadingId] = useState<number | null>(null);
+
   const mutation = useMutation({
-    mutationFn: ({
+    mutationFn: async ({
       id,
       status,
     }: {
       id: number;
       status: "approved" | "rejected";
-    }) => updateProductStatus(id, status),
-
-    onMutate: () => {
-      // ✅ Show loading & store toast ID
-      const toastId = toast.loading("Updating product status...");
-      return { toastId }; // pass to next callbacks
+    }) => {
+      setLoadingId(id);
+      return updateProductStatus(id, status);
     },
 
-    onSuccess: (_data, variables, context) => {
-      //  Close or update loading toast
-      toast.update(context?.toastId, {
-        render: `Product ${variables.status} successfully`,
-        type: "success",
-        isLoading: false,
-        autoClose: 2000,
-      });
+    onMutate: () => {
+      const toastId = toast.loading("Updating product status...");
+      return { toastId };
+    },
 
-      // Update store instantly
+    onSuccess: async (_data, variables, context) => {
+      if (context?.toastId) {
+        toast.update(context.toastId, {
+          render: `Product ${variables.status} successfully`,
+          type: "success",
+          isLoading: false,
+          autoClose: 2000,
+        });
+      }
+
+
       updateProductStatusLocal(variables.id, variables.status);
 
-      //  Refetch product list
-    queryClient.invalidateQueries({ queryKey: ["admin-products"] });
-
+    
+      await queryClient.invalidateQueries({ queryKey: ["admin-products"] });
     },
 
     onError: (error: AxiosError<{ detail?: string }>, _variables, context) => {
-      const msg =
-        error.response?.data?.detail ||
-        error.message ||
-        "Failed to update product status";
-
       if (context?.toastId) {
         toast.update(context.toastId, {
-          render: msg,
+          render:
+            error.response?.data?.detail ||
+            error.message ||
+            "Failed to update product status",
           type: "error",
           isLoading: false,
           autoClose: 2500,
         });
-      } else {
-        toast.error(msg);
       }
+    },
+
+    onSettled: () => {
+      setLoadingId(null);
     },
   });
 
   return {
     approveProduct: (id: number) => mutation.mutate({ id, status: "approved" }),
     rejectProduct: (id: number) => mutation.mutate({ id, status: "rejected" }),
-    isPending: mutation.isPending,
+    loadingId,
   };
 };

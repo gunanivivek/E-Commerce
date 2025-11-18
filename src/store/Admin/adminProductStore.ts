@@ -1,10 +1,8 @@
-// store/adminProductStore.ts
 import { create } from "zustand";
 import type { Product } from "../../types/admin";
 
-
 interface AdminProductState {
-  products: Product[];   // ✅ Match real Product type
+  products: Product[];
   loading: boolean;
   error: string | null;
 
