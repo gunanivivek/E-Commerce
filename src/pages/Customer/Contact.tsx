@@ -63,8 +63,8 @@ const Contact: React.FC = () => {
     {
       icon: Mail,
       title: "Email Us",
-      content: "support@shopease.com",
-      link: "mailto:support@shopease.com",
+      content: "support@cartify.com",
+      link: "mailto:support@cartify.com",
     },
     {
       icon: Phone,
@@ -75,7 +75,8 @@ const Contact: React.FC = () => {
     {
       icon: MapPin,
       title: "Visit Us",
-      content: "812-816, Times Square 1, opposite Baghban Party Plot Road, Thaltej, Ahmedabad, Gujarat 380059",
+      content:
+        "812-816, Times Square 1, opposite Baghban Party Plot Road, Thaltej, Ahmedabad, Gujarat 380059",
       link: "https://maps.google.com",
     },
     {
@@ -93,41 +94,50 @@ const Contact: React.FC = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <head>
+        <title>Contact Us — Cartify</title>
+        <meta
+          name="description"
+          content="Read how we collect, use, and protect your personal information at Cartify."
+        />
+      </head>
+
       <Header />
-      <div className="flex-1" >
+      <div className="flex-1">
         <div className="container mx-auto px-4 max-w-6xl py-12">
           <div className="text-center mb-12">
-            <h1 
+            <h1
               className="text-4xl md:text-5xl font-black mb-4 leading-tight"
-              style={{ 
-                fontFamily: 'var(--font-heading)',
-             
+              style={{
+                fontFamily: "var(--font-heading)",
+                color: "var(--color-accent-dark)",
               }}
             >
               Get in Touch
             </h1>
-            <p 
+            <p
               className="text-lg max-w-2xl mx-auto leading-relaxed"
-              style={{ 
-                color: 'var(--color-text-secondary)',
-                fontFamily: 'var(--font-body)'
+              style={{
+                color: "var(--color-accent-light)",
+                fontFamily: "var(--font-body)",
               }}
             >
-              Have a question or need assistance? We're here to help! Reach out to us through any of the methods below.
+              Have a question or need assistance? We're here to help! Reach out
+              to us through any of the methods below.
             </p>
           </div>
 
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Contact Form */}
-            <div 
+            <div
               className="rounded-[var(--radius-xl)] p-8 shadow-[var(--shadow-md)] border border-[var(--color-gray-700)]"
-              style={{ backgroundColor: 'var(--color-surface-light)' }}
+              style={{ backgroundColor: "var(--color-surface-light)" }}
             >
-              <h2 
+              <h2
                 className="text-2xl font-bold mb-6 leading-tight"
-                style={{ 
-                  fontFamily: 'var(--font-heading)',
-                  color: 'var(--color-white)'
+                style={{
+                  fontFamily: "var(--font-heading)",
+                  color: "var(--color-accent)",
                 }}
               >
                 Send Us a Message
@@ -190,20 +200,31 @@ const Contact: React.FC = () => {
                   disabled={mutation.isPending}
                   className="w-full py-3 rounded-[var(--radius-lg)] font-bold transition-all duration-[var(--transition-normal)] disabled:opacity-70"
                   style={{
-                    background: 'var(--gradient-orange)',
-                    color: 'var(--color-white)',
-                    border: 'none',
-                    boxShadow: 'var(--shadow-orange)'
+                    background: "var(--color-accent)",
+                    color: "var(--color-primary-100)",
+                    border: "var(--color-accent) 2px solid",
+                    boxShadow: "var(--shadow-orange)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                    e.currentTarget.style.color = "var(--color-accent)";
+                    e.currentTarget.style.cursor = "pointer";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "var(--color-accent)";
+                    e.currentTarget.style.color = "var(--color-primary-100)";
                   }}
                 >
                   {mutation.isPending ? "Sending..." : "Send Message"}
                 </button>
 
                 {status && (
-                  <p 
+                  <p
                     className="text-center mt-2"
-                    style={{ 
-                      color: mutation.isError ? 'var(--color-error)' : 'var(--color-success)' 
+                    style={{
+                      color: mutation.isError
+                        ? "var(--color-error)"
+                        : "var(--color-success)",
                     }}
                   >
                     {status}
@@ -214,15 +235,15 @@ const Contact: React.FC = () => {
 
             {/* Contact Information */}
             <div className="space-y-6">
-              <div 
+              <div
                 className="rounded-[var(--radius-xl)] p-8 shadow-[var(--shadow-md)] border border-[var(--color-gray-700)]"
-                style={{ backgroundColor: 'var(--color-surface-light)' }}
+                style={{ backgroundColor: "var(--color-surface-light)" }}
               >
-                <h2 
+                <h2
                   className="text-2xl font-bold mb-6 leading-tight"
-                  style={{ 
-                    fontFamily: 'var(--font-heading)',
-                    color: 'var(--color-white)'
+                  style={{
+                    fontFamily: "var(--font-heading)",
+                    color: "var(--color-accent)",
                   }}
                 >
                   Contact Information
@@ -232,18 +253,21 @@ const Contact: React.FC = () => {
                     const Icon = info.icon;
                     return (
                       <div key={i} className="flex items-start gap-4">
-                        <div 
+                        <div
                           className="flex items-center justify-center w-12 h-12 rounded-[var(--radius-md)] flex-shrink-0"
-                          style={{ backgroundColor: 'var(--color-accent)/10' }}
+                          style={{ backgroundColor: "var(--color-accent)/10" }}
                         >
-                          <Icon className="h-5 w-5" style={{ color: 'var(--color-accent)' }} />
+                          <Icon
+                            className="h-5 w-5"
+                            style={{ color: "var(--color-accent)" }}
+                          />
                         </div>
                         <div>
-                          <h3 
+                          <h3
                             className="font-semibold mb-1 leading-tight"
-                            style={{ 
-                              fontFamily: 'var(--font-heading)',
-                              color: 'var(--color-white)'
+                            style={{
+                              fontFamily: "var(--font-heading)",
+                              color: "var(--color-accent)",
                             }}
                           >
                             {info.title}
@@ -252,9 +276,9 @@ const Contact: React.FC = () => {
                             <a
                               href={info.link}
                               className="hover:text-[var(--color-accent)] transition-colors duration-[var(--transition-fast)]"
-                              style={{ 
-                                color: 'var(--color-text-secondary)',
-                                fontFamily: 'var(--font-body)'
+                              style={{
+                                color: "var(--color-accent-light)",
+                                fontFamily: "var(--font-body)",
                               }}
                               target={
                                 info.link.startsWith("http")
@@ -270,11 +294,11 @@ const Contact: React.FC = () => {
                               {info.content}
                             </a>
                           ) : (
-                            <p 
+                            <p
                               className="leading-relaxed"
-                              style={{ 
-                                color: 'var(--color-text-secondary)',
-                                fontFamily: 'var(--font-body)'
+                              style={{
+                                color: "var(--color-accent-light)",
+                                fontFamily: "var(--font-body)",
                               }}
                             >
                               {info.content}
@@ -287,84 +311,89 @@ const Contact: React.FC = () => {
                 </div>
               </div>
 
-              <div 
+              <div
                 className="rounded-[var(--radius-xl)] p-8 shadow-[var(--shadow-md)] border border-[var(--color-gray-700)]"
-                style={{ backgroundColor: 'var(--color-surface-light)' }}
+                style={{ backgroundColor: "var(--color-surface-light)" }}
               >
-                <h3 
+                <h3
                   className="text-xl font-bold mb-4 leading-tight"
-                  style={{ 
-                    fontFamily: 'var(--font-heading)',
-                    color: 'var(--color-white)'
+                  style={{
+                    fontFamily: "var(--font-heading)",
+                    color: "var(--color-accent)",
                   }}
                 >
                   Frequently Asked Questions
                 </h3>
-                <p 
+                <p
                   className="mb-4 leading-relaxed"
-                  style={{ 
-                    color: 'var(--color-text-secondary)',
-                    fontFamily: 'var(--font-body)'
+                  style={{
+                    color: "var(--color-accent-light)",
+                    fontFamily: "var(--font-body)",
                   }}
                 >
-                  Before reaching out, you might find answers in our FAQ section.
+                  Before reaching out, you might find answers in our FAQ
+                  section.
                 </p>
-                <button 
+                <button
                   className="w-full py-2 rounded-[var(--radius-md)] font-medium transition-all duration-[var(--transition-normal)]"
                   style={{
-                    border: '1px solid var(--color-accent)',
-                    color: 'var(--color-accent)',
-                    backgroundColor: 'transparent'
+                    border: "1px solid var(--color-accent)",
+                    color: "var(--color-accent)",
+                    backgroundColor: "transparent",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'var(--color-accent)';
-                    e.currentTarget.style.color = 'var(--color-white)';
+                    e.currentTarget.style.backgroundColor =
+                      "var(--color-accent)";
+                    e.currentTarget.style.color = "var(--color-primary-100)";
+                    e.currentTarget.style.cursor = "pointer";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.color = 'var(--color-accent)';
+                    e.currentTarget.style.backgroundColor = "transparent";
+                    e.currentTarget.style.color = "var(--color-accent)";
                   }}
                 >
                   Visit FAQ Page
                 </button>
               </div>
 
-              <div 
+              <div
                 className="rounded-[var(--radius-xl)] p-6 border border-[var(--color-gray-600)]"
-                style={{ backgroundColor: 'var(--color-surface-light)' }}
+                style={{ backgroundColor: "var(--color-surface-light)" }}
               >
-                <h3 
+                <h3
                   className="font-bold mb-2 leading-tight"
-                  style={{ 
-                    fontFamily: 'var(--font-heading)',
-                    color: 'var(--color-white)'
+                  style={{
+                    fontFamily: "var(--font-heading)",
+                    color: "var(--color-accent)",
                   }}
                 >
                   💬 Live Chat Support
                 </h3>
-                <p 
+                <p
                   className="text-sm mb-4 leading-relaxed"
-                  style={{ 
-                    color: 'var(--color-text-secondary)',
-                    fontFamily: 'var(--font-body)'
+                  style={{
+                    color: "var(--color-accent-light)",
+                    fontFamily: "var(--font-body)",
                   }}
                 >
                   Get instant help from our support team during business hours
                 </p>
-                <button 
+                <button
                   className="w-full py-2 rounded-[var(--radius-md)] font-medium transition-all duration-[var(--transition-normal)]"
                   style={{
-                    border: '1px solid var(--color-accent)',
-                    color: 'var(--color-accent)',
-                    backgroundColor: 'transparent'
+                    border: "1px solid var(--color-accent)",
+                    color: "var(--color-accent)",
+                    backgroundColor: "transparent",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'var(--color-accent)';
-                    e.currentTarget.style.color = 'var(--color-white)';
+                    e.currentTarget.style.backgroundColor =
+                      "var(--color-accent)";
+                    e.currentTarget.style.color = "var(--color-primary-100)";
+                    e.currentTarget.style.cursor = "pointer";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.color = 'var(--color-accent)';
+                    e.currentTarget.style.backgroundColor = "transparent";
+                    e.currentTarget.style.color = "var(--color-accent)";
                   }}
                 >
                   Start Live Chat
@@ -401,9 +430,9 @@ const InputField: React.FC<InputFieldProps> = ({
     <label
       htmlFor={id}
       className="text-sm font-medium"
-      style={{ 
-        color: 'var(--color-white)',
-        fontFamily: 'var(--font-body)'
+      style={{
+        color: "var(--color-accent)",
+        fontFamily: "var(--font-body)",
       }}
     >
       {label}
@@ -416,9 +445,9 @@ const InputField: React.FC<InputFieldProps> = ({
       placeholder={placeholder}
       className="w-full px-4 py-3 rounded-[var(--radius-md)] transition-colors duration-[var(--transition-fast)] focus:ring-2 focus:outline-none"
       style={{
-        backgroundColor: 'var(--color-surface-light)',
-        border: '1px solid var(--color-gray-600)',
-        color: 'var(--color-white)'
+        backgroundColor: "var(--color-surface-light)",
+        border: "1px solid var(--color-gray-600)",
+        color: "var(--color-accent)",
       }}
     />
   </div>
@@ -443,9 +472,9 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
     <label
       htmlFor={id}
       className="text-sm font-medium"
-      style={{ 
-        color: 'var(--color-white)',
-        fontFamily: 'var(--font-body)'
+      style={{
+        color: "var(--color-accent)",
+        fontFamily: "var(--font-body)",
       }}
     >
       {label}
@@ -458,9 +487,9 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
       rows={6}
       className="w-full px-4 py-3 rounded-[var(--radius-md)] transition-colors duration-[var(--transition-fast)] focus:ring-2 focus:outline-none resize-none"
       style={{
-        backgroundColor: 'var(--color-surface-light)',
-        border: '1px solid var(--color-gray-600)',
-        color: 'var(--color-white)'
+        backgroundColor: "var(--color-surface-light)",
+        border: "1px solid var(--color-gray-600)",
+        color: "var(--color-accent)",
       }}
     />
   </div>
