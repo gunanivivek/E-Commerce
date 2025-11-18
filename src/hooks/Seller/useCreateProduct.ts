@@ -12,7 +12,7 @@ export const useCreateProduct = (onSuccess?: () => void) => {
     onSuccess: (_data) => {
       toast.success("Product created successfully!");
 
-      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["SellerProducts"] });
 
       if (onSuccess) onSuccess();
     },
