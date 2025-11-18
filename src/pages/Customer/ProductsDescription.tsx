@@ -8,7 +8,7 @@ import { useWishlistStore } from "../../store/wishlistStore";
 import type { Product } from "../../store/useProductStore";
 import { useAuthStore } from "../../store/authStore";
 import ProductImageGallery from "../../components/Customer/ProductImageGallery";
-import { Star, Truck, RotateCcw, Shield } from "lucide-react";
+import { Star, Truck, RotateCcw, ShieldAlert } from "lucide-react";
 import Header from "../../components/ui/Header";
 import Footer from "../../components/ui/Footer";
 import { Link } from "react-router-dom";
@@ -424,24 +424,24 @@ const ProductDescription: React.FC = () => {
                   </span>
                 </div>
                 <div className="cursor-pointer rounded hover:bg-gray-100 flex flex-col items-center text-center gap-2 text-accent p-2">
-                  <Shield className="h-8 w-8 text-accent-darker" />
+                  <ShieldAlert className="h-8 w-8 text-accent-darker" />
                   <span className="text-sm font-medium text-accent-darker">
-                    2 Year Warranty
+                    Secure Payments
                   </span>
                 </div>
                 <div className="cursor-pointer rounded hover:bg-gray-100 flex flex-col items-center text-center gap-2 p-2">
                   <RotateCcw className="h-8 w-8 text-accent-darker" />
                   <span className="text-sm font-medium text-accent-darker">
-                    30-Day Returns
+                    Easy Returns & Support
                   </span>
                 </div>
               </div>
             </div>
           </div>
 
-          <hr className="my-3 border-accent" />
+          <hr className="my-3 border-accent max-w-7xl mx-auto" />
           {/* Reviews */}
-          <div className="mx-20 p-6 pb-10">
+          <div className="mx-auto max-w-7xl p-6 pb-10">
             <div className="flex justify-between items-center">
               <h3 className="text-xl font-semibold mb-4 text-accent-dark">
                 Customer Reviews ({normalizedReviews.length})
@@ -465,7 +465,7 @@ const ProductDescription: React.FC = () => {
                     key={r.id}
                     className="rounded-xl border border-primary-50 bg-background shadow-sm hover:shadow-lg p-5 transition-all duration-200 hover:-translate-y-[2px]"
                   >
-                    <div className="flex justify-between items-center">
+                    <div className="flex flex-col md:flex-row justify-between items-center">
                       <div className="flex items-center gap-3">
                         {/* Optional avatar */}
                         <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-sm font-semibold text-primary-400">
@@ -476,7 +476,7 @@ const ProductDescription: React.FC = () => {
                         </span>
                       </div>
 
-                      <div className="flex">
+                      <div className="flex pt-2 md:pt-0">
                         {[...Array(5)].map((_, i) => (
                           <Star
                             key={i}
