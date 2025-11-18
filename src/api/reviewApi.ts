@@ -2,11 +2,8 @@
 import { getAPI } from "./axiosInstance";
 
 // ---------------------- GET Product Reviews ----------------------
-export const getProductReviews = async (
-  productId: string | number,
-  useAlt = true
-) => {
-  const client = getAPI(useAlt);
+export const getProductReviews = async (productId: string | number) => {
+  const client = getAPI();
   const path = `products/${productId}/reviews`;
   const res = await client.get(path);
   const data = res.data;
@@ -31,11 +28,9 @@ export type CreateReviewBody = {
 
 export const createProductReview = async (
   productId: string | number,
-  payload: CreateReviewBody,
-  // default to alternate backend for reviews
-  useAlt = true
+  payload: CreateReviewBody
 ) => {
-  const client = getAPI(useAlt);
+  const client = getAPI();
     // Use a single POST to the canonical product-level reviews endpoint.
     // Keep the body compatible with backends that expect `name` instead of `author`.
     const path = `products/${productId}/reviews`;

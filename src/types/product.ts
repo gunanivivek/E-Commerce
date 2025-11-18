@@ -35,6 +35,7 @@ export interface ProductResponse {
   seller_id: number;
   created_at: string;
   updated_at?: string | null;
+  average_rating: number | null;
 }
 
 // (no default export - use named exports)

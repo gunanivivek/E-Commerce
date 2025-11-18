@@ -12,7 +12,7 @@ export const useUpdateQuantity = () => {
     onSuccess: (_, variables) => {
       const { id } = variables;
       toast.success("Quantity updated successfully!");
-      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["SellerProducts"] });
       queryClient.invalidateQueries({ queryKey: ["product", id] });
     },
     onError: () => {

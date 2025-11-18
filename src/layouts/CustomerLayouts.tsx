@@ -105,9 +105,9 @@ const CustomerPage: React.FC = () => {
       <Header />
       <div className="text-[var(--color-primary-400)] bg-[var(--color-background)]">
         {/* Hero Section */}
-        <main className="flex-grow">
-          <section className="bg-surface mx-auto px-20 py-16 md:py-24">
-            <div className="grid md:grid-cols-2 gap-12 items-center">
+        <main className="flex">
+          <section className="bg-surface w-full">
+            <div className="grid md:grid-cols-2 gap-12 items-center mx-auto py-16 px-6 md:px-20 max-w-7xl">
               {/* Left: Text */}
               <div className="text-center md:text-left">
                 <h1 className="font-logo text-[var(--color-white)] text-5xl lg:text-7xl font-extrabold leading-tight">
@@ -175,7 +175,7 @@ const CustomerPage: React.FC = () => {
         </main>
 
         {/* Counter Section */}
-        <section className="container mx-auto py-12 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <section className="px-6 md:px-20 py-16 max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {[
             { label: "Happy Customers", value: "25K+" },
             { label: "Products Sold", value: "150K+" },
@@ -206,7 +206,7 @@ const CustomerPage: React.FC = () => {
           ))}
         </section>
 
-        <section className="py-20 px-6 md:px-16  ">
+        <section className="py-16 px-6 md:px-20">
           {/* Heading */}
           <motion.h2
             initial={{ opacity: 0, y: -20 }}

@@ -85,7 +85,7 @@ const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
       image: p.images?.[0]?.url ?? "",
       is_active: p.is_active,
       created_at: p.created_at,
-      rating: (p as unknown as { rating?: number }).rating ?? 4.5,
+      average_rating: p.average_rating ?? 0,
       category: p.category?.name ?? null,
     }));
   }, [apiNewArrivals]);
@@ -323,7 +323,7 @@ const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                     </svg>
 
                   <span className="text-sm text-gray-600 ml-2">
-                    {product.rating}
+                    {product.average_rating}
                   </span>
                 </span>
               </div>

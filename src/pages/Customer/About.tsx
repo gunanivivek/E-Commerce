@@ -40,6 +40,14 @@ const About = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <head>
+        <title>About Us — Cartify</title>
+        <meta
+          name="description"
+          content="Read how we collect, use, and protect your personal information at Cartify."
+        />
+      </head>
+
       <Header />
       <div className="flex-1" >
         {/* Hero Section */}
