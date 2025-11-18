@@ -57,11 +57,11 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
 
   const [pagination, setPagination] = useState({
-  pageIndex: 0,
-  pageSize: 12,
-});
+    pageIndex: 0,
+    pageSize: 12,
+  });
 
-  const { data: apiProducts, isLoading } = useQuery<ProductResponse[], Error>({
+  const { data: apiProducts, isLoading: ProductsLoading } = useQuery<ProductResponse[], Error>({
     queryKey: ["products"],
     queryFn: () => productsApi.getProducts(),
     staleTime: 1000 * 60 * 30,
@@ -141,6 +141,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   const isUpdating = updateMutation.isPending || removeMutation.isPending;
 
   const table = useReactTable({
+    
     data: filteredAndSorted,
     columns: [] as ColumnDef<Product>[],
     state: { globalFilter, columnFilters, pagination },
@@ -154,13 +155,13 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   });
 
   const paginatedProducts = table
-  .getPaginationRowModel()
-  .rows.map((r) => r.original);
+    .getPaginationRowModel()
+    .rows.map((r) => r.original);
 
   const hasProducts = Array.isArray(apiProducts) && apiProducts.length > 0;
 
   // ✅ Skeletons during loading
-  if (isLoading && !hasProducts)
+  if (ProductsLoading && !hasProducts)
     return (
       <section className="py-5 px-6 md:px-20">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -253,45 +254,39 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
 
               <h3 className="text-accent-dark font-semibold text-lg text-center mb-2 hover:underline cursor-pointer">
                 {product.name.length > 15
-                  ? product.name.slice(0, 15) + "..."
+                  ? product.name.slice(0, 50) + "..."
                   : product.name}
               </h3>
 
-              <p className="text-sm text-accent mb-1 min-h-[60px]">
-                {(() => {
-                  const desc = product.description ?? "";
-                  const maxWords = 8;
-                  const words = desc.trim().split(/\s+/).filter(Boolean);
-                  return words.length <= maxWords
-                    ? desc
-                    : words.slice(0, maxWords).join(" ") + "...";
-                })()}
-              </p>
-
-              <p className="text-[var(--color-primary-400)] font-bold text-lg">
-                ₹{product.discount_price ?? product.price}
-                {product.discount_price && (
-                  <span className="text-gray-400 line-through text-sm ml-2">
-                    ₹{product.price}
-                  </span>
-                )}
-              </p>
-
               {/* Rating */}
-              <div className="flex items-center mb-3">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <svg
-                    key={index}
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill={index < (product.rating ?? 0) ? "#facc15" : "#e5e7eb"}
-                    className="w-5 h-5"
-                  >
-                    <path d="M12 .587l3.668 7.568L24 9.75l-6 5.854L19.335 24 12 19.896 4.665 24 6 15.604 0 9.75l8.332-1.595z" />
-                  </svg>
-                ))}
-                <span className="text-sm text-gray-600 ml-2">
-                  {product.rating}
+              <div className="flex items-center justify-between mb-3">
+                {/* PRICE LEFT */}
+                <p className="text-[var(--color-primary-400)] font-bold text-lg">
+                  ₹{product.discount_price ?? product.price}
+                  {product.discount_price && (
+                    <span className="text-gray-400 line-through text-sm ml-2">
+                      ₹{product.price}
+                    </span>
+                  )}
+                </p>
+
+                {/* RATING RIGHT */}
+                <span className="flex items-center">
+                  
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill={
+                         "#facc15" 
+                      }
+                      className="w-5 h-5"
+                    >
+                      <path d="M12 .587l3.668 7.568L24 9.75l-6 5.854L19.335 24 12 19.896 4.665 24 6 15.604 0 9.75l8.332-1.595z" />
+                    </svg>
+
+                  <span className="text-sm text-gray-600 ml-2">
+                    {product.rating}
+                  </span>
                 </span>
               </div>
 

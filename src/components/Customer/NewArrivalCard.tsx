@@ -21,7 +21,6 @@ import {
 } from "@tanstack/react-table";
 import type { ColumnDef } from "@tanstack/react-table";
 import type { Product } from "../../store/useProductStore";
-import LoadingState from "../LoadingState";
 import {
   useAddToCart,
   useCart,
@@ -40,6 +39,24 @@ type FilterShape = {
   in_stock?: boolean | null;
   search?: string | null;
 };
+
+const ProductSkeleton = () => (
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    {Array.from({ length: 8 }).map((_, index) => (
+      <div key={index} className="bg-white rounded-lg shadow-md p-4 flex flex-col animate-pulse">
+        <div className="h-40 bg-gray-200 rounded-md mb-3"></div>
+        <div className="h-5 bg-gray-200 rounded-md mb-2 w-3/4"></div>
+        <div className="h-4 bg-gray-200 rounded-md mb-2 w-full"></div>
+        <div className="h-4 bg-gray-200 rounded-md mb-3 w-2/3"></div>
+    <div className="h-6 bg-gray-200 rounded-md w-1/2 mb-4"></div>
+    <div className="flex gap-2 mt-auto">
+      <div className="h-9 flex-1 bg-gray-200 rounded-md"></div>
+      <div className="h-9 w-9 bg-gray-200 rounded-md"></div>
+    </div>
+  </div>
+    ))}
+  </div>
+);
 
 const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   const { data: apiNewArrivals, isLoading } = useQuery<
@@ -204,7 +221,7 @@ const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
   const hasProducts =
     Array.isArray(apiNewArrivals) && apiNewArrivals.length > 0;
   if (isLoading && !hasProducts)
-    return <LoadingState message="Loading products..." />;
+    return <ProductSkeleton/>;
 
   if (!filteredProducts.length) return <p>No products available right now.</p>;
 
@@ -222,20 +239,16 @@ const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
 
           const handleAddToCart = (e: React.MouseEvent) => {
             e.stopPropagation();
-            // don't add if out of stock
             if (stock === 0) return;
-            // require login to add to cart
             if (!user)
               return navigate("/login", {
                 state: { from: location.pathname + location.search },
               });
-            // add via product store which already syncs to cartStore
             addMutation.mutate({ product_id: product.id, quantity: 1 });
           };
 
           const handleWishlist = (e: React.MouseEvent) => {
             e.stopPropagation();
-            // require login to add to wishlist
             if (!user)
               return navigate("/login", {
                 state: { from: location.pathname + location.search },
@@ -279,52 +292,41 @@ const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
               <div onClick={handleNavigate} className="cursor-pointer">
                 <h3 className="text-accent-dark font-semibold text-lg text-center mb-2 hover:underline">
                   {product.name.length > 15
-                    ? product.name.slice(0, 15) + "..."
+                    ? product.name.slice(0, 50) + "..."
                     : product.name}
                 </h3>
-                <p className="text-sm text-accent mb-1 min-h-[60px]">
-                  {(() => {
-                    const desc = product.description ?? "";
-                    const maxWords = 8;
-                    const words = desc.trim().split(/\s+/).filter(Boolean);
-                    if (words.length <= maxWords) return desc;
-                    return words.slice(0, maxWords).join(" ") + "...";
-                  })()}
-                </p>
 
-                {/* Price */}
-                <p className="text-[var(--color-primary-400)] font-bold text-lg">
+                {/* Rating */}
+                <div className="flex items-center justify-between mb-3">
+                {/* PRICE LEFT */}
+                <p className="text-[var(--color-primary-400)] font-bold text-lg ml-2">
                   ₹{product.discount_price ?? product.price}
                   {product.discount_price && (
-                    <span className="text-gray-400 line-through text-sm ml-2">
+                    <span className="text-gray-400 line-through text-sm ml-4">
                       ₹{product.price}
                     </span>
                   )}
                 </p>
 
-                {Number.isFinite(stock) && stock <= 0 ? (
-                  <p className="text-xs text-gray-500 mb-2">
-                    Stock: {stock > 0 ? stock : "Out of stock"}
-                  </p>
-                ) : null}
-
-                {/* Rating */}
-                <div className="flex items-center mb-3">
-                  {Array.from({ length: 5 }).map((_, index) => (
+                {/* RATING RIGHT */}
+                <span className="flex items-center">
+                  
                     <svg
-                      key={index}
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
-                      fill={index < 4 ? "#facc15" : "#e5e7eb"}
+                      fill={
+                         "#facc15" 
+                      }
                       className="w-5 h-5"
                     >
                       <path d="M12 .587l3.668 7.568L24 9.75l-6 5.854L19.335 24 12 19.896 4.665 24 6 15.604 0 9.75l8.332-1.595z" />
                     </svg>
-                  ))}
+
                   <span className="text-sm text-gray-600 ml-2">
                     {product.rating}
                   </span>
-                </div>
+                </span>
+              </div>
               </div>
 
               {/* Buttons */}

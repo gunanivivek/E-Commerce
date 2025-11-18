@@ -44,6 +44,8 @@ import { Elements } from "@stripe/react-stripe-js";
 import { loadStripe } from "@stripe/stripe-js";
 import AdminDashboard from "./pages/Admin/AdminDashboard";
 import SellerDashboard from "./pages/Seller/SellerDashboard";
+import TermsAndConditions from "./pages/Customer/TermsAndConditions";
+import PrivacyPolicy from "./pages/Customer/PrivacyPolicy";
 
 // Only call loadStripe when a publishable key is provided to avoid runtime errors
 const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY as string | undefined;
@@ -73,6 +75,8 @@ function App() {
           <Route path="/new-arrivals" element={<NewArrivals />} />
           <Route path="/product/:productId" element={<ProductsDescription />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/terms-conditions" element={<TermsAndConditions />} />
+          <Route path="privacy-policy" element={<PrivacyPolicy />} />
         </Route>
 
         {/* Customer private pages */}

@@ -4,7 +4,6 @@ import "./index.css";
 import App from "./App.tsx";
 import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import * as productsApi from "./api/productsApi";
 import { ToastContainer } from "react-toastify";
 import ScrollToTop from "./components/ScrollToTop.tsx";
 
@@ -42,9 +41,11 @@ if (typeof qcWithDefaultMutation.defaultMutationOptions !== "function") {
 // Also ensure the QueryClient prototype exposes the method for any internals
 // that check the prototype rather than the instance.
 try {
-  const QCP = (QueryClient as unknown) as { prototype?: Record<string, unknown> };
+  const QCP = QueryClient as unknown as { prototype?: Record<string, unknown> };
   if (QCP?.prototype) {
-    const proto = QCP.prototype as { defaultMutationOptions?: (opts?: unknown) => unknown };
+    const proto = QCP.prototype as {
+      defaultMutationOptions?: (opts?: unknown) => unknown;
+    };
     if (typeof proto.defaultMutationOptions !== "function") {
       proto.defaultMutationOptions = (opts?: unknown) => opts ?? {};
     }
@@ -55,41 +56,32 @@ try {
 }
 
 // prefetch products at app startup to reduce perceived load when navigating to products page
-queryClient
-  .prefetchQuery({
-    queryKey: ["products"],
-    queryFn: () => productsApi.getProducts(),
-  })
-  .catch(() => {
-    // ignore prefetch errors silently; Products page will handle fetch errors itself
-  });
 
 createRoot(document.getElementById("root")!).render(
   <BrowserRouter>
-  <ScrollToTop />
+    <ScrollToTop />
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <ToastContainer
-  position="bottom-right"
-  autoClose={2800}
-  hideProgressBar={true}
-  newestOnTop={false}
-  closeOnClick
-  pauseOnHover={true}
-  draggable={false}
-  theme="light"
-  toastStyle={{
-    background: "var(--color-surface-light)",
-    color: "var(--color-text-primary)",
-    borderRadius: "var(--radius-xl)",
-    border: "1px solid var(--color-border-light)",
-    fontSize: "0.9rem",
-    fontFamily: "var(--font-body)",
-    boxShadow: "var(--shadow-accent)",
-    padding: "14px 18px",
-  }}
-
-/>
+          position="bottom-right"
+          autoClose={2800}
+          hideProgressBar={true}
+          newestOnTop={false}
+          closeOnClick
+          pauseOnHover={true}
+          draggable={false}
+          theme="light"
+          toastStyle={{
+            background: "var(--color-surface-light)",
+            color: "var(--color-text-primary)",
+            borderRadius: "var(--radius-xl)",
+            border: "1px solid var(--color-border-light)",
+            fontSize: "0.9rem",
+            fontFamily: "var(--font-body)",
+            boxShadow: "var(--shadow-accent)",
+            padding: "14px 18px",
+          }}
+        />
 
         <App />
       </QueryClientProvider>

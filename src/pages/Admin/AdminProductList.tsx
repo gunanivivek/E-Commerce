@@ -36,11 +36,13 @@ const AdminProductList: React.FC = () => {
   const [priceMax, setPriceMax] = useState<number | "">("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const { approveProduct, rejectProduct, isPending } =
-    useProductStatusActions();
 
- const { products } = useAdminProductStore();
+  const { products } = useAdminProductStore();
   const { isError, isLoading } = useFetchProducts();
+
+  // 🔥 row-level loading ID comes from fixed hook
+  const { approveProduct, rejectProduct, loadingId } =
+    useProductStatusActions();
 
   const uniqueCategories = useMemo(() => {
     const categories = products
@@ -48,38 +50,6 @@ const AdminProductList: React.FC = () => {
       .filter(Boolean);
     return Array.from(new Set(categories)).sort();
   }, [products]);
-
-  const handleApprove = useCallback(
-    (id: number) => {
-      approveProduct(id);
-    },
-    [approveProduct]
-  );
-
-  const handleReject = useCallback(
-    (id: number) => {
-      rejectProduct(id);
-    },
-    [rejectProduct]
-  );
-
-  const handleApproveInModal = useCallback(
-    (id: number) => {
-      handleApprove(id);
-      setIsModalOpen(false);
-      setSelectedProduct(null);
-    },
-    [handleApprove]
-  );
-
-  const handleRejectInModal = useCallback(
-    (id: number) => {
-      handleReject(id);
-      setIsModalOpen(false);
-      setSelectedProduct(null);
-    },
-    [handleReject]
-  );
 
   const handleView = useCallback(
     (id: number) => {
@@ -96,6 +66,22 @@ const AdminProductList: React.FC = () => {
     setIsModalOpen(false);
     setSelectedProduct(null);
   }, []);
+
+  const handleApproveInModal = useCallback(
+    (id: number) => {
+      approveProduct(id);
+      handleCloseModal();
+    },
+    [approveProduct, handleCloseModal]
+  );
+
+  const handleRejectInModal = useCallback(
+    (id: number) => {
+      rejectProduct(id);
+      handleCloseModal();
+    },
+    [rejectProduct, handleCloseModal]
+  );
 
   const filteredData = useMemo(() => {
     return products.filter((p: Product) => {
@@ -196,21 +182,27 @@ const AdminProductList: React.FC = () => {
           <span className="text-primary-400">{info.getValue()}</span>
         ),
       }),
+
+      // ❗ ONLY LOGIC CHANGED HERE — UI stays SAME
       columnHelper.display({
         id: "actions",
         header: "Actions",
         enableSorting: false,
         cell: ({ row }: { row: Row<Product> }) => {
           const product = row.original;
+
+          // 🔥 only this row is loading
+          const isRowLoading = loadingId === product.id;
+
           return (
             <div className="flex gap-1">
               {product.status === "pending" && (
                 <>
                   <button
-                    disabled={isPending}
-                    onClick={() => handleApprove(product.id)}
+                    disabled={isRowLoading}
+                    onClick={() => approveProduct(product.id)}
                     className={`p-1.5 rounded transition-colors ${
-                      isPending
+                      isRowLoading
                         ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                         : "bg-green-50 text-green-600 hover:bg-green-100"
                     }`}
@@ -220,10 +212,10 @@ const AdminProductList: React.FC = () => {
                   </button>
 
                   <button
-                    disabled={isPending}
-                    onClick={() => handleReject(product.id)}
+                    disabled={isRowLoading}
+                    onClick={() => rejectProduct(product.id)}
                     className={`p-1.5 rounded transition-colors ${
-                      isPending
+                      isRowLoading
                         ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                         : "bg-red-50 text-red-600 hover:bg-red-100"
                     }`}
@@ -233,9 +225,10 @@ const AdminProductList: React.FC = () => {
                   </button>
                 </>
               )}
+
               <button
                 onClick={() => handleView(product.id)}
-                className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded transition-colors"
+                className="p-1.5 bg-blue-50 text-blue-600 hover:cursor-pointer hover:bg-blue-100 rounded transition-colors"
                 title="View Product"
               >
                 <Eye className="w-3.5 h-3.5" />
@@ -245,7 +238,7 @@ const AdminProductList: React.FC = () => {
         },
       }),
     ],
-    [handleApprove, handleReject, handleView]
+    [approveProduct, rejectProduct, handleView, loadingId]
   );
 
   const table = useReactTable({
@@ -272,7 +265,8 @@ const AdminProductList: React.FC = () => {
     <>
       <div className="min-h-screen py-4 sm:py-6">
         <div className="px-4 sm:px-8">
-          {/* Header */}
+
+          {/* ===== HEADER ===== */}
           <div className="mb-4">
             <h1 className="text-2xl sm:text-3xl font-heading font-bold text-accent-dark mb-1">
               Product Management
@@ -282,9 +276,10 @@ const AdminProductList: React.FC = () => {
             </p>
           </div>
 
-          {/* Main Content Card */}
+          {/* ===== MAIN CARD ===== */}
           <div className="bg-white rounded-lg shadow-sm p-3 sm:p-4">
-            {/* Controls Section */}
+
+            {/* ===== SEARCH ===== */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3 sm:gap-0">
               <h2 className="text-primary-400 font-semibold text-base sm:text-lg">
                 All Products
@@ -302,8 +297,9 @@ const AdminProductList: React.FC = () => {
               </div>
             </div>
 
-            {/* Filters Section */}
+            {/* ===== FILTERS ===== */}
             <div className="flex flex-wrap items-end gap-2 mb-4">
+              {/* Category */}
               <div className="flex flex-col min-w-[120px]">
                 <label className="text-xs text-primary-400 mb-1">
                   Category
@@ -322,6 +318,7 @@ const AdminProductList: React.FC = () => {
                 </select>
               </div>
 
+              {/* Status */}
               <div className="flex flex-col min-w-[100px]">
                 <label className="text-xs text-primary-300 mb-1">Status</label>
                 <select
@@ -336,6 +333,7 @@ const AdminProductList: React.FC = () => {
                 </select>
               </div>
 
+              {/* Dates */}
               <div className="flex flex-col min-w-[130px]">
                 <label className="text-xs text-primary-300 mb-1">
                   From Date
@@ -358,6 +356,7 @@ const AdminProductList: React.FC = () => {
                 />
               </div>
 
+              {/* Prices */}
               <div className="flex flex-col min-w-[100px]">
                 <label className="text-xs text-primary-300 mb-1">
                   Min Price
@@ -397,7 +396,7 @@ const AdminProductList: React.FC = () => {
               </div>
             </div>
 
-            {/* Table */}
+            {/* ===== TABLE ===== */}
             <div className="overflow-x-auto">
               <table className="w-full min-w-max">
                 <thead>
@@ -427,6 +426,7 @@ const AdminProductList: React.FC = () => {
                                   header.column.columnDef.header,
                                   header.getContext()
                                 )}
+
                             {header.column.getCanSort() && (
                               <span className="ml-1 opacity-60">
                                 {header.column.getIsSorted() === "asc" ? (
@@ -444,9 +444,9 @@ const AdminProductList: React.FC = () => {
                     </tr>
                   ))}
                 </thead>
+
                 <tbody>
                   {isLoading ? (
-                    // ✅ Skeleton rows when loading
                     <TableRowSkeleton rows={8} columns={6} />
                   ) : table.getRowModel().rows.length > 0 ? (
                     table.getRowModel().rows.map((row) => (
@@ -481,7 +481,7 @@ const AdminProductList: React.FC = () => {
               </table>
             </div>
 
-            {/* Pagination */}
+            {/* ===== PAGINATION ===== */}
             <div className="flex flex-col sm:flex-row items-center justify-between mt-4 sm:mt-1 border-t border-border pt-2 gap-2 sm:gap-0">
               <div className="text-xs sm:text-sm text-primary-400">
                 Page {table.getState().pagination.pageIndex + 1} of{" "}
@@ -507,6 +507,7 @@ const AdminProductList: React.FC = () => {
           </div>
         </div>
       </div>
+
       <ViewProductModal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
