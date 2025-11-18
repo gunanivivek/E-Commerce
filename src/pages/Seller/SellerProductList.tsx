@@ -79,7 +79,7 @@ const SellerProductList: React.FC = () => {
     isLoading,
     isError,
   } = useQuery({
-    queryKey: ["products", user?.id],
+    queryKey: ["SellerProducts", user?.id],
     queryFn: () => getSellerProducts(String(user?.id)),
     enabled: !!user?.id,
   });
@@ -101,7 +101,7 @@ const SellerProductList: React.FC = () => {
     mutationFn: (productId: number) => deleteProduct(productId),
     onSuccess: (res) => {
       toast.success(res.message || "Product deleted successfully");
-      queryClient.invalidateQueries({ queryKey: ["products", user?.id] });
+      queryClient.invalidateQueries({ queryKey: ["SellerProducts", user?.id] });
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || "Failed to delete product");

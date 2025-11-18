@@ -18,7 +18,7 @@ export const useUpdateProduct = (productId: number | null) => {
     },
     onSuccess: () => {
       toast.success("✅ Product updated successfully!");
-      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["SellerProducts"] });
       if (productId) queryClient.invalidateQueries({ queryKey: ["product", productId] });
     },
     onError: (error: any) => {

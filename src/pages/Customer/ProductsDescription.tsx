@@ -206,7 +206,7 @@ const ProductDescription: React.FC = () => {
     ? product.images.map((i) => i.url)
     : undefined;
 
-  const ratingValue = (product as unknown as { rating?: number }).rating ?? 4.5;
+  const ratingValue = product.average_rating ?? 0;
 
   // normalize to the local Product shape expected by useProductStore
   const storeProduct = {
@@ -223,7 +223,7 @@ const ProductDescription: React.FC = () => {
     image: primaryImage ?? "",
     is_active: product.is_active,
     created_at: product.created_at,
-    rating: ratingValue,
+    average_rating: ratingValue,
   };
 
   const handleShowMore = () => {
@@ -299,7 +299,7 @@ const ProductDescription: React.FC = () => {
                     <Star
                       key={i}
                       className={`w-5 h-5 ${
-                        i < ratingValue
+                        i < ratingValue 
                           ? "text-yellow-400 fill-yellow-400"
                           : "text-gray-300"
                       }`}
