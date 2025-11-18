@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { useChatbotStore } from "../../store/useChatbotStore";
 import { useProductQA } from "../../hooks/Customer/useChatbotHooks";
 import { X, Minimize2, Maximize2, Brain } from "lucide-react";
+import EmojiPicker from "emoji-picker-react";
+import type { EmojiClickData } from "emoji-picker-react";
 
 type ViewState = "normal" | "minimized" | "maximized";
 
@@ -21,6 +23,10 @@ const ChatbotWidget = ({
   const { messages, addMessage } = useChatbotStore();
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
+  const { mutateAsync, isPending } = useProductQA();
+  const [text, setText] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
   useEffect(() => {
     if (viewState === "minimized") return;
     const t = setTimeout(() => {
@@ -31,8 +37,6 @@ const ChatbotWidget = ({
     }, 50);
     return () => clearTimeout(t);
   }, [messages, viewState]);
-  const { mutateAsync, isPending } = useProductQA();
-  const [text, setText] = useState("");
 
   const sendMessage = async () => {
     if (!text.trim()) return;
@@ -64,6 +68,11 @@ const ChatbotWidget = ({
         text: "Sorry, something went wrong!",
       });
     }
+  };
+
+  const handleEmojiClick = (emojiData: EmojiClickData) => {
+    setText((prev) => prev + emojiData.emoji);
+    setShowEmojiPicker(false);
   };
 
   return (
@@ -136,14 +145,23 @@ const ChatbotWidget = ({
           </div>
 
           {/* Input */}
-          <div className="p-3 border-t bg-white">
+          <div className="p-3 border-t bg-white relative">
             <div className="flex gap-2">
+              <button
+                onClick={() => setShowEmojiPicker((prev) => !prev)}
+                aria-label="Add emoji"
+                className="p-1 cursor-pointer"
+              >
+                😊
+              </button>
+
               <input
                 value={text}
                 onChange={(e) => setText(e.target.value)}
                 placeholder="Ask a question about this product..."
                 className="flex-1 border rounded px-3 py-2 focus:outline-none"
               />
+
               <button
                 onClick={sendMessage}
                 disabled={isPending}
@@ -152,6 +170,16 @@ const ChatbotWidget = ({
                 {isPending ? <Brain /> : "Send"}
               </button>
             </div>
+
+            {showEmojiPicker && (
+              <div className="absolute bottom-12 left-3 z-50">
+                <EmojiPicker
+                  onEmojiClick={handleEmojiClick}
+                  width={300}
+                  height={350}
+                />
+              </div>
+            )}
           </div>
         </>
       )}
