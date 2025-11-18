@@ -44,27 +44,28 @@ export interface AdminTopSeller {
 export interface AdminTopProduct {
   id: number;
   name: string;
-  img: string;
   category: string;
   sold: number;
   revenue: number;
-  conversionRate: number;
 }
 
 export interface AdminWorstProduct {
   id: number;
   name: string;
-  img: string;
-  views: number;
+  category: string;
   sold: number;
-  conversionRate: number;
+  revenue: number;
 }
 
 export interface AdminRecentOrder {
-  orderId: string;
+  orderId: number;
   customerName: string;
   amount: number;
   status: string;
-  paymentMethod: string;
   createdDate: string;
+}
+
+export interface AdminProductsResponse {
+  topSelling: AdminTopProduct[];
+  worstPerforming: AdminWorstProduct[];
 }

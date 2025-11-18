@@ -20,42 +20,39 @@ export const adminAnalyticsApi = {
     return res.data.data;
   },
 
-  getRevenueTrend: async (): Promise<AdminRevenueTrendPoint[]> => {
-   
-    const res = await api.get("/admin/analytics/revenue-trend");
-    return res.data.data;
-  },
+getCharts: async (): Promise<{
+  revenueTrend: AdminRevenueTrendPoint[];
+  orderOverview: AdminOrderOverviewPoint[];
+  categoryRevenue: AdminCategoryRevenuePoint[];
+  topSellers: AdminTopSeller[];
+}> => {
+  const res = await api.get("/analytics/charts");
 
-  getOrderOverview: async (): Promise<AdminOrderOverviewPoint[]> => {
+  return {
+    revenueTrend: res.data.charts.revenueTrend ?? [],
+    orderOverview: res.data.charts.orderOverview ?? [],
+    categoryRevenue: res.data.charts.categoryRevenue ?? [],
+    topSellers: res.data.charts.topSellers ?? [],
+  };
+},
 
-    const res = await api.get("/admin/analytics/order-overview");
-    return res.data.data;
-  },
-
-  getCategoryRevenue: async (): Promise<AdminCategoryRevenuePoint[]> => {
-   
-    const res = await api.get("/admin/analytics/category-revenue");
-    return res.data.data;
-  },
-
-  getTopSellers: async (): Promise<AdminTopSeller[]> => {
-  
-    const res = await api.get("/admin/analytics/top-sellers");
-    return res.data.data;
-  },
 
   getTopWorstProducts: async (): Promise<{
-    top: AdminTopProduct[];
-    worst: AdminWorstProduct[];
-  }> => {
-  
-    const res = await api.get("/admin/analytics/products-performance");
-    return res.data.data;
-  },
+  topSelling: AdminTopProduct[];
+  worstPerforming: AdminWorstProduct[];
+}> => {
+  const res = await api.get("/analytics/products");
 
-  getRecentOrders: async (): Promise<AdminRecentOrder[]> => {
-  
-    const res = await api.get("/admin/analytics/recent-orders");
-    return res.data.data;
-  },
+  return {
+    topSelling: res.data.products.topSelling ?? [],
+    worstPerforming: res.data.products.worstPerforming ?? [],
+  };
+},
+
+
+getRecentOrders: async (limit = 6): Promise<AdminRecentOrder[]> => {
+  const res = await api.get(`/analytics/recent-orders?limit=${limit}`);
+  return res.data.recentOrders ?? [];
+},
+
 };

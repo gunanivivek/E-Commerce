@@ -2,22 +2,16 @@
 
 import React from "react";
 
-
 import { useAdminAnalytics } from "../../hooks/useAdminAnalytics";
 import { adminAnalyticsStore } from "../../store/Admin/adminAnalyticsStore";
 import { KpiCards } from "../../components/Admin/AdminDashCards";
 import { DashboardCharts } from "../../components/Admin/DashboardCharts";
 import { DashboardTables } from "../../components/Admin/DashboardTables";
 
-
-
 const AdminDashboard: React.FC = () => {
   const {
     kpisQuery,
-    revenueTrendQuery,
-    orderOverviewQuery,
-    categoryRevenueQuery,
-    topSellersQuery,
+    chartsQuery,
     productsPerformanceQuery,
     recentOrdersQuery,
   } = useAdminAnalytics();
@@ -52,39 +46,36 @@ const AdminDashboard: React.FC = () => {
       <div className="min-h-screen py-6">
         <div className="container space-y-6 mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
           {/* KPI CARDS */}
-          <KpiCards data={kpis} loading={kpisQuery.isLoading} error={kpisQuery.isError} />
+          <KpiCards
+            data={kpis}
+            loading={kpisQuery.isLoading}
+            error={kpisQuery.isError}
+          />
 
           {/* CHARTS: pass per-chart loading + error flags */}
           <DashboardCharts
             revenueTrend={revenueTrend || []}
-            revenueTrendLoading={revenueTrendQuery.isLoading}
-            revenueTrendError={revenueTrendQuery.isError}
-
             orderOverview={orderOverview || []}
-            orderOverviewLoading={orderOverviewQuery.isLoading}
-            orderOverviewError={orderOverviewQuery.isError}
-
             categoryRevenue={categoryRevenue || []}
-            categoryRevenueLoading={categoryRevenueQuery.isLoading}
-            categoryRevenueError={categoryRevenueQuery.isError}
-
             topSellers={topSellers || []}
-            topSellersLoading={topSellersQuery.isLoading}
-            topSellersError={topSellersQuery.isError}
+            revenueTrendLoading={chartsQuery.isLoading}
+            orderOverviewLoading={chartsQuery.isLoading}
+            categoryRevenueLoading={chartsQuery.isLoading}
+            topSellersLoading={chartsQuery.isLoading}
+            revenueTrendError={chartsQuery.isError}
+            orderOverviewError={chartsQuery.isError}
+            categoryRevenueError={chartsQuery.isError}
+            topSellersError={chartsQuery.isError}
           />
 
-        
           <DashboardTables
             topProducts={topProducts || []}
             worstProducts={worstProducts || []}
             recentOrders={recentOrders || []}
-
             topProductsLoading={productsPerformanceQuery.isLoading}
             topProductsError={productsPerformanceQuery.isError}
-
             worstProductsLoading={productsPerformanceQuery.isLoading}
             worstProductsError={productsPerformanceQuery.isError}
-
             recentOrdersLoading={recentOrdersQuery.isLoading}
             recentOrdersError={recentOrdersQuery.isError}
           />

@@ -1,5 +1,3 @@
-
-
 import React from "react";
 import {
   useReactTable,
@@ -18,8 +16,6 @@ import type {
 } from "../../types/adminAnalyticsTypes";
 
 import { BarChart3, TrendingDown, ShoppingBag } from "lucide-react";
-
-
 
 const ErrorBlock = ({ message }: { message: string }) => (
   <div className="flex items-center justify-center h-40 text-red-600 text-sm font-semibold bg-background border border-border rounded-lg">
@@ -40,81 +36,87 @@ const TableSkeleton = () => (
   </div>
 );
 
-
 const columnHelperTop = createColumnHelper<AdminTopProduct>();
 const columnsTopProducts = [
-  columnHelperTop.display({
-    id: "image",
-    header: "Image",
-    cell: ({ row }) => (
-      <img
-        src={row.original.img}
-        alt={row.original.name}
-        className="w-10 h-10 rounded-lg object-cover"
-      />
-    ),
+  columnHelperTop.accessor("id", { header: "Product Id" }),
+
+  columnHelperTop.accessor("name", {
+    header: "Product Name",
+    cell: (info) => {
+      const name = info.getValue();
+      return name.length > 25 ? name.substring(0, 25) + "..." : name;
+    },
   }),
-  columnHelperTop.accessor("name", { header: "Product Name" }),
+
   columnHelperTop.accessor("category", { header: "Category" }),
   columnHelperTop.accessor("sold", { header: "Units Sold" }),
+
   columnHelperTop.accessor("revenue", {
     header: "Revenue",
     cell: (info) => `₹${info.getValue().toLocaleString()}`,
-  }),
-  columnHelperTop.accessor("conversionRate", {
-    header: "Conversion Rate",
-    cell: (info) => `${info.getValue()}%`,
   }),
 ];
 
 const columnHelperWorst = createColumnHelper<AdminWorstProduct>();
 const columnsWorstProducts = [
-  columnHelperWorst.display({
-    id: "image",
-    header: "Image",
-    cell: ({ row }) => (
-      <img
-        src={row.original.img}
-        alt={row.original.name}
-        className="w-10 h-10 rounded-lg object-cover"
-      />
-    ),
+  columnHelperWorst.accessor("id", { header: "Product Id" }),
+
+  columnHelperWorst.accessor("name", {
+    header: "Product Name",
+    cell: (info) => {
+      const name = info.getValue();
+      return name.length > 25 ? name.substring(0, 25) + "..." : name;
+    },
   }),
-  columnHelperWorst.accessor("name", { header: "Product Name" }),
-  columnHelperWorst.accessor("views", { header: "Views" }),
-  columnHelperWorst.accessor("sold", { header: "Sales" }),
-  columnHelperWorst.accessor("conversionRate", {
-    header: "Conversion Rate",
-    cell: (info) => `${info.getValue()}%`,
+
+  columnHelperWorst.accessor("category", { header: "Category" }),
+
+  columnHelperWorst.accessor("sold", { header: "Units Sold" }),
+
+  columnHelperWorst.accessor("revenue", {
+    header: "Revenue",
+    cell: (info) => `₹${info.getValue().toLocaleString()}`,
   }),
 ];
 
 const columnHelperOrders = createColumnHelper<AdminRecentOrder>();
 const columnsRecentOrders = [
   columnHelperOrders.accessor("orderId", { header: "Order ID" }),
-  columnHelperOrders.accessor("customerName", { header: "Customer" }),
+
+  columnHelperOrders.accessor("customerName", {
+    header: "Customer",
+    cell: (info) => {
+      const name = info.getValue();
+      return name.length > 20 ? name.substring(0, 20) + "..." : name;
+    },
+  }),
+
   columnHelperOrders.accessor("amount", {
     header: "Amount",
     cell: (info) => `₹${info.getValue().toLocaleString()}`,
   }),
-  columnHelperOrders.accessor("paymentMethod", { header: "Payment Method" }),
 
   columnHelperOrders.accessor("status", {
     header: "Status",
     cell: ({ row }) => {
-      const status = row.original.status;
+      const status = row.original.status.toLowerCase(); // normalize
+
+      const badgeClass =
+        status === "delivered"
+          ? "bg-green-100 text-green-800"
+          : status === "pending"
+          ? "bg-yellow-100 text-yellow-800"
+          : status === "cancelled" ||
+            status === "canceled" ||
+            status === "cancel"
+          ? "bg-red-100 text-red-800"
+          : "bg-gray-100 text-gray-800"; // fallback
 
       return (
         <span
-          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-            status === "Delivered"
-              ? "bg-green-100 text-green-800"
-              : status === "Pending"
-              ? "bg-yellow-100 text-yellow-800"
-              : "bg-red-100 text-red-800"
-          }`}
+          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${badgeClass}`}
         >
-          {status}
+          {row.original.status}
         </span>
       );
     },
@@ -122,7 +124,6 @@ const columnsRecentOrders = [
 
   columnHelperOrders.accessor("createdDate", { header: "Created" }),
 ];
-
 
 const AnalyticsTableCard = <T,>({
   title,
@@ -155,7 +156,10 @@ const AnalyticsTableCard = <T,>({
                 >
                   {header.isPlaceholder
                     ? null
-                    : flexRender(header.column.columnDef.header, header.getContext())}
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                 </th>
               ))}
             </tr>
@@ -166,7 +170,10 @@ const AnalyticsTableCard = <T,>({
           {table.getRowModel().rows.map((row: Row<T>) => (
             <tr key={row.id}>
               {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                <td
+                  key={cell.id}
+                  className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                >
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </td>
               ))}
@@ -177,7 +184,6 @@ const AnalyticsTableCard = <T,>({
     </div>
   </div>
 );
-
 
 export const DashboardTables = ({
   topProducts,
@@ -227,7 +233,7 @@ export const DashboardTables = ({
   return (
     <>
       {/* TOP + WORST PRODUCTS */}
-      <div className="grid lg:grid-cols-2 gap-6 mb-8">
+      <div className="flex flex-col gap-6 mb-8">
         {topProductsLoading ? (
           <TableSkeleton />
         ) : topProductsError ? (
