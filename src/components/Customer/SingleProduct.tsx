@@ -78,21 +78,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
       <div className="cursor-pointer">
         <h3 className="text-accent-dark font-semibold text-lg text-center mb-2 hover:underline">
-          {product.name.length > 15
-            ? product.name.slice(0, 15) + "..."
+          {product.name.length > 60
+            ? product.name.slice(0, 60) + "..."
             : product.name}
         </h3>
 
-        <p className="text-sm text-accent mb-1 min-h-[60px]">
-          {(() => {
-            const desc = product.description ?? "";
-            const maxWords = 8;
-            const words = desc.trim().split(/\s+/).filter(Boolean);
-            return words.length <= maxWords
-              ? desc
-              : words.slice(0, maxWords).join(" ") + "...";
-          })()}
-        </p>
+       
 
         <p className="text-[var(--color-primary-400)] font-bold text-lg">
           ₹{product.discount_price ?? product.price}
