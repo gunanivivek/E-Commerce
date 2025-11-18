@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useChatbotStore } from "../../store/useChatbotStore";
 import { useProductQA } from "../../hooks/Customer/useChatbotHooks";
-import { X, Maximize2 } from "lucide-react";
+import { X, Minimize2, Maximize2, Brain } from "lucide-react";
 
 type ViewState = "normal" | "minimized" | "maximized";
 
@@ -9,15 +9,28 @@ const ChatbotWidget = ({
   productId,
   viewState,
   onMaximize,
+  onMinimize,
   onClose,
 }: {
   productId: number;
   viewState: ViewState;
-  onMinimize: () => void;
   onMaximize: () => void;
+  onMinimize: () => void;
   onClose: () => void;
 }) => {
   const { messages, addMessage } = useChatbotStore();
+  const messagesEndRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (viewState === "minimized") return;
+    const t = setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "end",
+      });
+    }, 50);
+    return () => clearTimeout(t);
+  }, [messages, viewState]);
   const { mutateAsync, isPending } = useProductQA();
   const [text, setText] = useState("");
 
@@ -65,20 +78,31 @@ const ChatbotWidget = ({
         </div>
 
         <div className="flex items-center gap-2">
-          <button
-            onClick={onMaximize}
-            aria-label="Maximize chat"
-            title="Maximize"
-            className="p-1 rounded hover:bg-white/10"
-          >
-            <Maximize2 className="w-4 h-4" />
-          </button>
+          {viewState === "maximized" ? (
+            <button
+              onClick={onMinimize}
+              aria-label="Minimize chat"
+              title="Minimize"
+              className="p-1 rounded hover:bg-primary-100/10 cursor-pointer"
+            >
+              <Minimize2 className="w-4 h-4" />
+            </button>
+          ) : (
+            <button
+              onClick={onMaximize}
+              aria-label="Maximize chat"
+              title="Maximize"
+              className="p-1 rounded hover:bg-primary-100/10 cursor-pointer"
+            >
+              <Maximize2 className="w-4 h-4" />
+            </button>
+          )}
 
           <button
             onClick={onClose}
             aria-label="Close chat"
             title="Close"
-            className="p-1 rounded hover:bg-white/10"
+            className="p-1 rounded hover:bg-primary-100/10 cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -100,14 +124,15 @@ const ChatbotWidget = ({
                 <span
                   className={`inline-block max-w-[80%] break-words px-3 py-2 rounded-lg text-sm ${
                     m.sender === "user"
-                      ? "bg-[var(--color-accent-light)] text-black"
-                      : "bg-gray-100 text-gray-800"
+                      ? "bg-accent text-primary-100"
+                      : "bg-surface text-accent-darker"
                   }`}
                 >
                   {m.text}
                 </span>
               </div>
             ))}
+            <div ref={messagesEndRef} />
           </div>
 
           {/* Input */}
@@ -122,9 +147,9 @@ const ChatbotWidget = ({
               <button
                 onClick={sendMessage}
                 disabled={isPending}
-                className="bg-[var(--color-accent)] text-white px-4 rounded"
+                className="bg-accent-dark text-primary-100 px-4 rounded cursor-pointer"
               >
-                {isPending ? "..." : "Send"}
+                {isPending ? <Brain /> : "Send"}
               </button>
             </div>
           </div>

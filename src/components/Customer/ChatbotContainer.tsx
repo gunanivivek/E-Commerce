@@ -13,7 +13,7 @@ const ChatbotContainer = () => {
 
   const [viewState, setViewState] = useState<ViewState>("normal");
 
-  const handleMinimize = () => setViewState((s) => (s === "minimized" ? "normal" : "minimized"));
+  const handleMinimize = () => setViewState((s) => (s === "minimized" ? "normal" : "normal"));
   const handleMaximize = () => setViewState((s) => (s === "maximized" ? "normal" : "maximized"));
   const handleClose = () => {
     setViewState("normal");
@@ -24,7 +24,7 @@ const ChatbotContainer = () => {
     viewState === "minimized"
       ? "w-56 h-12"
       : viewState === "maximized"
-      ? "w-[95vw] md:w-[40rem] h-[85vh]"
+      ? "w-[95vw] md:w-160 h-[95vh]"
       : "w-80 h-96";
 
   return (
