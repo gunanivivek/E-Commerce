@@ -37,7 +37,7 @@ const mapWishlistOutToState = (wishlist: WishlistOut): Product[] =>
     image: i.image_url ?? "",
     is_active: true,
     created_at: new Date().toISOString(),
-    rating: 0,
+    average_rating: 0,
   } as Product));
 
 // Store interface
@@ -97,7 +97,7 @@ export const useWishlistStore = create<WishlistState>((set) => {
             image: "",
             is_active: true,
             created_at: new Date().toISOString(),
-            rating: 0,
+            average_rating: 0,
           };
           const next = [...prev, guestProduct];
           set({ wishlistItems: next });
@@ -124,7 +124,7 @@ export const useWishlistStore = create<WishlistState>((set) => {
           image: "",
           is_active: true,
           created_at: new Date().toISOString(),
-          rating: 0,
+          average_rating: 0,
         };
         const optimistic = [...prev, optimisticProduct];
         set({ wishlistItems: optimistic });

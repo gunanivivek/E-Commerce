@@ -30,7 +30,6 @@ interface ProductSalesDataPoint {
 
 interface OrderStatusData {
   pending: number;
-
   shipped: number;
   delivered: number;
   cancelled: number;
@@ -138,12 +137,15 @@ export const SellerDashboardCharts: React.FC<SellerDashboardChartsProps> = ({
       </LineChart>
     </ResponsiveContainer>
   );
+  const filteredOrderStatusData = orderStatusData.filter(
+  (item) => item.value > 0
+);
 
   const orderStatusDonutChart = (
     <ResponsiveContainer width="100%" height={300}>
       <RechartsPieChart margin={{left: 20, right: 20, top: 0, bottom: 0}}>
         <Pie
-          data={orderStatusData}
+          data={filteredOrderStatusData}
           cx="50%"
           cy="50%"
           innerRadius={50}
@@ -208,7 +210,7 @@ export const SellerDashboardCharts: React.FC<SellerDashboardChartsProps> = ({
       <BarChart
         data={couponPerformance}
         layout="vertical"
-        margin={{ top: 10, right: 100, bottom: 10, left: 100 }}
+        margin={{ top: 10, right: 100, bottom: 10, left: 150 }}
       >
         <CartesianGrid strokeDasharray="3 3" stroke={gray100} />
 
@@ -280,7 +282,7 @@ export const SellerDashboardCharts: React.FC<SellerDashboardChartsProps> = ({
       </div>
 
       {/* Coupon Usage */}
-      <div className="bg-background rounded-xl p-6">
+      <div className="bg-background rounded-xl p-8">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 bg-primary-100/50 rounded-xl flex items-center justify-center border border-primary-200/50">
             <BarChart3 className="h-5 w-5 text-primary-400" />

@@ -38,7 +38,7 @@ const ProductDescription: React.FC = () => {
   } = useQuery<ProductResponse, Error>({
     queryKey: ["product", idNum],
     queryFn: () => productsApi.getProductById(idNum),
-    enabled: Number.isFinite(idNum), 
+    enabled: Number.isFinite(idNum),
     retry: 1,
   });
 
@@ -204,7 +204,7 @@ const ProductDescription: React.FC = () => {
     ? product.images.map((i) => i.url)
     : undefined;
 
-  const ratingValue = (product as unknown as { rating?: number }).rating ?? 4.5;
+  const ratingValue = product.average_rating ?? 0;
 
   // normalize to the local Product shape expected by useProductStore
   const storeProduct = {
@@ -221,7 +221,7 @@ const ProductDescription: React.FC = () => {
     image: primaryImage ?? "",
     is_active: product.is_active,
     created_at: product.created_at,
-    rating: ratingValue,
+    average_rating: ratingValue,
   };
 
   const handleShowMore = () => {
@@ -282,22 +282,20 @@ const ProductDescription: React.FC = () => {
                 {product.description}
               </p>
 
-              {/* Rating */}
-              <div className="flex items-center mb-3">
-                <div className="flex">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-5 h-5 ${
-                        i < ratingValue
-                          ? "text-yellow-400 fill-yellow-400"
-                          : "text-gray-300"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <span className="text-sm text-gray-600 ml-2">
-                  {ratingValue} | 2.7k Ratings
+              <div className="flex items-center gap-1 mb-3">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-4 h-4 ${
+                      i < ratingValue
+                        ? "text-yellow-500 fill-yellow-500"
+                        : "text-slate-300"
+                    }`}
+                  />
+                ))}
+
+                <span className="text-sm font-medium text-slate-600 ml-1">
+                  {ratingValue > 0 ? ratingValue.toFixed(1) : "No ratings"}
                 </span>
               </div>
 

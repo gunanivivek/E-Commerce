@@ -9,6 +9,7 @@ import {
   useUpdateCart,
 } from "../../hooks/Customer/useCartHooks";
 import type { Product } from "../../store/useProductStore";
+import { Star } from "lucide-react";
 
 interface ProductCardProps {
   product: Product & { rating?: number; category?: string | null };
@@ -18,22 +19,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useAuthStore((s) => s.user);
-  // product store left for wishlist helper; addToCart replaced by react-query hook
-  const { addToWishlist } = useWishlistStore();
-  const { data: cartData } = useCart(true); // gives you cart items and totals
+
+  const { data: cartData } = useCart(true);
   const removeMutation = useRemoveFromCart();
   const updateMutation = useUpdateCart();
   const addMutation = useAddToCart();
+  const { wishlistItems, addToWishlist, removeFromWishlist } =
+    useWishlistStore();
 
+  const inWishlist = wishlistItems.some((w) => w.id === product.id);
   const stock = Number(product.stock ?? NaN);
   const inCart = cartData?.items.find((c) => c.product_id === product.id);
 
-  // ✅ Always allow navigation
   const handleNavigate = () => navigate(`/product/${product.id}`);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    if (stock === 0) return; // Still block cart action
+    if (stock === 0) return;
     if (!user)
       return navigate("/login", {
         state: { from: location.pathname + location.search },
@@ -47,20 +49,34 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       return navigate("/login", {
         state: { from: location.pathname + location.search },
       });
-    addToWishlist(product);
+
+    if (inWishlist) removeFromWishlist(product.id);
+    else addToWishlist(product);
   };
 
   const isUpdating = updateMutation.isPending || removeMutation.isPending;
 
+  const hasRating =
+    typeof product.average_rating === "number" &&
+    product.average_rating > 0;
+
   return (
     <div
-      key={product.id}
-      className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-transform transform flex flex-col justify-between"
+      className="
+        w-full h-full 
+        bg-white rounded-xl shadow-sm 
+        hover:shadow-md hover:-translate-y-0.5 
+        transition-transform duration-150 
+        flex flex-col
+        cursor-pointer
+        p-3
+      "
       onClick={handleNavigate}
     >
-      <div className="relative h-40 w-full rounded-md overflow-hidden mb-3 flex items-center justify-center">
+      {/* IMAGE WRAPPER */}
+      <div className="relative w-full aspect-[4/3] rounded overflow-hidden">
         {stock === 0 && (
-          <div className="absolute top-2 right-2 z-20 bg-[var(--color-light)] text-black px-3 py-1 rounded-full text-xs font-semibold">
+          <div className="absolute top-2 right-2 z-20 bg-[var(--color-light)] text-black px-2.5 py-1 rounded-full text-[10px] font-semibold">
             Out of stock
           </div>
         )}
@@ -69,130 +85,176 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <img
             src={product.image}
             alt={product.name}
-            className="object-cover w-full h-full transition-transform duration-300 hover:scale-110"
+            className="w-full h-full object-cover transition-transform duration-300 hover:scale-110"
           />
         ) : (
-          <span className="text-primary-200 text-sm">No Image Available</span>
+          <div className="w-full h-full flex items-center justify-center bg-slate-100 text-slate-400 text-xs">
+            No Image Available
+          </div>
         )}
       </div>
 
-      <div className="cursor-pointer">
-        <h3 className="text-accent-dark font-semibold text-lg text-center mb-2 hover:underline">
-          {product.name.length > 15
-            ? product.name.slice(0, 15) + "..."
+      {/* CONTENT */}
+      <div className="flex flex-col flex-1 pt-2 ">
+        {/* TITLE */}
+        <h3 className="text-sm sm:text-[15px] text-accent-dark font-semibold mb-1 line-clamp-2 min-h-[2.5rem]">
+          {product.name.length > 75
+            ? product.name.slice(0, 75) + "..."
             : product.name}
         </h3>
 
-        <p className="text-sm text-accent mb-1 min-h-[60px]">
-          {(() => {
-            const desc = product.description ?? "";
-            const maxWords = 8;
-            const words = desc.trim().split(/\s+/).filter(Boolean);
-            return words.length <= maxWords
-              ? desc
-              : words.slice(0, maxWords).join(" ") + "...";
-          })()}
-        </p>
+        {/* PRICE + RATING */}
+        <div className="mt-1 flex items-center justify-between gap-2">
+          {/* PRICE */}
+          <p className="text-[var(--color-primary-400)] font-bold text-base sm:text-lg whitespace-nowrap">
+            ₹{product.discount_price ?? product.price}
+            {product.discount_price && (
+              <span className="text-gray-400 line-through text-xs sm:text-sm ml-1.5">
+                ₹{product.price}
+              </span>
+            )}
+          </p>
 
-        <p className="text-[var(--color-primary-400)] font-bold text-lg">
-          ₹{product.discount_price ?? product.price}
-          {product.discount_price && (
-            <span className="text-gray-400 line-through text-sm ml-2">
-              ₹{product.price}
+          {/* RATING BADGE */}
+          <div
+            className={`
+              flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium shadow-sm
+              ${
+                hasRating
+                  ? "bg-yellow-100 text-yellow-700"
+                  : "bg-slate-200 text-slate-700"
+              }
+            `}
+          >
+            <Star
+              size={12}
+              className={hasRating ? "text-yellow-500" : "text-slate-500"}
+            />
+            <span>
+              {hasRating ? product.average_rating!.toFixed(1) : "No Ratings"}
             </span>
-          )}
-        </p>
-      </div>
-      {/* Buttons */}
-      <div
-        className="flex items-center justify-between mt-3"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {inCart ? (
-          (() => {
-            const c = inCart!;
-            const dec = (ev: React.MouseEvent) => {
-              ev.stopPropagation();
-              if (isUpdating) return;
-              if (c.quantity <= 1)
-                removeMutation.mutate({ product_id: c.product_id });
-              else
+          </div>
+        </div>
+
+        {/* PUSH BUTTONS TO BOTTOM */}
+        <div
+          className="mt-3 flex items-center justify-between gap-2"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* CART SECTION */}
+          {inCart ? (
+            (() => {
+              const c = inCart!;
+              const dec = (ev: React.MouseEvent) => {
+                ev.stopPropagation();
+                if (isUpdating) return;
+                if (c.quantity <= 1)
+                  removeMutation.mutate({ product_id: c.product_id });
+                else
+                  updateMutation.mutate({
+                    product_id: c.product_id,
+                    quantity: Math.max(1, c.quantity - 1),
+                  });
+              };
+              const inc = (ev: React.MouseEvent) => {
+                ev.stopPropagation();
+                if (isUpdating) return;
                 updateMutation.mutate({
                   product_id: c.product_id,
-                  quantity: Math.max(1, c.quantity - 1),
+                  quantity: Math.max(1, c.quantity + 1),
                 });
-            };
-            const inc = (ev: React.MouseEvent) => {
-              ev.stopPropagation();
-              if (isUpdating) return;
-              updateMutation.mutate({
-                product_id: c.product_id,
-                quantity: Math.max(1, c.quantity + 1),
-              });
-            };
-            return (
-              <div className="flex items-center gap-2">
-                <button
-                  disabled={isUpdating}
-                  onClick={dec}
-                  className={`px-3 py-1 rounded-md cursor-pointer ${
-                    isUpdating
-                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                      : "bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)]"
-                  }`}
-                >
-                  -
-                </button>
-                <span className="px-3 py-1 border rounded-md min-w-[70px] text-center">
-                  {isUpdating ? (
-                    <div className="w-5 h-5 rounded-full border-2 border-gray-300 border-t-[var(--color-accent)] animate-spin"></div>
-                  ) : (
-                    c.quantity
-                  )}
-                </span>
-                <button
-                  disabled={isUpdating}
-                  onClick={inc}
-                  className={`px-3 py-1 rounded-md cursor-pointer ${
-                    isUpdating
-                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                      : "bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)]"
-                  }`}
-                >
-                  +
-                </button>
-              </div>
-            );
-          })()
-        ) : (
+              };
+              return (
+                <div className="flex items-center gap-1.5 flex-1">
+                  <button
+                    disabled={isUpdating}
+                    onClick={dec}
+                    className={`px-2.5 py-1 rounded-md text-sm
+                      ${
+                        isUpdating
+                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                          : "bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)]"
+                      }
+                    `}
+                  >
+                    -
+                  </button>
+                  <span className="px-2.5 py-1 border rounded-md text-sm min-w-[2.5rem] text-center">
+                    {isUpdating ? (
+                      <div className="mx-auto w-4 h-4 rounded-full border-2 border-gray-300 border-t-[var(--color-accent)] animate-spin" />
+                    ) : (
+                      c.quantity
+                    )}
+                  </span>
+                  <button
+                    disabled={isUpdating}
+                    onClick={inc}
+                    className={`px-2.5 py-1 rounded-md text-sm
+                      ${
+                        isUpdating
+                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                          : "bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)]"
+                      }
+                    `}
+                  >
+                    +
+                  </button>
+                </div>
+              );
+            })()
+          ) : (
+            <button
+              onClick={handleAddToCart}
+              disabled={stock === 0}
+              className={`flex-1 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-150 shadow-sm
+                ${
+                  stock === 0
+                    ? "bg-slate-200 text-slate-400 cursor-not-allowed"
+                    : "bg-[var(--color-accent)] text-primary-100 hover:bg-[var(--color-accent-dark)] hover:shadow-md"
+                }
+              `}
+            >
+              Add to Cart
+            </button>
+          )}
+
+          {/* WISHLIST BUTTON */}
           <button
-            onClick={handleAddToCart}
-            disabled={stock === 0}
-            className={`flex-1 py-2 rounded-lg font-semibold transition-all duration-150 shadow-sm ${
-              stock === 0
-                ? "bg-accent-light text-accent-light cursor-not-allowed"
-                : "bg-[var(--color-accent)] text-primary-100 hover:bg-[var(--color-accent-dark)] hover:shadow-md transform hover:-translate-y-0.5"
-            }`}
+            onClick={handleWishlist}
+            className={`
+              flex items-center justify-center
+              ml-1.5 p-2 rounded-lg border 
+              transition-all duration-150 shrink-0
+              ${
+                inWishlist
+                  ? "bg-[var(--color-accent)] text-black border-[var(--color-accent)]"
+                  : "border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-black"
+              }
+            `}
           >
-            Add to Cart
+            {inWishlist ? (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                className="w-4 h-4 sm:w-5 sm:h-5"
+              >
+                <path d="M12 21C12 21 4 13.647 4 8.75C4 6.17893 6.17893 4 8.75 4C10.2355 4 11.6028 4.80549 12 6.00613C12.3972 4.80549 13.7645 4 15.25 4C17.8211 4 20 6.17893 20 8.75C20 13.647 12 21 12 21Z" />
+              </svg>
+            ) : (
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.8}
+                className="w-4 h-4 sm:w-5 sm:h-5"
+              >
+                <path d="M12 21C12 21 4 13.647 4 8.75C4 6.17893 6.17893 4 8.75 4C10.2355 4 11.6028 4.80549 12 6.00613C12.3972 4.80549 13.7645 4 15.25 4C17.8211 4 20 6.17893 20 8.75C20 13.647 12 21 12 21Z" />
+              </svg>
+            )}
           </button>
-        )}
-        <button
-          onClick={handleWishlist}
-          className="ml-2 p-2 border cursor-pointer rounded-lg transition-all duration-150 border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-black"
-          aria-label="add to wishlist"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={1.8}
-            className="w-5 h-5"
-          >
-            <path d="M12 21C12 21 4 13.647 4 8.75C4 6.17893 6.17893 4 8.75 4C10.2355 4 11.6028 4.80549 12 6.00613C12.3972 4.80549 13.7645 4 15.25 4C17.8211 4 20 6.17893 20 8.75C20 13.647 12 21 12 21Z" />
-          </svg>
-        </button>
+        </div>
       </div>
     </div>
   );
