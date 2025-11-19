@@ -7,7 +7,10 @@ import Footer from "../../components/ui/Footer";
 import { useQuery } from "@tanstack/react-query";
 import * as productsApi from "../../api/productsApi";
 import ProductCard from "../../components/Customer/SingleProduct";
-import type { ProductResponse, ProductImageResponse } from "../../types/product";
+import type {
+  ProductResponse,
+  ProductImageResponse,
+} from "../../types/product";
 import type { Product } from "../../store/useProductStore";
 
 // ✅ Skeleton Loader Component
@@ -40,10 +43,7 @@ const CategoryPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const pageSize = 8;
 
-  const {
-    data: apiProducts,
-    isLoading,
-  } = useQuery<ProductResponse[], Error>({
+  const { data: apiProducts, isLoading } = useQuery<ProductResponse[], Error>({
     queryKey: ["category-products", category_name],
     queryFn: () => productsApi.getProductsByCategory(category_name!),
     enabled: !!category_name,
@@ -76,21 +76,30 @@ const CategoryPage: React.FC = () => {
     if (selectedFilters.minPrice != null || selectedFilters.maxPrice != null) {
       list = list.filter((p) => {
         const price = p.discount_price ?? p.price;
-        if (selectedFilters.minPrice != null && price < selectedFilters.minPrice)
+        if (
+          selectedFilters.minPrice != null &&
+          price < selectedFilters.minPrice
+        )
           return false;
-        if (selectedFilters.maxPrice != null && price > selectedFilters.maxPrice)
+        if (
+          selectedFilters.maxPrice != null &&
+          price > selectedFilters.maxPrice
+        )
           return false;
         return true;
       });
     }
     if (selectedFilters.ratingGte != null) {
-      list = list.filter((p) => (p.rating ?? 0) >= (selectedFilters.ratingGte ?? 0));
+      list = list.filter(
+        (p) => (p.rating ?? 0) >= (selectedFilters.ratingGte ?? 0)
+      );
     }
     if (selectedFilters.ordering) {
       const ord = selectedFilters.ordering;
       if (ord === "price") list.sort((a, b) => a.price - b.price);
       else if (ord === "-price") list.sort((a, b) => b.price - a.price);
-      else if (ord === "rating") list.sort((a, b) => (a.rating ?? 0) - (b.rating ?? 0));
+      else if (ord === "rating")
+        list.sort((a, b) => (a.rating ?? 0) - (b.rating ?? 0));
       else if (ord === "-created")
         list.sort(
           (a, b) =>
@@ -233,7 +242,8 @@ const CategoryPage: React.FC = () => {
                                 next.maxPrice = null;
                               }
                             } else if (filter.title === "Rating") {
-                              if (option === "All Ratings") next.ratingGte = null;
+                              if (option === "All Ratings")
+                                next.ratingGte = null;
                               else next.ratingGte = parseInt(option[0]);
                             } else if (filter.title === "Sort By") {
                               if (option === "Default") next.ordering = null;
@@ -264,10 +274,8 @@ const CategoryPage: React.FC = () => {
           </motion.div>
         </section>
 
-    
         <section className="px-6 md:px-40 py-10 bg-background mt-10">
           {isLoading ? (
-         
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
               {Array.from({ length: 8 }).map((_, i) => (
                 <ProductSkeleton key={i} />
@@ -275,7 +283,9 @@ const CategoryPage: React.FC = () => {
             </div>
           ) : paginatedProducts.length > 0 ? (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div
+                className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+              >
                 {paginatedProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
