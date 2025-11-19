@@ -81,7 +81,7 @@ export const KpiCards: React.FC<{ data?: AdminKpiData; loading: boolean; error?:
   error = false,
 }) => {
   if (loading) return <KpiSkeleton />;
-  if (error) return <ErrorBlock message="Failed to load KPIs" />;
+  if (error) return <ErrorBlock message="Failed to load Insights" />;
   if (!data) return null;
 
   return (

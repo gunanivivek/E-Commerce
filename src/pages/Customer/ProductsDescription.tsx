@@ -1,6 +1,5 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import React from "react";
-
 import * as productsApi from "../../api/productsApi";
 import { useQuery } from "@tanstack/react-query";
 import type { ProductResponse } from "../../types/product";
@@ -25,12 +24,11 @@ import {
   useAddToCart,
   useUpdateCart,
 } from "../../hooks/Customer/useCartHooks";
+import ChatbotContainer from "../../components/Customer/ChatbotContainer";
 
 const ProductDescription: React.FC = () => {
-  // route is defined as /product/:productId in App.tsx, so read productId here
   const { productId } = useParams<{ productId: string }>();
   const navigate = useNavigate();
-  // sanitize and validate productId from route
   const idNum = productId ? Number(productId) : NaN;
 
   const {
@@ -40,7 +38,7 @@ const ProductDescription: React.FC = () => {
   } = useQuery<ProductResponse, Error>({
     queryKey: ["product", idNum],
     queryFn: () => productsApi.getProductById(idNum),
-    enabled: Number.isFinite(idNum), // only run when we have a valid numeric id
+    enabled: Number.isFinite(idNum), 
     retry: 1,
   });
 
@@ -206,7 +204,7 @@ const ProductDescription: React.FC = () => {
     ? product.images.map((i) => i.url)
     : undefined;
 
-  const ratingValue = (product as unknown as { rating?: number }).rating ?? 4.5;
+  const ratingValue = product.average_rating ?? 0;
 
   // normalize to the local Product shape expected by useProductStore
   const storeProduct = {
@@ -223,7 +221,7 @@ const ProductDescription: React.FC = () => {
     image: primaryImage ?? "",
     is_active: product.is_active,
     created_at: product.created_at,
-    rating: ratingValue,
+    average_rating: ratingValue,
   };
 
   const handleShowMore = () => {
@@ -299,7 +297,7 @@ const ProductDescription: React.FC = () => {
                     <Star
                       key={i}
                       className={`w-5 h-5 ${
-                        i < ratingValue
+                        i < ratingValue 
                           ? "text-yellow-400 fill-yellow-400"
                           : "text-gray-300"
                       }`}
@@ -602,6 +600,8 @@ const ProductDescription: React.FC = () => {
           </div>
         </div>
       )}
+
+      <ChatbotContainer />
       <Footer />
     </>
   );

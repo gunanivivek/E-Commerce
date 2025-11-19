@@ -12,7 +12,7 @@ export interface Product {
   image: string;
   is_active: boolean;
   created_at: string;
-  rating?: number;
+  average_rating: number | null;
 }
 
 interface ProductStore {

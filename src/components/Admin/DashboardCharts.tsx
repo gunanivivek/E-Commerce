@@ -1,10 +1,4 @@
-
-import {
-  PieChart,
-  TrendingUp,
-  Users,
-  PackageCheck,
-} from "lucide-react";
+import { PieChart, TrendingUp, Users, PackageCheck } from "lucide-react";
 import {
   ResponsiveContainer,
   LineChart,
@@ -30,8 +24,6 @@ import type {
   AdminCategoryRevenuePoint,
   AdminTopSeller,
 } from "../../types/adminAnalyticsTypes";
-
-type ChartData = Record<string, string | number>;
 
 /* --------------------- ERROR BLOCK ---------------------- */
 const ErrorBlock = ({ message }: { message: string }) => (
@@ -91,14 +83,44 @@ export const DashboardCharts = ({
     "#BCAAA4",
   ];
 
-  const Skeleton = ({ height }: { height: number }) => (
-    <div
-      className="bg-background rounded-xl p-6 shadow animate-pulse"
-      style={{ height }}
-    />
-  );
+  const Skeleton = ({
+    height,
+    showTitle,
+  }: {
+    height?: number;
+    showTitle?: boolean;
+  }) => {
+    return (
+      <div
+        className="relative overflow-hidden rounded-2xl border border-gray-200 bg-gradient-to-br from-gray-50 to-gray-100 shadow-sm"
+        style={{ height }}
+      >
+        {/* Shine animation */}
+        <div className="absolute inset-0 animate-[pulse_1.8s_ease-in-out_infinite] bg-white/30" />
 
- 
+        <div className="relative h-full p-5 flex flex-col justify-between">
+          {/* Chart Title placeholder */}
+          {showTitle && (
+            <div className="h-5 w-32 bg-gray-300 rounded-md mb-4 animate-pulse" />
+          )}
+
+          {/* Chart grid placeholder */}
+          <div className="flex-1 flex items-end gap-3">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="flex-1 bg-gray-300 rounded-md animate-pulse"
+                style={{
+                  height: `${30 + Math.random() * 60}%`,
+                }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   let revenueTrendChart;
 
   if (revenueTrendLoading) {
@@ -159,7 +181,10 @@ export const DashboardCharts = ({
 
   /* ---------------------- CATEGORY PIE ---------------------- */
   let categoryPieChart;
-
+  const fixedCategoryRevenue = categoryRevenue.map((item) => ({
+    ...item,
+    category: String(item.category), // "true" | "false"
+  }));
   if (categoryRevenueLoading) {
     categoryPieChart = <Skeleton height={320} />;
   } else if (categoryRevenueError) {
@@ -169,18 +194,18 @@ export const DashboardCharts = ({
       <ResponsiveContainer width="100%" height={320}>
         <RechartsPieChart>
           <Pie
-            data={categoryRevenue as unknown as ChartData[]}
+            data={fixedCategoryRevenue}
             cx="50%"
             cy="50%"
             innerRadius={55}
             outerRadius={95}
             paddingAngle={4}
             dataKey="revenue"
-            nameKey="category"
+            nameKey="category" // will now show "true" or "false"
             labelLine={{ stroke: gray300, strokeWidth: 1 }}
             label={({ percent }) => `${(percent! * 100).toFixed(0)}%`}
           >
-            {categoryRevenue.map((_entry, index) => (
+            {fixedCategoryRevenue.map((_entry, index) => (
               <Cell
                 key={index}
                 fill={grayShades[index % grayShades.length]}
@@ -195,7 +220,6 @@ export const DashboardCharts = ({
               borderRadius: "12px",
               border: `1px solid ${gray200}`,
               backgroundColor: white,
-              boxShadow: "0 10px 15px rgba(0,0,0,0.1)",
             }}
           />
 
@@ -274,7 +298,11 @@ export const DashboardCharts = ({
         <BarChart data={topSellers} layout="vertical">
           <CartesianGrid strokeDasharray="1 1" stroke={gray200} />
 
-          <XAxis type="number" tick={{ fill: gray600 }} axisLine={{ stroke: gray200 }} />
+          <XAxis
+            type="number"
+            tick={{ fill: gray600 }}
+            axisLine={{ stroke: gray200 }}
+          />
           <YAxis
             dataKey="sellerName"
             type="category"
@@ -290,7 +318,12 @@ export const DashboardCharts = ({
             }}
           />
 
-          <Bar dataKey="revenue" fill={gray300} radius={[6, 6, 6, 6]} barSize={24} />
+          <Bar
+            dataKey="revenue"
+            fill={gray300}
+            radius={[6, 6, 6, 6]}
+            barSize={24}
+          />
           <LabelList dataKey="orders" position="right" fill={gray600} />
         </BarChart>
       </ResponsiveContainer>
