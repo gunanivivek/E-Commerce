@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// src/hooks/Customer/CartHooks/useCartHooks.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as cartApi from "../../api/cartApi";
 import { toast } from "react-toastify";

@@ -1,6 +1,5 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import React from "react";
-
 import * as productsApi from "../../api/productsApi";
 import { useQuery } from "@tanstack/react-query";
 import type { ProductResponse } from "../../types/product";
@@ -25,12 +24,11 @@ import {
   useAddToCart,
   useUpdateCart,
 } from "../../hooks/Customer/useCartHooks";
+import ChatbotContainer from "../../components/Customer/ChatbotContainer";
 
 const ProductDescription: React.FC = () => {
-  // route is defined as /product/:productId in App.tsx, so read productId here
   const { productId } = useParams<{ productId: string }>();
   const navigate = useNavigate();
-  // sanitize and validate productId from route
   const idNum = productId ? Number(productId) : NaN;
 
   const {
@@ -40,7 +38,7 @@ const ProductDescription: React.FC = () => {
   } = useQuery<ProductResponse, Error>({
     queryKey: ["product", idNum],
     queryFn: () => productsApi.getProductById(idNum),
-    enabled: Number.isFinite(idNum), // only run when we have a valid numeric id
+    enabled: Number.isFinite(idNum), 
     retry: 1,
   });
 
@@ -602,6 +600,8 @@ const ProductDescription: React.FC = () => {
           </div>
         </div>
       )}
+
+      <ChatbotContainer />
       <Footer />
     </>
   );
