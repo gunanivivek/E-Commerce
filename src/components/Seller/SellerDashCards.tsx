@@ -9,21 +9,18 @@ import {
 } from "lucide-react";
 
 interface SellerKpiData {
-  todayRevenue: number;
-  yesterdayRevenue: number;
-  monthlyRevenue: number;
-  lastMonthRevenue: number;
-  totalOrders: number;
-  delivered: number;
-  pending: number;
-  pendingShipments: number;
-  activeProducts: number;
-  pendingApproval: number;
-  lowStockCount: number;
-  couponUsage: number;
-  discountTotal: number;
-  productViews: number;
-  conversionRate: number;
+  total_revenue: number;
+  monthly_revenue: number;
+  todays_revenue: number;
+  total_orders: number;
+  delivered_orders: number;
+  pending_orders: number;
+  pending_shipments: number;
+  total_products: number;
+  active_products: number;
+  pending_approval_products: number;
+  low_stock_items: number;
+  coupon_usage: number;
 }
 
 interface KpiCardProps {
@@ -84,16 +81,23 @@ export const SellerDashCards: React.FC<SellerKpiCardsProps> = ({ data }) => (
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8 bg-background p-4 rounded-xl">
     <KpiCard
       icon={TrendingUp}
-      title="Today's Revenue"
-      value={`₹${data.todayRevenue.toLocaleString()}`}
-      trend={"+33.3% vs yesterday"}
+      title="Total Revenue"
+      value={`₹${data.total_revenue.toLocaleString()}`}
       isPositive
     />
 
     <KpiCard
       icon={TrendingUp}
       title="Monthly Revenue"
-      value={`₹${data.monthlyRevenue.toLocaleString()}`}
+      value={`₹${data.monthly_revenue.toLocaleString()}`}
+      trend={"+17.9% vs last month"}
+      isPositive
+    />
+
+    <KpiCard
+      icon={TrendingUp}
+      title="Today's Revenue"
+      value={`₹${data.todays_revenue.toLocaleString()}`}
       trend={"+17.9% vs last month"}
       isPositive
     />
@@ -101,41 +105,34 @@ export const SellerDashCards: React.FC<SellerKpiCardsProps> = ({ data }) => (
     <KpiCard
       icon={ShoppingBag}
       title="Total Orders"
-      value={data.totalOrders.toString()}
-      subtitle={`${data.delivered} delivered, ${data.pending} pending`}
+      value={data.total_orders.toString()}
+      subtitle={`${data.delivered_orders} delivered, ${data.pending_orders} pending`}
     />
 
     <KpiCard
       icon={PackageX}
       title="Pending Shipments"
-      value={data.pendingShipments.toString()}
+      value={data.pending_shipments.toString()}
     />
 
     <KpiCard
       icon={Archive}
       title="Active Products"
-      value={data.activeProducts.toString()}
-      subtitle={`${data.pendingApproval} pending approval`}
+      value={data.active_products.toString()}
+      subtitle={`${data.pending_approval_products} pending approval`}
     />
 
     <KpiCard
       icon={AlertTriangle}
       title="Low Stock Items"
-      value={data.lowStockCount.toString()}
+      value={data.low_stock_items.toString()}
     />
 
     <KpiCard
       icon={Tag}
       title="Coupon Usage"
-      value={data.couponUsage.toString()}
-      subtitle={`₹${data.discountTotal.toLocaleString()} discount`}
+      value={data.coupon_usage.toString()}
     />
 
-    <KpiCard
-      icon={TrendingUp}
-      title="Product Views"
-      value={data.productViews.toString()}
-      subtitle={`${data.conversionRate}% conversion`}
-    />
   </div>
 );

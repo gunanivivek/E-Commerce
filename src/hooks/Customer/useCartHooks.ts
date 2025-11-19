@@ -11,12 +11,17 @@ import type {
   UpdateCartQuantityRequest,
   UpdateCartQuantityResponse,
 } from "../../types/cart";
+import { useAuthStore } from "../../store/authStore";
 
 // ---------------------- useCart Hook ----------------------
 export const useCart = (enabled: boolean) => {
+  const user = useAuthStore((state) => state.user);
   return useQuery<CartResponse>({
     queryKey: ["cart"],
     queryFn: async () => {
+       if (!user) {
+        throw new Error("Please login to add items in the cart")
+      }
       const data = await cartApi.getCart();
 
       return {
@@ -35,10 +40,14 @@ export const useCart = (enabled: boolean) => {
 
 // ---------------------- useAddToCart Hook ----------------------
 export const useAddToCart = () => {
+  const user = useAuthStore((state) => state.user);
   const queryClient = useQueryClient();
 
   return useMutation<AddToCartResponse, Error, AddToCartRequest>({
     mutationFn: async (payload) => {
+      if (!user) {
+        throw new Error("Please login to add items in the cart")
+      }
       return await cartApi.addToCart(payload);
     },
     onSuccess: (data) => {
@@ -52,6 +61,7 @@ export const useAddToCart = () => {
 };
 
 export const useUpdateCart = () => {
+  const user = useAuthStore((state) => state.user);
   const queryClient = useQueryClient();
 
   return useMutation<
@@ -60,6 +70,9 @@ export const useUpdateCart = () => {
     UpdateCartQuantityRequest
   >({
     mutationFn: async (payload) => {
+      if (!user) {
+        throw new Error("Please login to update items in the cart")
+      }
       return await cartApi.updateCartQuantity(payload);
     },
     onSuccess: (data) => {

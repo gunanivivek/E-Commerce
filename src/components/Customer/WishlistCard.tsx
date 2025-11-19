@@ -149,7 +149,7 @@ const WishlistCard: React.FC = () => {
                   </svg>
                 ))}
                 <span className="text-sm text-gray-600 ml-2">
-                  {product.rating}
+                  {product.average_rating}
                 </span>
               </div>
 

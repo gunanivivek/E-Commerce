@@ -70,6 +70,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
     refetchOnReconnect: false,
   });
 
+
   const data = useMemo<LocalProduct[]>(() => {
     const apiList = (apiProducts ?? []) as ProductResponse[];
     if (!apiList.length) return [];
@@ -85,10 +86,12 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
       image: p.images?.[0]?.url ?? "",
       is_active: p.is_active,
       created_at: p.created_at,
-      rating: (p as unknown as { rating?: number }).rating ?? 4.5,
+      average_rating: p.average_rating,
       category: p.category?.name ?? null,
     }));
   }, [apiProducts]);
+
+  
 
   const filteredAndSorted = useMemo<LocalProduct[]>(() => {
     let list = [...data];
@@ -100,16 +103,16 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
         );
       }
       if (filters.ratingGte != null) {
-        list = list.filter((p) => (p.rating ?? 0) >= (filters.ratingGte ?? 0));
+        list = list.filter((p) => (p.average_rating ?? 0) >= (filters.ratingGte ?? 0));
       }
       if (filters.ordering) {
         const ord = filters.ordering;
         if (ord === "price") list.sort((a, b) => a.price - b.price);
         else if (ord === "-price") list.sort((a, b) => b.price - a.price);
         else if (ord === "rating")
-          list.sort((a, b) => (a.rating ?? 0) - (b.rating ?? 0));
+          list.sort((a, b) => (a.average_rating ?? 0) - (b.average_rating ?? 0));
         else if (ord === "-rating")
-          list.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+          list.sort((a, b) => (b.average_rating ?? 0) - (a.average_rating ?? 0));
         else if (ord === "-created")
           list.sort(
             (a, b) =>
@@ -285,7 +288,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
                     </svg>
 
                   <span className="text-sm text-gray-600 ml-2">
-                    {product.rating}
+                    {product.average_rating}
                   </span>
                 </span>
               </div>
