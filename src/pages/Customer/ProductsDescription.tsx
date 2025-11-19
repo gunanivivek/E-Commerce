@@ -282,14 +282,6 @@ const ProductDescription: React.FC = () => {
                 {product.description}
               </p>
 
-              {/* Seller */}
-              <p className="text-sm text-gray-600 mb-4">
-                Seller:
-                <span className="font-semibold text-gray-800">
-                  Indiflashmart
-                </span>
-              </p>
-
               {/* Rating */}
               <div className="flex items-center mb-3">
                 <div className="flex">
@@ -414,7 +406,7 @@ const ProductDescription: React.FC = () => {
               <hr className="my-3 border-[var(--color-gray-300)]" />
 
               {/* Bottom Info */}
-              <div className="grid grid-cols-3 gap-4 pt-3">
+              <div className="grid lg:grid-cols-4 grid-cols-2 gap-4 pt-3">
                 <div className="cursor-pointer rounded hover:bg-gray-100 flex flex-col items-center text-center gap-2 text-accent p-2">
                   <Truck className="h-8 w-8 text-accent-darker" />
                   <span className="text-sm font-medium text-accent-darker">
