@@ -1,12 +1,12 @@
 import React from "react";
 import { X } from "lucide-react";
-import type { Order } from "../../types/orders";
+import type { AllOrder } from "../../types/orders";
 import OrderStatusCell from "./OrderStatusCell";
 
 interface OrderDetailModelProps {
   isOpen: boolean;
   onClose: () => void;
-  order: Order;
+  order: AllOrder;
 }
 
 const OrderDetailModel: React.FC<OrderDetailModelProps> = ({
