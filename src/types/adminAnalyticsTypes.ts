@@ -1,21 +1,43 @@
 // src/types/adminAnalyticsTypes.ts
 
 export interface AdminKpiData {
-  totalRevenue: number;
-  lastMonthRevenue: number;
-  totalOrders: number;
-  lastMonthOrders: number;
-  totalCustomers: number;
-  newCustomers30Days: number;
-  approvedSellers: number;
-  pendingSellers: number;
-  approvedProducts: number;
-  pendingProducts: number;
-  failedPaymentsToday: number;
-  failedPaymentRate: number;
-  couponUsages: number;
-  totalDiscountGiven: number;
+  totalRevenue: {
+    totalRevenue: number;
+    lastMonthRevenue: number;
+    currentMonthRevenue: number;
+  };
+
+  totalOrders: {
+    totalOrders: number;
+    lastMonthOrders: number;
+  };
+
+  activeCustomers: {
+    total: number;
+    new30Days: number;
+  };
+
+  activeSellers: {
+    approved: number;
+    pending: number;
+  };
+
+  totalProducts: {
+    approved: number;
+    pending: number;
+  };
+
+  failedPayments: {
+    failedToday: number;
+    failureRate: number;
+  };
+
+  couponsUsed: {
+    usages: number;
+    totalDiscount: number;
+  };
 }
+
 
 export interface AdminRevenueTrendPoint {
   month: string;
