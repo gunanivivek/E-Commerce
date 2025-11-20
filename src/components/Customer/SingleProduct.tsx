@@ -9,7 +9,7 @@ import {
   useUpdateCart,
 } from "../../hooks/Customer/useCartHooks";
 import type { Product } from "../../store/useProductStore";
-import { Star } from "lucide-react";
+import { Heart, Star } from "lucide-react";
 
 interface ProductCardProps {
   product: Product & { rating?: number; category?: string | null };
@@ -57,8 +57,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const isUpdating = updateMutation.isPending || removeMutation.isPending;
 
   const hasRating =
-    typeof product.average_rating === "number" &&
-    product.average_rating > 0;
+    typeof product.average_rating === "number" && product.average_rating > 0;
 
   return (
     <div
@@ -94,18 +93,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         )}
       </div>
 
-      {/* CONTENT */}
       <div className="flex flex-col flex-1 pt-2 ">
-        {/* TITLE */}
         <h3 className="text-sm sm:text-[15px] text-accent-dark font-semibold mb-1 line-clamp-2 min-h-[2.5rem]">
           {product.name.length > 75
             ? product.name.slice(0, 75) + "..."
             : product.name}
         </h3>
 
-        {/* PRICE + RATING */}
         <div className="mt-1 flex items-center justify-between gap-2">
-          {/* PRICE */}
           <p className="text-[var(--color-primary-400)] font-bold text-base sm:text-lg whitespace-nowrap">
             ₹{product.discount_price ?? product.price}
             {product.discount_price && (
@@ -115,7 +110,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             )}
           </p>
 
-          {/* RATING BADGE */}
           <div
             className={`
               flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium shadow-sm
@@ -130,7 +124,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               size={12}
               className={hasRating ? "text-yellow-500" : "text-slate-500"}
             />
-            <span>
+            <span className="font-semibold">
               {hasRating ? product.average_rating!.toFixed(1) : "No Ratings"}
             </span>
           </div>
@@ -233,25 +227,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             `}
           >
             {inWishlist ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="w-4 h-4 sm:w-5 sm:h-5"
-              >
-                <path d="M12 21C12 21 4 13.647 4 8.75C4 6.17893 6.17893 4 8.75 4C10.2355 4 11.6028 4.80549 12 6.00613C12.3972 4.80549 13.7645 4 15.25 4C17.8211 4 20 6.17893 20 8.75C20 13.647 12 21 12 21Z" />
-              </svg>
+             <Heart fill="currentColor" size={18} />
             ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={1.8}
-                className="w-4 h-4 sm:w-5 sm:h-5"
-              >
-                <path d="M12 21C12 21 4 13.647 4 8.75C4 6.17893 6.17893 4 8.75 4C10.2355 4 11.6028 4.80549 12 6.00613C12.3972 4.80549 13.7645 4 15.25 4C17.8211 4 20 6.17893 20 8.75C20 13.647 12 21 12 21Z" />
-              </svg>
+              <Heart size={18} />
             )}
           </button>
         </div>

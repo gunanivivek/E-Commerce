@@ -30,7 +30,7 @@ type FilterShape = {
 };
 
 const ProductSkeleton = () => (
-  <div className="bg-white rounded-lg shadow-md p-8 flex flex-col animate-pulse">
+  <div className="bg-white rounded-lg shadow-md p-4 flex flex-col animate-pulse">
     <div className="h-40 bg-gray-200 rounded-md mb-3"></div>
     <div className="h-5 bg-gray-200 rounded-md mb-2 w-3/4"></div>
     <div className="h-4 bg-gray-200 rounded-md mb-2 w-full"></div>
@@ -52,7 +52,10 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
     pageSize: 12,
   });
 
-  const { data: apiProducts, isLoading: ProductsLoading } = useQuery<ProductResponse[], Error>({
+  const { data: apiProducts, isLoading: ProductsLoading } = useQuery<
+    ProductResponse[],
+    Error
+  >({
     queryKey: ["products"],
     queryFn: () => productsApi.getProducts(),
     staleTime: 1000 * 60 * 30,
@@ -60,7 +63,6 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
     refetchOnMount: false,
     refetchOnReconnect: false,
   });
-
 
   const data = useMemo<LocalProduct[]>(() => {
     const apiList = (apiProducts ?? []) as ProductResponse[];
@@ -82,8 +84,6 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
     }));
   }, [apiProducts]);
 
-  
-
   const filteredAndSorted = useMemo<LocalProduct[]>(() => {
     let list = [...data];
     if (filters) {
@@ -94,16 +94,22 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
         );
       }
       if (filters.ratingGte != null) {
-        list = list.filter((p) => (p.average_rating ?? 0) >= (filters.ratingGte ?? 0));
+        list = list.filter(
+          (p) => (p.average_rating ?? 0) >= (filters.ratingGte ?? 0)
+        );
       }
       if (filters.ordering) {
         const ord = filters.ordering;
         if (ord === "price") list.sort((a, b) => a.price - b.price);
         else if (ord === "-price") list.sort((a, b) => b.price - a.price);
         else if (ord === "rating")
-          list.sort((a, b) => (a.average_rating ?? 0) - (b.average_rating ?? 0));
+          list.sort(
+            (a, b) => (a.average_rating ?? 0) - (b.average_rating ?? 0)
+          );
         else if (ord === "-rating")
-          list.sort((a, b) => (b.average_rating ?? 0) - (a.average_rating ?? 0));
+          list.sort(
+            (a, b) => (b.average_rating ?? 0) - (a.average_rating ?? 0)
+          );
         else if (ord === "-created")
           list.sort(
             (a, b) =>
@@ -121,10 +127,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
     return list;
   }, [data, filters]);
 
-
- 
   const table = useReactTable({
-    
     data: filteredAndSorted,
     columns: [] as ColumnDef<Product>[],
     state: { globalFilter, columnFilters, pagination },
@@ -143,7 +146,7 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
 
   const hasProducts = Array.isArray(apiProducts) && apiProducts.length > 0;
 
-  // ✅ Skeletons during loading
+
   if (ProductsLoading && !hasProducts)
     return (
       <section className="py-5 px-6 md:px-20">
@@ -164,14 +167,16 @@ const ProductsCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
 
   return (
     <section className="py-5 px-6 md:px-20">
-      <div className="grid 
+      <div
+        className="grid 
   grid-cols-1
   md:grid-cols-3 
   lg:grid-cols-4 
  
-  gap-4 ">
+  gap-4 "
+      >
         {paginatedProducts.map((product) => {
-     return <ProductCard key={product.id} product={product} />;
+          return <ProductCard key={product.id} product={product} />;
         })}
       </div>
 
