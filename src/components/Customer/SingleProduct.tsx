@@ -94,7 +94,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
       </div>
 
       <div className="flex flex-col flex-1 pt-2 ">
-        <h3 className="text-sm sm:text-[15px] text-accent-dark font-semibold mb-1 line-clamp-2 min-h-[2.5rem]">
+        <h3 className=" sm:text-[15px] text-accent-dark font-semibold mb-1 line-clamp-2 min-h-[2.5rem]">
           {product.name.length > 75
             ? product.name.slice(0, 75) + "..."
             : product.name}
@@ -200,7 +200,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <button
               onClick={handleAddToCart}
               disabled={stock === 0}
-              className={`flex-1 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-150 shadow-sm
+              className={`flex-1 py-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-150 shadow-sm
                 ${
                   stock === 0
                     ? "bg-slate-200 text-slate-400 cursor-not-allowed"
