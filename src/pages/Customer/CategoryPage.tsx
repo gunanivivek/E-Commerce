@@ -158,9 +158,9 @@ const CategoryPage: React.FC = () => {
   return (
     <>
       <Header />
-      <div className="bg-surface min-h-screen">
+      <div className="bg-background min-h-screen">
         {/* 🌟 Hero */}
-        <section className="px-8 md:px-20 py-10 md:py-16 text-center">
+        <section className="px-8 md:px-20 py-10 md:py-8 text-center">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -274,7 +274,7 @@ const CategoryPage: React.FC = () => {
           </motion.div>
         </section>
 
-        <section className="px-6 md:px-40 py-10 bg-background mt-10">
+        <section className="px-6 md:px-28 py-6 bg-background ">
           {isLoading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
               {Array.from({ length: 8 }).map((_, i) => (
@@ -291,26 +291,29 @@ const CategoryPage: React.FC = () => {
                 ))}
               </div>
 
-              {/* ✅ Pagination Controls */}
-              <div className="flex justify-center mt-10 space-x-3">
-                <button
-                  onClick={() => setPage((p) => Math.max(p - 1, 1))}
-                  disabled={page === 1}
-                  className="px-5 py-2 bg-gray-200 rounded-md disabled:opacity-50 hover:bg-gray-300"
-                >
-                  Prev
-                </button>
-                <span className="text-gray-600 font-medium">
-                  Page {page} of {totalPages || 1}
-                </span>
-                <button
-                  onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-                  disabled={page >= totalPages}
-                  className="px-5 py-2 bg-gray-200 rounded-md disabled:opacity-50 hover:bg-gray-300"
-                >
-                  Next
-                </button>
-              </div>
+           {totalPages > 1 && (
+        <div className="flex justify-center mt-10 gap-3">
+          <button
+            onClick={() => setPage((p) => p - 1)}
+            disabled={page === 1}
+            className="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+          >
+            Prev
+          </button>
+
+          <span className="px-4 py-2 font-semibold">
+            {page} / {totalPages}
+          </span>
+
+          <button
+            onClick={() => setPage((p) => p + 1)}
+            disabled={page === totalPages}
+            className="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
             </>
           ) : (
             <div className="text-center py-16">
