@@ -59,7 +59,6 @@ const OrderStatusCell: React.FC<StatusCellProps> = ({ orderId, itemId, initialSt
           <option value="pending">Pending</option>
           <option value="shipped">Shipped</option>
           <option value="delivered">Delivered</option>
-          <option value="cancelled">Cancelled</option>
         </select>
       ) : (
         <span

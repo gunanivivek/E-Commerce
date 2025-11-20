@@ -38,7 +38,7 @@ const ProductDescription: React.FC = () => {
   } = useQuery<ProductResponse, Error>({
     queryKey: ["product", idNum],
     queryFn: () => productsApi.getProductById(idNum),
-    enabled: Number.isFinite(idNum), 
+    enabled: Number.isFinite(idNum),
     retry: 1,
   });
 
@@ -282,30 +282,20 @@ const ProductDescription: React.FC = () => {
                 {product.description}
               </p>
 
-              {/* Seller */}
-              <p className="text-sm text-gray-600 mb-4">
-                Seller:
-                <span className="font-semibold text-gray-800">
-                  Indiflashmart
-                </span>
-              </p>
+              <div className="flex items-center gap-1 mb-3">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`w-4 h-4 ${
+                      i < ratingValue
+                        ? "text-yellow-500 fill-yellow-500"
+                        : "text-slate-300"
+                    }`}
+                  />
+                ))}
 
-              {/* Rating */}
-              <div className="flex items-center mb-3">
-                <div className="flex">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`w-5 h-5 ${
-                        i < ratingValue 
-                          ? "text-yellow-400 fill-yellow-400"
-                          : "text-gray-300"
-                      }`}
-                    />
-                  ))}
-                </div>
-                <span className="text-sm text-gray-600 ml-2">
-                  {ratingValue} | 2.7k Ratings
+                <span className="text-sm font-medium text-slate-600 ml-1">
+                  {ratingValue > 0 ? ratingValue.toFixed(1) : "No ratings"}
                 </span>
               </div>
 

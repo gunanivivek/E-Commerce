@@ -12,7 +12,8 @@ export interface SellerOverview {
   active_products: number;
   pending_approval_products: number;
   low_stock_items: number;
-
+   last_month_revenue: number;
+  yesterday_revenue: number;
   coupon_usage: number;
 }
 

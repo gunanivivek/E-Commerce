@@ -107,7 +107,7 @@ export const useSellerActions = () => {
     onSuccess: (data, _id, context) => {
       if (!context) return;
       toast.update(context.toastId, {
-        render: `Seller "${data.full_name}" has been ${data.is_blocked ? "blocked" : "unblocked"}.`,
+        render: `Seller "${data.email}" has been ${data.is_blocked ? "blocked" : "unblocked"}.`,
         type: data.is_blocked ? "warning" : "success",
         isLoading: false,
         autoClose: 2000,

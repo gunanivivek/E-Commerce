@@ -1,20 +1,25 @@
 import React from "react";
 import { X } from "lucide-react";
-import type { AllOrder } from "../../types/orders";
 import OrderStatusCell from "./OrderStatusCell";
+import { useOrderById } from "../../hooks/Seller/useSingleOrder";
 
-interface OrderDetailModelProps {
+interface SellerSingleOrderProps {
   isOpen: boolean;
   onClose: () => void;
-  order: AllOrder;
+  id: number;
 }
 
-const OrderDetailModel: React.FC<OrderDetailModelProps> = ({
+const SellerSingleOrder: React.FC<SellerSingleOrderProps> = ({
   isOpen,
   onClose,
-  order,
+  id,
 }) => {
+  const { data: order, isLoading } = useOrderById(id);
+  console.log(order);
   if (!isOpen) return null;
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
@@ -28,25 +33,26 @@ const OrderDetailModel: React.FC<OrderDetailModelProps> = ({
         </button>
 
         <h2 className="text-2xl font-semibold text-gray-800 mb-2">
-          Order #{order.order_number}
+          Order #{order?.id}
         </h2>
         <p className="text-sm text-gray-500 mb-6">
           Placed on:{" "}
-          {new Date(order.created_at).toLocaleDateString("en-IN", {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-          })}
+          {order?.created_at
+            ? new Date(order.created_at ?? "").toLocaleDateString("en-IN", {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              })
+            : "—"}
         </p>
 
         <div className="mb-6">
           <h3 className="font-semibold text-gray-700 mb-2">Customer Details</h3>
           <p className="text-gray-600">
-            <span className="font-medium">Name:</span> {order.customer_name}
+            <span className="font-medium">Name:</span> {order?.address.full_name}
           </p>
           <p className="text-gray-600">
-            <span className="font-medium">Address:</span>{" "}
-            {order.customer_address}
+            <span className="font-medium">Address:</span> {order?.address.address_line_1}
           </p>
         </div>
 
@@ -64,21 +70,25 @@ const OrderDetailModel: React.FC<OrderDetailModelProps> = ({
               </tr>
             </thead>
             <tbody>
-              {order.items.map((item) => (
+              {order?.items.map((item) => (
                 <tr key={item.id} className="border-t hover:bg-gray-50">
-                  <td className="p-3">{item.product_name}</td>
+                  <td className="p-3">{item.product.name}</td>
                   <td className="p-3">{item.quantity}</td>
-                  <td className="p-3">₹{item.price.toLocaleString()}</td>
+                  <td className="p-3">₹{item.unit_price}</td>
                   <td className="p-3 font-medium text-green-600">
                     ₹{item.total_price}
                   </td>
                   <td className="p-3 capitalize">
-                    <OrderStatusCell orderId={order.id} itemId={item.id} initialStatus={item.status} /> 
+                    <OrderStatusCell
+                      orderId={order?.id}
+                      itemId={item.id}
+                      initialStatus={item.status}
+                    />
                   </td>
                   <td className="p-3">
                     <span
                       className={`px-2 py-1 rounded text-xs font-medium ${
-                        item.payment_status === "success"
+                        order.payment_status === "paid"
                           ? "bg-green-100 text-green-700"
                           : "bg-red-100 text-red-700"
                       }`}
@@ -96,7 +106,7 @@ const OrderDetailModel: React.FC<OrderDetailModelProps> = ({
         <div className="mt-6 text-right">
           <p className="text-lg font-semibold text-gray-800">
             Total Amount:{" "}
-            <span className="text-green-600">₹{order.total_amount}</span>
+            <span className="text-green-600">₹{order?.total_amount}</span>
           </p>
         </div>
       </div>
@@ -104,4 +114,4 @@ const OrderDetailModel: React.FC<OrderDetailModelProps> = ({
   );
 };
 
-export default OrderDetailModel;
+export default SellerSingleOrder;

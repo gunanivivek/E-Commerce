@@ -64,12 +64,12 @@ const NewArrivals: React.FC = () => {
       <Header />
       <div className="min-h-screen text-[var(--color-text)] bg-background">
         {/*  Hero Section */}
-        <section className="px-8 md:px-20 py-10 md:py-16 text-center">
+        <section className="px-8 md:px-20  md:py-4 text-center">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-3xl md:text-4xl font-extrabold font-logo "
+            className="text-3xl md:text-4xl pt-2 font-extrabold font-logo "
           >
             Step Into Our
             <span className="bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-dark)] bg-clip-text text-transparent">
@@ -88,7 +88,7 @@ const NewArrivals: React.FC = () => {
           </motion.p>
         </section>
 
-        <section className="px-6 md:px-16 pb-5">
+        <section className="px-6 md:px-16 ">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -233,7 +233,7 @@ const NewArrivals: React.FC = () => {
         </section>
 
         {/* 🧱 Product Listing */}
-        <section className="px-6 md:px-16 py-10">
+        <section className="px-6 md:px-12 py-6">
        
           <motion.div
             initial={{ opacity: 0 }}

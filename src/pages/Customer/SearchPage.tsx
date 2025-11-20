@@ -276,10 +276,16 @@ const SearchPage = () => {
           </motion.div>
         </section>
 
-        {/* 🛒 Product Grid */}
+      
         <section className="px-6 md:px-40 py-10 bg-background mt-1 md:mt-5">
           {isLoading ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className="grid 
+  grid-cols-1
+ 
+  md:grid-cols-3 
+  lg:grid-cols-4 
+ 
+  gap-4">
               {Array.from({ length: 8 }).map((_, i) => (
                 <ProductSkeleton key={i} />
               ))}
@@ -292,26 +298,29 @@ const SearchPage = () => {
                 ))}
               </div>
 
-              {/* ✅ Pagination */}
-              <div className="flex justify-center mt-10 space-x-3">
-                <button
-                  onClick={() => setPage((p) => Math.max(p - 1, 1))}
-                  disabled={page === 1}
-                  className="px-5 py-2 bg-gray-200 rounded-md disabled:opacity-50 hover:bg-gray-300"
-                >
-                  Prev
-                </button>
-                <span className="text-gray-600 font-medium">
-                  Page {page} of {totalPages || 1}
-                </span>
-                <button
-                  onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-                  disabled={page >= totalPages}
-                  className="px-5 py-2 bg-gray-200 rounded-md disabled:opacity-50 hover:bg-gray-300"
-                >
-                  Next
-                </button>
-              </div>
+             {totalPages > 1 && (
+        <div className="flex justify-center mt-10 gap-3">
+          <button
+            onClick={() => setPage((p) => p - 1)}
+            disabled={page === 1}
+            className="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+          >
+            Prev
+          </button>
+
+          <span className="px-4 py-2 font-semibold">
+            {page} / {totalPages}
+          </span>
+
+          <button
+            onClick={() => setPage((p) => p + 1)}
+            disabled={page === totalPages}
+            className="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
             </>
           ) : (
             <div className="text-center py-16">

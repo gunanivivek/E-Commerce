@@ -7,7 +7,10 @@ import Footer from "../../components/ui/Footer";
 import { useQuery } from "@tanstack/react-query";
 import * as productsApi from "../../api/productsApi";
 import ProductCard from "../../components/Customer/SingleProduct";
-import type { ProductResponse, ProductImageResponse } from "../../types/product";
+import type {
+  ProductResponse,
+  ProductImageResponse,
+} from "../../types/product";
 import type { Product } from "../../store/useProductStore";
 
 // ✅ Skeleton Loader Component
@@ -40,10 +43,7 @@ const CategoryPage: React.FC = () => {
   const [page, setPage] = useState(1);
   const pageSize = 8;
 
-  const {
-    data: apiProducts,
-    isLoading,
-  } = useQuery<ProductResponse[], Error>({
+  const { data: apiProducts, isLoading } = useQuery<ProductResponse[], Error>({
     queryKey: ["category-products", category_name],
     queryFn: () => productsApi.getProductsByCategory(category_name!),
     enabled: !!category_name,
@@ -76,21 +76,30 @@ const CategoryPage: React.FC = () => {
     if (selectedFilters.minPrice != null || selectedFilters.maxPrice != null) {
       list = list.filter((p) => {
         const price = p.discount_price ?? p.price;
-        if (selectedFilters.minPrice != null && price < selectedFilters.minPrice)
+        if (
+          selectedFilters.minPrice != null &&
+          price < selectedFilters.minPrice
+        )
           return false;
-        if (selectedFilters.maxPrice != null && price > selectedFilters.maxPrice)
+        if (
+          selectedFilters.maxPrice != null &&
+          price > selectedFilters.maxPrice
+        )
           return false;
         return true;
       });
     }
     if (selectedFilters.ratingGte != null) {
-      list = list.filter((p) => (p.rating ?? 0) >= (selectedFilters.ratingGte ?? 0));
+      list = list.filter(
+        (p) => (p.rating ?? 0) >= (selectedFilters.ratingGte ?? 0)
+      );
     }
     if (selectedFilters.ordering) {
       const ord = selectedFilters.ordering;
       if (ord === "price") list.sort((a, b) => a.price - b.price);
       else if (ord === "-price") list.sort((a, b) => b.price - a.price);
-      else if (ord === "rating") list.sort((a, b) => (a.rating ?? 0) - (b.rating ?? 0));
+      else if (ord === "rating")
+        list.sort((a, b) => (a.rating ?? 0) - (b.rating ?? 0));
       else if (ord === "-created")
         list.sort(
           (a, b) =>
@@ -149,9 +158,9 @@ const CategoryPage: React.FC = () => {
   return (
     <>
       <Header />
-      <div className="bg-surface min-h-screen">
+      <div className="bg-background min-h-screen">
         {/* 🌟 Hero */}
-        <section className="px-8 md:px-20 py-10 md:py-16 text-center">
+        <section className="px-8 md:px-20 py-10 md:py-8 text-center">
           <motion.h1
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -233,7 +242,8 @@ const CategoryPage: React.FC = () => {
                                 next.maxPrice = null;
                               }
                             } else if (filter.title === "Rating") {
-                              if (option === "All Ratings") next.ratingGte = null;
+                              if (option === "All Ratings")
+                                next.ratingGte = null;
                               else next.ratingGte = parseInt(option[0]);
                             } else if (filter.title === "Sort By") {
                               if (option === "Default") next.ordering = null;
@@ -264,10 +274,8 @@ const CategoryPage: React.FC = () => {
           </motion.div>
         </section>
 
-    
-        <section className="px-6 md:px-40 py-10 bg-background mt-10">
+        <section className="px-6 md:px-28 py-6 bg-background ">
           {isLoading ? (
-         
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
               {Array.from({ length: 8 }).map((_, i) => (
                 <ProductSkeleton key={i} />
@@ -275,32 +283,37 @@ const CategoryPage: React.FC = () => {
             </div>
           ) : paginatedProducts.length > 0 ? (
             <>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div
+                className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+              >
                 {paginatedProducts.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
 
-              {/* ✅ Pagination Controls */}
-              <div className="flex justify-center mt-10 space-x-3">
-                <button
-                  onClick={() => setPage((p) => Math.max(p - 1, 1))}
-                  disabled={page === 1}
-                  className="px-5 py-2 bg-gray-200 rounded-md disabled:opacity-50 hover:bg-gray-300"
-                >
-                  Prev
-                </button>
-                <span className="text-gray-600 font-medium">
-                  Page {page} of {totalPages || 1}
-                </span>
-                <button
-                  onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-                  disabled={page >= totalPages}
-                  className="px-5 py-2 bg-gray-200 rounded-md disabled:opacity-50 hover:bg-gray-300"
-                >
-                  Next
-                </button>
-              </div>
+           {totalPages > 1 && (
+        <div className="flex justify-center mt-10 gap-3">
+          <button
+            onClick={() => setPage((p) => p - 1)}
+            disabled={page === 1}
+            className="px-4 py-2 bg-gray-200 rounded-md font-heading disabled:opacity-50"
+          >
+            Prev
+          </button>
+
+          <span className="px-4 py-2 font-heading font-semibold">
+            {page} / {totalPages}
+          </span>
+
+          <button
+            onClick={() => setPage((p) => p + 1)}
+            disabled={page === totalPages}
+            className="px-4 py-2 bg-gray-200 rounded-md font-heading disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
             </>
           ) : (
             <div className="text-center py-16">

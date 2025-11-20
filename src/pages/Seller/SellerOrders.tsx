@@ -10,13 +10,14 @@ import {
   createColumnHelper,
 } from "@tanstack/react-table";
 import type { Row } from "@tanstack/react-table";
-import type { Order } from "../../types/orders";
+import type { AllOrder } from "../../types/orders";
 import TableRowSkeleton from "../../components/TableRowSkeleton";
 import OrderDetailModel from "../../components/Seller/OrderDetailModel";
 import { getSellerOrders } from "../../api/sellerOrderApi";
 import { useQuery } from "@tanstack/react-query";
+import SellerNotificationDropdown from "../../components/Seller/NotificationDropdown";
 
-const columnHelper = createColumnHelper<Order>();
+const columnHelper = createColumnHelper<AllOrder>();
 
 const SellerOrders: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -115,30 +116,34 @@ const SellerOrders: React.FC = () => {
           );
         },
       }),
-      columnHelper.display({
-        id: "status",
+      columnHelper.accessor("status", {
         header: "Status",
-        cell: ({ row }: { row: Row<Order> }) => {
-          const items = row.original.items;
-          const allDelivered = items.every((i) => i.status === "delivered");
-          const anyPending = items.some((i) => i.status === "pending");
-          const displayStatus = allDelivered
-            ? "Delivered"
-            : anyPending
-            ? "Pending"
-            : "Shipped";
+        cell: (info) => {
+          const status = info.getValue(); // directly from the order object
+          let colorClass = "";
 
-          const colorClass = allDelivered
-            ? "bg-green-100 text-green-700"
-            : anyPending
-            ? "bg-primary-100 text-muted"
-            : "bg-blue-100 text-blue-700";
+          switch (status) {
+            case "pending":
+              colorClass = "bg-primary-300 text-gray-900";
+              break;
+            case "shipped":
+              colorClass = "bg-blue-100 text-blue-700";
+              break;
+            case "delivered":
+              colorClass = "bg-green-100 text-green-700";
+              break;
+            case "cancelled":
+              colorClass = "bg-red-100 text-red-700";
+              break;
+            default:
+              colorClass = "bg-yellow-100 text-yellow-700";
+          }
 
           return (
             <span
               className={`px-4 py-1 rounded-full text-xs font-medium ${colorClass}`}
             >
-              {displayStatus}
+              {status.charAt(0).toUpperCase() + status.slice(1)}
             </span>
           );
         },
@@ -146,7 +151,7 @@ const SellerOrders: React.FC = () => {
       columnHelper.display({
         id: "payment",
         header: "Payment Status",
-        cell: ({ row }: { row: Row<Order> }) => {
+        cell: ({ row }: { row: Row<AllOrder> }) => {
           const paymentStatus = row.original.payment_status;
 
           const displayStatus = paymentStatus === "paid" ? "Success" : "Failed";
@@ -167,7 +172,7 @@ const SellerOrders: React.FC = () => {
       columnHelper.display({
         id: "actions",
         header: "Actions",
-        cell: ({ row }: { row: Row<Order> }) => {
+        cell: ({ row }: { row: Row<AllOrder> }) => {
           const order = row.original;
           return (
             <button
@@ -203,7 +208,7 @@ const SellerOrders: React.FC = () => {
   return (
     <div className="min-h-screen py-6">
       <div className="px-4 sm:px-8">
-        <div className="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <div className="mb-4 flex flex-row justify-between items-center">
           <div>
             <h1 className="text-2xl sm:text-3xl font-heading font-bold text-accent-dark">
               Orders
@@ -211,6 +216,10 @@ const SellerOrders: React.FC = () => {
             <p className="text-primary-300 text-sm sm:text-base">
               Review and manage customer orders
             </p>
+          </div>
+
+          <div className="mt-3 sm:mt-0 ">
+            <SellerNotificationDropdown />
           </div>
         </div>
 

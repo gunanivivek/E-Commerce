@@ -1,34 +1,28 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
-import { useAuthStore } from "../../store/authStore";
-import { useWishlistStore } from "../../store/wishlistStore";
 import { useQuery } from "@tanstack/react-query";
 import * as productsApi from "../../api/productsApi";
 import type {
   ProductResponse,
   ProductImageResponse,
 } from "../../types/product";
-import {
-  type SortingState,
-  type FilterFn,
-  useReactTable,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
-  getPaginationRowModel,
-  type ColumnFiltersState,
-} from "@tanstack/react-table";
-import type { ColumnDef } from "@tanstack/react-table";
-import type { Product } from "../../store/useProductStore";
-import {
-  useAddToCart,
-  useCart,
-  useRemoveFromCart,
-  useUpdateCart,
-} from "../../hooks/Customer/useCartHooks";
 
-type LocalProduct = Product & { category?: string | null };
+import ProductCard from "./SingleProduct";
+
+type LocalProduct = {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  discount_price?: number;
+  stock: number;
+  images?: string[];
+  image: string;
+  slug: string;
+  is_active: boolean;
+  created_at: string;
+  average_rating: number;
+  category?: string | null;
+};
 
 type FilterShape = {
   category?: string | null;
@@ -40,40 +34,40 @@ type FilterShape = {
   search?: string | null;
 };
 
+// Skeleton
 const ProductSkeleton = () => (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+  <div className="grid grid-cols-1 md:grid-cols-2 px-20 lg:grid-cols-4 gap-6">
     {Array.from({ length: 8 }).map((_, index) => (
-      <div key={index} className="bg-white rounded-lg shadow-md p-4 flex flex-col animate-pulse">
+      <div
+        key={index}
+        className="bg-white rounded-lg shadow-md p-4 flex flex-col animate-pulse"
+      >
         <div className="h-40 bg-gray-200 rounded-md mb-3"></div>
         <div className="h-5 bg-gray-200 rounded-md mb-2 w-3/4"></div>
         <div className="h-4 bg-gray-200 rounded-md mb-2 w-full"></div>
         <div className="h-4 bg-gray-200 rounded-md mb-3 w-2/3"></div>
-    <div className="h-6 bg-gray-200 rounded-md w-1/2 mb-4"></div>
-    <div className="flex gap-2 mt-auto">
-      <div className="h-9 flex-1 bg-gray-200 rounded-md"></div>
-      <div className="h-9 w-9 bg-gray-200 rounded-md"></div>
-    </div>
-  </div>
+        <div className="h-6 bg-gray-200 rounded-md w-1/2 mb-4"></div>
+        <div className="flex gap-2 mt-auto">
+          <div className="h-9 flex-1 bg-gray-200 rounded-md"></div>
+          <div className="h-9 w-9 bg-gray-200 rounded-md"></div>
+        </div>
+      </div>
     ))}
   </div>
 );
 
 const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
-  const { data: apiNewArrivals, isLoading } = useQuery<
-    ProductResponse[],
-    Error
-  >({
+  const { data, isLoading } = useQuery<ProductResponse[]>({
     queryKey: ["new-arrivals"],
     queryFn: () => productsApi.getNewArrivals(),
-    staleTime: 1000 * 60 * 30,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
+    staleTime: 1000 * 60 * 20,
   });
 
-  const data = useMemo<LocalProduct[]>(() => {
-    if (!apiNewArrivals?.length) return [];
-    return apiNewArrivals.map((p) => ({
+  // Transform API → Local structure
+  const products = useMemo<LocalProduct[]>(() => {
+    if (!data) return [];
+
+    return data.map((p) => ({
       id: p.id,
       name: p.name,
       description: p.description ?? "",
@@ -81,354 +75,128 @@ const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
       discount_price: p.discount_price ? Number(p.discount_price) : undefined,
       stock: p.stock,
       images: p.images?.map((i: ProductImageResponse) => i.url),
-      slug: p.slug,
       image: p.images?.[0]?.url ?? "",
+      slug: p.slug,
       is_active: p.is_active,
       created_at: p.created_at,
       average_rating: p.average_rating ?? 0,
       category: p.category?.name ?? null,
     }));
-  }, [apiNewArrivals]);
+  }, [data]);
 
-  const between: FilterFn<LocalProduct> = (
-    row,
-    id,
-    range: { min?: number; max?: number }
-  ) => {
-    const val = Number(row.getValue(id) ?? 0);
-    if (range?.min != null && val < range.min) return false;
-    if (range?.max != null && val > range.max) return false;
-    return true;
-  };
+  // Apply Filters (Same logic as ProductsCard)
+  const filtered = useMemo(() => {
+    if (!products) return [];
 
-  const columns = useMemo<ColumnDef<LocalProduct>[]>(
-    () => [
-      { accessorKey: "name", header: "Name" },
-      {
-        accessorKey: "price",
-        header: "Price",
-        sortingFn: "auto",
-        filterFn: between,
-      },
-      {
-        accessorKey: "category",
-        header: "Category",
-        sortingFn: "auto",
-      },
-      {
-        accessorKey: "stock",
-        header: "Stock",
-        filterFn: (row, id, value: boolean) => {
-          const stock = Number(row.getValue(id) ?? 0);
-          return value ? stock > 0 : true;
-        },
-      },
-      { accessorKey: "description", header: "Description" },
-    ],
-    []
-  );
+    let list = [...products];
+    const f = filters ?? {};
 
-  const [globalFilter, setGlobalFilter] = useState("");
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [sorting, setSorting] = useState<SortingState>([]);
-
-  // reactively apply filters from props
-  useEffect(() => {
-    const next: ColumnFiltersState = [];
-
-    if (!filters) {
-      setColumnFilters([]);
-      setGlobalFilter("");
-      return;
+    // Search
+    if (f.search) {
+      const q = f.search.toLowerCase();
+      list = list.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q)
+      );
     }
 
-    if (filters.search) setGlobalFilter(filters.search);
+    // Category
+    if (f.category)
+      list = list.filter(
+        (p) => p.category?.toLowerCase() === f.category?.toLowerCase()
+      );
 
-    if (filters.minPrice != null || filters.maxPrice != null) {
-      next.push({
-        id: "price",
-        value: {
-          min: filters.minPrice ?? null,
-          max: filters.maxPrice ?? null,
-        },
-      });
+    // Price range
+    if (f.minPrice != null) list = list.filter((p) => p.price >= f.minPrice!);
+    if (f.maxPrice != null) list = list.filter((p) => p.price <= f.maxPrice!);
+
+    // Rating
+    if (f.ratingGte != null)
+      list = list.filter((p) => p.average_rating >= f.ratingGte!);
+
+    // In stock
+    if (f.in_stock != null && f.in_stock)
+      list = list.filter((p) => p.stock > 0);
+
+    // Sort logic (Same map as original component)
+    if (f.ordering) {
+      const sortMap: Record<
+        string,
+        (a: LocalProduct, b: LocalProduct) => number
+      > = {
+        price: (a, b) => a.price - b.price,
+        "-price": (a, b) => b.price - a.price,
+        rating: (a, b) => b.average_rating - a.average_rating,
+        "-created": (a, b) =>
+          new Date(b.created_at).getTime() -
+          new Date(a.created_at).getTime(),
+      };
+
+      const sorter = sortMap[f.ordering];
+      if (sorter) list.sort(sorter);
     }
 
-    if (filters.in_stock != null) {
-      next.push({
-        id: "stock",
-        value: filters.in_stock,
-      });
-    }
+    return list;
+  }, [products, filters]);
 
-    if (filters.category) {
-      next.push({
-        id: "category",
-        value: filters.category,
-      });
-    }
+  // Pagination
+  const [page, setPage] = useState(1);
+  const pageSize = 8;
 
-    setColumnFilters(next);
+  const totalPages = Math.ceil(filtered.length / pageSize);
+  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
 
-    // handle ordering
-    if (filters.ordering) {
-      const ord = filters.ordering;
-      if (ord.startsWith("-")) {
-        setSorting([{ id: ord.substring(1), desc: true }]);
-      } else {
-        setSorting([{ id: ord, desc: false }]);
-      }
-    }
-  }, [filters]);
+  useEffect(() => setPage(1), [filters]);
 
-  const table = useReactTable({
-    data,
-    columns,
-    state: {
-      sorting,
-      globalFilter,
-      columnFilters,
-    },
-    onSortingChange: setSorting,
-    onGlobalFilterChange: setGlobalFilter,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    filterFns: {
-      between: (row, id, range: { min?: number; max?: number }) => {
-        const val = Number(row.getValue(id) ?? 0);
-        if (range?.min != null && val < range.min) return false;
-        if (range?.max != null && val > range.max) return false;
-        return true;
-      },
-    },
-  });
+  // Loading view
+  if (isLoading && !data) return <ProductSkeleton />;
 
-  const navigate = useNavigate();
-  const user = useAuthStore((s) => s.user);
-  const { addToWishlist } = useWishlistStore();
-  const location = useLocation();
-  const { data: cartData } = useCart(true);
-  const addMutation = useAddToCart();
-  const removeMutation = useRemoveFromCart();
-  const updateMutation = useUpdateCart();
-
-  const filteredProducts = table.getRowModel().rows.map((r) => r.original);
-
-  // show loading only if we're actually loading AND have no cached products to show
-  const hasProducts =
-    Array.isArray(apiNewArrivals) && apiNewArrivals.length > 0;
-  if (isLoading && !hasProducts)
-    return <ProductSkeleton/>;
-
-  if (!filteredProducts.length) return <p>No products available right now.</p>;
+  if (!paginated.length)
+    return (
+      <p className="text-center text-gray-600 py-10">
+        No new arrival products found.
+      </p>
+    );
 
   return (
-    <section className="py-5 px-6 md:px-20">
-      {/* Product Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredProducts.map((product) => {
-          const stock = Number(product.stock ?? NaN);
-
-          const handleNavigate = () => {
-            if (stock === 0) return;
-            navigate(`/product/${product.id}`);
-          };
-
-          const handleAddToCart = (e: React.MouseEvent) => {
-            e.stopPropagation();
-            if (stock === 0) return;
-            if (!user)
-              return navigate("/login", {
-                state: { from: location.pathname + location.search },
-              });
-            addMutation.mutate({ product_id: product.id, quantity: 1 });
-          };
-
-          const handleWishlist = (e: React.MouseEvent) => {
-            e.stopPropagation();
-            if (!user)
-              return navigate("/login", {
-                state: { from: location.pathname + location.search },
-              });
-            addToWishlist(product as Product);
-          };
-
-          return (
-            <div
-              key={product.id}
-              className="bg-white rounded-lg shadow-md p-4 hover:shadow-lg transition-transform transform flex flex-col justify-between"
-            >
-              <div className="relative h-40 w-full cursor-pointer rounded-md overflow-hidden mb-3 flex items-center justify-center">
-                {/* Out of stock badge - overlays the image when stock === 0 */}
-                {stock === 0 && (
-                  <div
-                    aria-hidden
-                    className="absolute top-2 right-2 z-20 bg-[var(--color-light)] text-black px-3 py-1 rounded-full text-xs font-semibold"
-                  >
-                    Out of stock
-                  </div>
-                )}
-                {product.image ? (
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="object-cover w-full h-full transition-transform duration-300 hover:scale-110"
-                    onClick={handleNavigate}
-                  />
-                ) : (
-                  <span
-                    className="text-primary-200 text-sm"
-                    onClick={handleNavigate}
-                  >
-                    No Image Available
-                  </span>
-                )}
-              </div>
-
-              {/* Product Info */}
-              <div onClick={handleNavigate} className="cursor-pointer">
-                <h3 className="text-accent-dark font-semibold text-lg text-center mb-2 hover:underline">
-                  {product.name.length > 15
-                    ? product.name.slice(0, 50) + "..."
-                    : product.name}
-                </h3>
-
-                {/* Rating */}
-                <div className="flex items-center justify-between mb-3">
-                {/* PRICE LEFT */}
-                <p className="text-[var(--color-primary-400)] font-bold text-lg ml-2">
-                  ₹{product.discount_price ?? product.price}
-                  {product.discount_price && (
-                    <span className="text-gray-400 line-through text-sm ml-4">
-                      ₹{product.price}
-                    </span>
-                  )}
-                </p>
-
-                {/* RATING RIGHT */}
-                <span className="flex items-center">
-                  
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill={
-                         "#facc15" 
-                      }
-                      className="w-5 h-5"
-                    >
-                      <path d="M12 .587l3.668 7.568L24 9.75l-6 5.854L19.335 24 12 19.896 4.665 24 6 15.604 0 9.75l8.332-1.595z" />
-                    </svg>
-
-                  <span className="text-sm text-gray-600 ml-2">
-                    {product.average_rating}
-                  </span>
-                </span>
-              </div>
-              </div>
-
-              {/* Buttons */}
-              <div className="flex items-center justify-between mt-3">
-                {/* If product exists in cart, show quantity controls */}
-                {cartData?.items.find((c) => c.product_id === product.id) ? (
-                  (() => {
-                    const c = cartData.items.find((ci) => ci.product_id === product.id)!;
-                    const dec = (ev: React.MouseEvent) => {
-                      ev.stopPropagation();
-                      if (c.quantity <= 1) {
-                        removeMutation.mutate({ product_id: c.product_id });
-                      } else {
-                        updateMutation.mutate({
-                          product_id: c.product_id,
-                          quantity: c.quantity - 1,
-                        });
-                      }
-                    };
-
-                    const inc = (ev: React.MouseEvent) => {
-                      ev.stopPropagation();
-                      updateMutation.mutate({
-                        product_id: c.product_id,
-                        quantity: c.quantity + 1,
-                      });
-                    };
-
-                    return (
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={dec}
-                          className="px-3 py-1 bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)] cursor-pointer rounded-md"
-                          aria-label="decrease"
-                        >
-                          -
-                        </button>
-                        <span className="px-3 py-1 border rounded-md min-w-[70px] text-center">
-                          {c.quantity}
-                        </span>
-                        <button
-                          onClick={inc}
-                          className="px-3 py-1 bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)] cursor-pointer rounded-md"
-                          aria-label="increase"
-                        >
-                          +
-                        </button>
-                      </div>
-                    );
-                  })()
-                ) : (
-                  <button
-                    onClick={handleAddToCart}
-                    disabled={stock === 0}
-                    className={`flex-1 py-2 rounded-lg font-semibold transition-all duration-150 shadow-sm ${
-                      stock === 0
-                        ? "bg-accent-light text-accent-light cursor-not-allowed"
-                        : "bg-[var(--color-accent)] text-primary-100 hover:bg-[var(--color-accent-dark)] hover:shadow-md transform hover:-translate-y-0.5"
-                    }`}
-                  >
-                    Add to Cart
-                  </button>
-                )}
-                <button
-                  onClick={handleWishlist}
-                  className="ml-2 p-2 border cursor-pointer rounded-lg transition-all duration-150 border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-black"
-                  aria-label="add to wishlist"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth={1.8}
-                    className="w-5 h-5"
-                  >
-                    <path d="M12 21C12 21 4 13.647 4 8.75C4 6.17893 6.17893 4 8.75 4C10.2355 4 11.6028 4.80549 12 6.00613C12.3972 4.80549 13.7645 4 15.25 4C17.8211 4 20 6.17893 20 8.75C20 13.647 12 21 12 21Z" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          );
-        })}
+    <section className="pb-5 px-6 md:px-16 ">
+      <div
+        className="grid 
+        grid-cols-1
+        
+        md:grid-cols-3 
+        lg:grid-cols-4 
+        gap-4"
+      >
+        {paginated.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
       </div>
 
-      {/* Pagination */}
-      <div className="flex justify-center mt-8 space-x-2">
-        <button
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-          className="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
-        >
-          Prev
-        </button>
-        <button
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-          className="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-8 space-x-2">
+          <button
+            onClick={() => setPage((p) => p - 1)}
+            disabled={page === 1}
+            className="px-4 py-2 bg-gray-200 font-heading rounded-md disabled:opacity-50"
+          >
+            Prev
+          </button>
+
+          <span className="px-4 py-2 font-heading">
+            {page} / {totalPages}
+          </span>
+
+          <button
+            onClick={() => setPage((p) => p + 1)}
+            disabled={page === totalPages}
+            className="px-4 py-2 bg-gray-200 rounded-md font-heading disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </section>
   );
 };
