@@ -40,9 +40,7 @@ export interface Order {
   total_amount: number;
   status: "pending" | "in_progress" | "delivered" | "cancelled";
   payment_status: "paid" | "unpaid" | "failed";
-  payment_method: string;
   created_at: string;
-  updated_at: string;
   address: OrderAddress;
   items: OrderItem[];
 }
