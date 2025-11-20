@@ -3,8 +3,11 @@ import React from "react";
 import * as productsApi from "../../api/productsApi";
 import { useQuery } from "@tanstack/react-query";
 import type { ProductResponse } from "../../types/product";
-import { useWishlistStore } from "../../store/wishlistStore";
-import type { Product } from "../../store/useProductStore";
+import {
+  useGetWishlist,
+  useRemoveWishlist,
+  useAddWishlist,
+} from "../../hooks/Customer/useWishlistHooks";
 import { useAuthStore } from "../../store/authStore";
 import ProductImageGallery from "../../components/Customer/ProductImageGallery";
 import { Star, Truck, ShieldCheck, BadgeCheck, Headset } from "lucide-react";
@@ -42,8 +45,10 @@ const ProductDescription: React.FC = () => {
     retry: 1,
   });
 
-  // use centralized wishlist store so wishlist is consistent across the app
-  const { addToWishlist } = useWishlistStore();
+  // wishlist hook (mutations mirror cart hooks)
+  const { data: wishlistData } = useGetWishlist();
+  const addWishlistMutation = useAddWishlist();
+  const removeWishlistMutation = useRemoveWishlist();
   const { data: cartData } = useCart(true); // gives you cart items and totals
   const removeMutation = useRemoveFromCart();
   const updateMutation = useUpdateCart();
@@ -52,6 +57,8 @@ const ProductDescription: React.FC = () => {
   const location = useLocation();
 
   const cartItems = cartData?.items ?? [];
+  const wishlistItems = wishlistData?.items ?? [];
+  const isInWishlist = wishlistItems.some((w) => w.product_id === product?.id);
 
   // Fetch reviews using the centralized review hooks
   const { data: reviews = [], isLoading: reviewsLoading } = useReviews(
@@ -161,7 +168,9 @@ const ProductDescription: React.FC = () => {
       setReviewComment("");
       setReviewRating(5);
     } catch {
-      // error handled in onError
+      setShowInlineReviewForm(false);
+      setReviewComment("");
+      setReviewRating(5);
     }
   };
 
@@ -394,16 +403,47 @@ const ProductDescription: React.FC = () => {
                 )}
 
                 <button
-                  onClick={() => {
+                  onClick={async () => {
                     if (!user)
                       return navigate("/login", {
                         state: { from: location.pathname + location.search },
                       });
-                    addToWishlist(storeProduct as Product);
+
+                    try {
+                      if (isInWishlist) {
+                        await removeWishlistMutation.mutateAsync({
+                          product_id: product.id,
+                        });
+                      } else {
+                        await addWishlistMutation.mutateAsync({
+                          product_id: product.id,
+                        });
+                      }
+                    } catch {
+                      /* handled in hook */
+                    }
                   }}
-                  className="flex-1 py-3 cursor-pointer rounded-lg font-semibold transition-all duration-150 border border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-primary-100"
+                  disabled={
+                    addWishlistMutation.isPending ||
+                    removeWishlistMutation.isPending
+                  }
+                  className={`flex-1 py-3 rounded-lg font-semibold transition-all duration-150 border 
+    ${
+      isInWishlist
+        ? "border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+        : "border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-white"
+    }
+    cursor-pointer
+  `}
                 >
-                  WISHLIST
+                  {isInWishlist
+                    ? addWishlistMutation.isPending ||
+                      removeWishlistMutation.isPending
+                      ? "Updating..."
+                      : "Remove Wishlist"
+                    : addWishlistMutation.isPending
+                    ? "Adding..."
+                    : "Add to Wishlist"}
                 </button>
               </div>
               <hr className="my-3 border-[var(--color-gray-300)]" />
@@ -465,11 +505,15 @@ const ProductDescription: React.FC = () => {
               </div>
             </div>
             <div className="mt-2">
-              <p className="text-accent">
-                Based on {normalizedReviews.length} customer reviews, here is
-                the overall review for this product.
-              </p>
-              <span className="text-accent-light text-sm">Demo review</span>
+              <div className="rounded-xl border border-primary-50 bg-background shadow-sm p-5">
+                <p className="text-accent">
+                  Based on {normalizedReviews.length} customer reviews, here is
+                  the overall review for this product.
+                </p>
+                <span className="text-accent-light text-sm">
+                  Average review API will be called here...
+                </span>
+              </div>
             </div>
           </div>
 
@@ -509,22 +553,6 @@ const ProductDescription: React.FC = () => {
                         <span className="font-medium text-primary-400">
                           {reviewAuthor || user?.full_name || "Anonymous"}
                         </span>
-                      </div>
-
-                      {/* Star selector */}
-                      <div className="flex pt-2 md:pt-0 cursor-pointer">
-                        {[...Array(5)].map((_, i) => (
-                          <Star
-                            key={i}
-                            onClick={() => setReviewRating(i + 1)}
-                            className={`w-6 h-6 transition 
-              ${
-                i < reviewRating
-                  ? "text-yellow-400 fill-yellow-400"
-                  : "text-primary-100 hover:text-accent-dark"
-              }`}
-                          />
-                        ))}
                       </div>
                     </div>
 

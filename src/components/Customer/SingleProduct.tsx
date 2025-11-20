@@ -1,7 +1,11 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
-import { useWishlistStore } from "../../store/wishlistStore";
+import {
+  useGetWishlist,
+  useRemoveWishlist,
+  useAddWishlist,
+} from "../../hooks/Customer/useWishlistHooks";
 import {
   useCart,
   useRemoveFromCart,
@@ -19,15 +23,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useAuthStore((s) => s.user);
-
+  const { data: wishlistData } = useGetWishlist();
   const { data: cartData } = useCart(true);
   const removeMutation = useRemoveFromCart();
   const updateMutation = useUpdateCart();
   const addMutation = useAddToCart();
-  const { wishlistItems, addToWishlist, removeFromWishlist } =
-    useWishlistStore();
+  const addWishlistMutation = useAddWishlist();
+  const removeWishlistMutation = useRemoveWishlist();
 
-  const inWishlist = wishlistItems.some((w) => w.id === product.id);
+  const wishlistItems = wishlistData?.items ?? [];
+  const inWishlist = wishlistItems.some((w) => w.product_id === product.id);
   const stock = Number(product.stock ?? NaN);
   const inCart = cartData?.items.find((c) => c.product_id === product.id);
 
@@ -50,8 +55,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         state: { from: location.pathname + location.search },
       });
 
-    if (inWishlist) removeFromWishlist(product.id);
-    else addToWishlist(product);
+    if (inWishlist) removeWishlistMutation.mutate({ product_id: product.id });
+    else addWishlistMutation.mutate({ product_id: product.id });
   };
 
   const isUpdating = updateMutation.isPending || removeMutation.isPending;
@@ -216,21 +221,21 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           <button
             onClick={handleWishlist}
             className={`
-              flex items-center justify-center
-              ml-1.5 p-2 rounded-lg border 
-              transition-all duration-150 shrink-0
-              ${
-                inWishlist
-                  ? "bg-[var(--color-accent)] text-black border-[var(--color-accent)]"
-                  : "border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-black"
-              }
-            `}
+    flex items-center justify-center
+    ml-1.5 p-2 rounded-lg border 
+    transition-all duration-150 shrink-0 cursor-pointer
+    ${
+      inWishlist
+        ? "bg-[var(--color-accent)] text-black border-[var(--color-accent)]"
+        : "border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-primary-100"
+    }
+  `}
           >
-            {inWishlist ? (
-             <Heart fill="currentColor" size={18} />
-            ) : (
-              <Heart size={18} />
-            )}
+            <Heart
+              size={18}
+              className={`transition-colors duration-150 ${inWishlist ? "text-accent-light" : "text-accent"}`}
+              fill={inWishlist ? "accent" : "none"}
+            />
           </button>
         </div>
       </div>
