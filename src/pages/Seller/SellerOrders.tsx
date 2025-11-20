@@ -15,6 +15,8 @@ import TableRowSkeleton from "../../components/TableRowSkeleton";
 import OrderDetailModel from "../../components/Seller/OrderDetailModel";
 import { getSellerOrders } from "../../api/sellerOrderApi";
 import { useQuery } from "@tanstack/react-query";
+import SellerNotificationDropdown from "../../components/Seller/NotificationDropdown";
+
 
 const columnHelper = createColumnHelper<Order>();
 
@@ -203,7 +205,7 @@ const SellerOrders: React.FC = () => {
   return (
     <div className="min-h-screen py-6">
       <div className="px-4 sm:px-8">
-        <div className="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <div className="mb-4 flex flex-row justify-between items-center">
           <div>
             <h1 className="text-2xl sm:text-3xl font-heading font-bold text-accent-dark">
               Orders
@@ -212,6 +214,11 @@ const SellerOrders: React.FC = () => {
               Review and manage customer orders
             </p>
           </div>
+
+          <div className="mt-3 sm:mt-0 hover:cursor-pointer">
+            <SellerNotificationDropdown />
+          </div>
+
         </div>
 
         {/* Filters */}
