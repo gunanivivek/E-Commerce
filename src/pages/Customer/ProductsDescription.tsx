@@ -7,7 +7,7 @@ import { useWishlistStore } from "../../store/wishlistStore";
 import type { Product } from "../../store/useProductStore";
 import { useAuthStore } from "../../store/authStore";
 import ProductImageGallery from "../../components/Customer/ProductImageGallery";
-import { Star, Truck, RotateCcw, ShieldAlert } from "lucide-react";
+import { Star, Truck, ShieldCheck, BadgeCheck, Headset } from "lucide-react";
 import Header from "../../components/ui/Header";
 import Footer from "../../components/ui/Footer";
 import { Link } from "react-router-dom";
@@ -111,12 +111,13 @@ const ProductDescription: React.FC = () => {
   const [visibleCount, setVisibleCount] = useState(3);
 
   // Add Review modal state
-  const [showReviewModal, setShowReviewModal] = useState(false);
   const [reviewRating, setReviewRating] = useState<number>(5);
   const [reviewComment, setReviewComment] = useState("");
-  const [reviewAuthor, setReviewAuthor] = useState<string>(
-    user?.full_name ?? ""
-  );
+  const [showInlineReviewForm, setShowInlineReviewForm] = useState(false);
+  const [expandedReviews, setExpandedReviews] = useState<
+    Record<string, boolean>
+  >({});
+  const [reviewAuthor] = useState<string>(user?.full_name ?? "");
 
   const { mutateAsync: createReviewAsync, isPending: isCreatingReview } =
     useCreateReview(product?.id);
@@ -126,9 +127,15 @@ const ProductDescription: React.FC = () => {
       return navigate("/login", {
         state: { from: location.pathname + location.search },
       });
-    setShowReviewModal(true);
+    setShowInlineReviewForm(true);
   };
 
+  const toggleExpand = (id: string | number) => {
+    setExpandedReviews((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
   const handleSaveReview = async () => {
     if (!product) return;
     if (!reviewComment.trim()) {
@@ -150,6 +157,9 @@ const ProductDescription: React.FC = () => {
 
     try {
       await createReviewAsync(payload);
+      setShowInlineReviewForm(false);
+      setReviewComment("");
+      setReviewRating(5);
     } catch {
       // error handled in onError
     }
@@ -192,9 +202,6 @@ const ProductDescription: React.FC = () => {
   const discountPriceNum = product.discount_price
     ? Number(product.discount_price)
     : null;
-  const discountPercent = discountPriceNum
-    ? Math.round(((priceNum - discountPriceNum) / priceNum) * 100)
-    : 0;
 
   const primaryImage: string | undefined =
     product.images && product.images.length
@@ -263,7 +270,7 @@ const ProductDescription: React.FC = () => {
       {/* Main section */}
       <section>
         <div className="bg-[var(--color-background)] px-6 md:px-20">
-          <div className="mx-auto max-w-7xl grid grid-cols-1 md:grid-cols-2 gap-10 ">
+          <div className="mx-auto max-w-7xl grid grid-cols-1 md:grid-cols-2 md:gap-10 gap-3">
             {/* Left - Images */}
             <div className="p-4">
               <ProductImageGallery
@@ -278,7 +285,7 @@ const ProductDescription: React.FC = () => {
               <h1 className="text-lg md:text-xl font-semibold text-gray-800 mb-1">
                 {product.name}
               </h1>
-              <p className="text-[var(--color-text-muted)] text-md mb-1">
+              <p className="text-[var(--color-text-muted)] md:text-md text-sm mb-1">
                 {product.description}
               </p>
 
@@ -287,13 +294,12 @@ const ProductDescription: React.FC = () => {
                   <Star
                     key={i}
                     className={`w-4 h-4 ${
-                      i < ratingValue
+                      i < Math.round(ratingValue)
                         ? "text-yellow-500 fill-yellow-500"
                         : "text-slate-300"
                     }`}
                   />
                 ))}
-
                 <span className="text-sm font-medium text-slate-600 ml-1">
                   {ratingValue > 0 ? ratingValue.toFixed(1) : "No ratings"}
                 </span>
@@ -307,13 +313,12 @@ const ProductDescription: React.FC = () => {
                 {discountPriceNum && (
                   <>
                     <p className="text-gray-400 line-through">₹{priceNum}</p>
-                    <span className="ml-2 text-[var(--color-accent)] font-medium">
-                      ({discountPercent}% OFF)
-                    </span>
                   </>
                 )}
               </div>
-              <p className="text-green-600 mb-8">Inclusive of all taxes</p>
+              <p className="text-green-600 mb-8 text-sm md:text-md">
+                Inclusive of all taxes
+              </p>
 
               {/* Bottom Actions */}
               <div className="flex items-center gap-4 mb-6">
@@ -412,15 +417,21 @@ const ProductDescription: React.FC = () => {
                   </span>
                 </div>
                 <div className="cursor-pointer rounded hover:bg-gray-100 flex flex-col items-center text-center gap-2 text-accent p-2">
-                  <ShieldAlert className="h-8 w-8 text-accent-darker" />
+                  <ShieldCheck className="h-8 w-8 text-accent-darker" />
                   <span className="text-sm font-medium text-accent-darker">
                     Secure Payments
                   </span>
                 </div>
                 <div className="cursor-pointer rounded hover:bg-gray-100 flex flex-col items-center text-center gap-2 p-2">
-                  <RotateCcw className="h-8 w-8 text-accent-darker" />
+                  <Headset className="h-8 w-8 text-accent-darker" />
                   <span className="text-sm font-medium text-accent-darker">
-                    Easy Returns & Support
+                    24/7 Customer Support
+                  </span>
+                </div>
+                <div className="cursor-pointer rounded hover:bg-gray-100 flex flex-col items-center text-center gap-2 text-accent p-2">
+                  <BadgeCheck className="h-8 w-8 text-accent-darker" />
+                  <span className="text-sm font-medium text-accent-darker">
+                    Quality Checked
                   </span>
                 </div>
               </div>
@@ -428,7 +439,41 @@ const ProductDescription: React.FC = () => {
           </div>
 
           <hr className="my-3 border-accent max-w-7xl mx-auto" />
-          {/* Reviews */}
+
+          {/* Average Review from all customers */}
+          <div className="mx-auto max-w-7xl p-6 pb-10">
+            <div className="flex justify-between items-center">
+              <h3 className="text-xl font-semibold mb-1 text-accent-dark">
+                Average Customer Ratings and Reviews
+              </h3>
+              <div className="flex items-center gap-3">
+                <div className="flex">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`w-5 h-5 ${
+                        i < Math.round(ratingValue)
+                          ? "text-yellow-400 fill-yellow-400"
+                          : "text-primary-100"
+                      }`}
+                    />
+                  ))}
+                </div>
+                <span className="text-lg font-semibold text-accent-dark">
+                  {ratingValue > 0 ? ratingValue.toFixed(1) : "No ratings yet"}
+                </span>
+              </div>
+            </div>
+            <div className="mt-2">
+              <p className="text-accent">
+                Based on {normalizedReviews.length} customer reviews, here is
+                the overall review for this product.
+              </p>
+              <span className="text-accent-light text-sm">Demo review</span>
+            </div>
+          </div>
+
+          {/* Customer Reviews */}
           <div className="mx-auto max-w-7xl p-6 pb-10">
             <div className="flex justify-between items-center">
               <h3 className="text-xl font-semibold mb-4 text-accent-dark">
@@ -448,6 +493,73 @@ const ProductDescription: React.FC = () => {
               <p className="text-accent-light">No reviews yet.</p>
             ) : (
               <div className="space-y-5 my-6">
+                {/* ---- Inline Add Review Card ---- */}
+                {showInlineReviewForm && (
+                  <div className="rounded-xl border border-primary-50 bg-background shadow-sm p-5">
+                    {/* Top: Avatar + Name + Star Selector */}
+                    <div className="flex flex-col md:flex-row justify-between items-center">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-sm font-semibold text-primary-400">
+                          {(
+                            reviewAuthor?.[0] ??
+                            user?.full_name?.[0] ??
+                            "A"
+                          ).toUpperCase()}
+                        </div>
+                        <span className="font-medium text-primary-400">
+                          {reviewAuthor || user?.full_name || "Anonymous"}
+                        </span>
+                      </div>
+
+                      {/* Star selector */}
+                      <div className="flex pt-2 md:pt-0 cursor-pointer">
+                        {[...Array(5)].map((_, i) => (
+                          <Star
+                            key={i}
+                            onClick={() => setReviewRating(i + 1)}
+                            className={`w-6 h-6 transition 
+              ${
+                i < reviewRating
+                  ? "text-yellow-400 fill-yellow-400"
+                  : "text-primary-100 hover:text-accent-dark"
+              }`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Comment Textbox */}
+                    <textarea
+                      value={reviewComment}
+                      onChange={(e) => setReviewComment(e.target.value)}
+                      placeholder="Write your review..."
+                      className="mt-4 w-full border border-primary-100 rounded-lg px-3 py-3 text-gray-700 leading-relaxed focus:outline-none focus:ring focus:ring-accent-light h-28"
+                    />
+
+                    {/* Action Buttons */}
+                    <div className="flex justify-end gap-3 mt-4">
+                      <button
+                        onClick={() => {
+                          setShowInlineReviewForm(false);
+                          setReviewComment("");
+                          setReviewRating(5);
+                        }}
+                        className="px-4 py-2 rounded-md border border-accent-dark text-accent-darker hover:bg-accent-dark hover:text-white transition cursor-pointer"
+                      >
+                        Cancel
+                      </button>
+
+                      <button
+                        onClick={handleSaveReview}
+                        disabled={isCreatingReview}
+                        className="px-4 py-2 rounded-md bg-accent-dark hover:bg-accent text-white transition cursor-pointer"
+                      >
+                        {isCreatingReview ? "Saving..." : "Submit Review"}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
                 {normalizedReviews.slice(0, visibleCount).map((r) => (
                   <div
                     key={r.id}
@@ -478,25 +590,28 @@ const ProductDescription: React.FC = () => {
                       </div>
                     </div>
 
-                    <div className="relative group cursor-pointer">
-                      {r.comment && r.comment.length > 200 ? (
+                    <div className="mt-3 text-gray-700 leading-relaxed">
+                      {r.comment ? (
                         <>
-                          {/* Truncated preview */}
-                          <p className="mt-3 text-gray-700 leading-relaxed">
-                            {r.comment && r.comment.length > 200
-                              ? r.comment.slice(0, 200) + "..."
-                              : r.comment}
-                          </p>
-                          {/* Tooltip */}
-                          <div className="absolute z-50 hidden group-hover:block p-3 bg-accent-dark w-auto text-white text-xs rounded shadow-lg top-full left-0 mt-2">
-                            {r.comment}
-                          </div>
+                          {expandedReviews[r.id]
+                            ? r.comment
+                            : r.comment.length > 200
+                            ? r.comment.slice(0, 200) + "..."
+                            : r.comment}
+
+                          {/* Toggle Button */}
+                          {r.comment.length > 200 && (
+                            <button
+                              className="text-accent-dark ml-2 hover:underline cursor-pointer text-sm font-bold"
+                              onClick={() => toggleExpand(r.id)}
+                            >
+                              {expandedReviews[r.id]
+                                ? "Read less"
+                                : "Read more"}
+                            </button>
+                          )}
                         </>
-                      ) : (
-                        <p className="mt-3 text-gray-700 leading-relaxed">
-                          {r.comment}
-                        </p>
-                      )}
+                      ) : null}
                     </div>
                   </div>
                 ))}
@@ -524,72 +639,6 @@ const ProductDescription: React.FC = () => {
           </div>
         </div>
       </section>
-
-      {/* Review Modal */}
-      {showReviewModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div
-            className="absolute inset-0 bg-black opacity-40"
-            onClick={() => setShowReviewModal(false)}
-          />
-          <div className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative z-10">
-            <h3 className="text-lg font-semibold mb-3">Add Review</h3>
-            <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Your name (optional)
-                </label>
-                <input
-                  type="text"
-                  value={reviewAuthor}
-                  onChange={(e) => setReviewAuthor(e.target.value)}
-                  className="w-full border px-3 py-2 rounded-md"
-                  placeholder="Your name"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Rating</label>
-                <select
-                  value={reviewRating}
-                  onChange={(e) => setReviewRating(Number(e.target.value))}
-                  className="border rounded-md px-3 py-2 cursor-pointer"
-                >
-                  {[5, 4, 3, 2, 1].map((r) => (
-                    <option key={r} value={r}>
-                      {r} Star{r > 1 ? "s" : ""}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Comment
-                </label>
-                <textarea
-                  value={reviewComment}
-                  onChange={(e) => setReviewComment(e.target.value)}
-                  className="w-full border rounded-md px-3 py-2 h-28"
-                />
-              </div>
-              <div className="flex justify-end gap-3 mt-4">
-                <button
-                  onClick={() => setShowReviewModal(false)}
-                  className="px-4 py-2 rounded-md border border-accent-dark cursor-pointer text-accent-darker hover:bg-accent-dark hover:text-primary-100"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={handleSaveReview}
-                  disabled={isCreatingReview}
-                  className="px-4 py-2 rounded-md bg-accent-dark hover:bg-accent text-primary-100 cursor-pointer"
-                >
-                  {isCreatingReview ? "Saving..." : "Save Review"}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       <ChatbotContainer />
       <Footer />

@@ -20,7 +20,7 @@ const ChatbotWidget = ({
   onMinimize: () => void;
   onClose: () => void;
 }) => {
-  const { messages, addMessage } = useChatbotStore();
+  const { messages, addMessage, clearMessage } = useChatbotStore();
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const { mutateAsync, isPending } = useProductQA();
@@ -37,6 +37,10 @@ const ChatbotWidget = ({
     }, 50);
     return () => clearTimeout(t);
   }, [messages, viewState]);
+
+  useEffect(() => {
+    clearMessage();
+  }, [productId, clearMessage]);
 
   const sendMessage = async () => {
     if (!text.trim()) return;
