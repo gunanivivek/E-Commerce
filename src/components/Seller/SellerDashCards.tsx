@@ -21,6 +21,8 @@ interface SellerKpiData {
   pending_approval_products: number;
   low_stock_items: number;
   coupon_usage: number;
+  last_month_revenue: number;
+  yesterday_revenue: number;
 }
 
 interface KpiCardProps {
@@ -77,62 +79,77 @@ interface SellerKpiCardsProps {
   data: SellerKpiData;
 }
 
-export const SellerDashCards: React.FC<SellerKpiCardsProps> = ({ data }) => (
-  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8 bg-background p-4 rounded-xl">
-    <KpiCard
-      icon={TrendingUp}
-      title="Total Revenue"
-      value={`₹${data.total_revenue.toLocaleString()}`}
-      isPositive
-    />
+const calcTrend = (current: number, last: number) => {
+  if (!last || last === 0) return { percent: 0, text: "0%" };
 
-    <KpiCard
-      icon={TrendingUp}
-      title="Monthly Revenue"
-      value={`₹${data.monthly_revenue.toLocaleString()}`}
-      trend={"+17.9% vs last month"}
-      isPositive
-    />
+  const diff = current - last;
+  const percent = (diff / last) * 100;
 
-    <KpiCard
-      icon={TrendingUp}
-      title="Today's Revenue"
-      value={`₹${data.todays_revenue.toLocaleString()}`}
-      trend={"+17.9% vs last month"}
-      isPositive
-    />
+  return {
+    percent,
+    text: `${percent.toFixed(1)}%`,
+  };
+};
 
-    <KpiCard
-      icon={ShoppingBag}
-      title="Total Orders"
-      value={data.total_orders.toString()}
-      subtitle={`${data.delivered_orders} delivered, ${data.pending_orders} pending`}
-    />
+export const SellerDashCards: React.FC<SellerKpiCardsProps> = ({ data }) => {
+  const monthlyTrend = calcTrend(data.monthly_revenue, data.last_month_revenue);
+  const todaysTrend = calcTrend(data.todays_revenue, data.yesterday_revenue);
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8 bg-background p-4 rounded-xl">
+      <KpiCard
+        icon={TrendingUp}
+        title="Total Revenue"
+        value={`₹${data.total_revenue.toLocaleString()}`}
+        isPositive
+      />
 
-    <KpiCard
-      icon={PackageX}
-      title="Pending Shipments"
-      value={data.pending_shipments.toString()}
-    />
+      <KpiCard
+        icon={TrendingUp}
+        title="Monthly Revenue"
+        value={`₹${data.monthly_revenue.toLocaleString()}`}
+        trend={`${monthlyTrend.text} vs last month`}
+        isPositive={monthlyTrend.percent >= 0}
+      />
 
-    <KpiCard
-      icon={Archive}
-      title="Active Products"
-      value={data.active_products.toString()}
-      subtitle={`${data.pending_approval_products} pending approval`}
-    />
+      <KpiCard
+        icon={TrendingUp}
+        title="Today's Revenue"
+        value={`₹${data.todays_revenue.toLocaleString()}`}
+        trend={`${todaysTrend.text} vs yesterday`}
+        isPositive={todaysTrend.percent >= 0}
+      />
 
-    <KpiCard
-      icon={AlertTriangle}
-      title="Low Stock Items"
-      value={data.low_stock_items.toString()}
-    />
+      <KpiCard
+        icon={ShoppingBag}
+        title="Total Orders"
+        value={data.total_orders.toString()}
+        subtitle={`${data.delivered_orders} delivered, ${data.pending_orders} pending`}
+      />
 
-    <KpiCard
-      icon={Tag}
-      title="Coupon Usage"
-      value={data.coupon_usage.toString()}
-    />
+      <KpiCard
+        icon={PackageX}
+        title="Pending Shipments"
+        value={data.pending_shipments.toString()}
+      />
 
-  </div>
-);
+      <KpiCard
+        icon={Archive}
+        title="Active Products"
+        value={data.active_products.toString()}
+        subtitle={`${data.pending_approval_products} pending approval`}
+      />
+
+      <KpiCard
+        icon={AlertTriangle}
+        title="Low Stock Items"
+        value={data.low_stock_items.toString()}
+      />
+
+      <KpiCard
+        icon={Tag}
+        title="Coupon Usage"
+        value={data.coupon_usage.toString()}
+      />
+    </div>
+  );
+};
