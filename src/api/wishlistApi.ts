@@ -32,7 +32,7 @@ export const addToWishlist = async (
   payload: AddWishlistRequest
 ): Promise<AddWishlistResponse> => {
   try {
-    const res = await API.post<AddWishlistResponse>("wishlist/add", payload);
+    const res = await API.post<AddWishlistResponse>("wishlist/", payload);
     return res.data;
   } catch (err) {
     // Some backends expect POST /wishlist/ instead of /wishlist/add
@@ -55,7 +55,7 @@ export const removeFromWishlist = async (
 ): Promise<AddWishlistResponse> => {
   try {
     const res = await API.delete<AddWishlistResponse>(
-      `wishlist/remove/${productId}`
+      `wishlist/${productId}`
     );
     return res.data;
   } catch (err) {

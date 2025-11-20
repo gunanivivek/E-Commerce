@@ -10,7 +10,7 @@ import {
   createColumnHelper,
 } from "@tanstack/react-table";
 import type { Row } from "@tanstack/react-table";
-import type { Order } from "../../types/orders";
+import type { AllOrder } from "../../types/orders";
 import TableRowSkeleton from "../../components/TableRowSkeleton";
 import OrderDetailModel from "../../components/Seller/OrderDetailModel";
 import { getSellerOrders } from "../../api/sellerOrderApi";
@@ -18,7 +18,7 @@ import { useQuery } from "@tanstack/react-query";
 import SellerNotificationDropdown from "../../components/Seller/NotificationDropdown";
 
 
-const columnHelper = createColumnHelper<Order>();
+const columnHelper = createColumnHelper<AllOrder>();
 
 const SellerOrders: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -120,7 +120,7 @@ const SellerOrders: React.FC = () => {
       columnHelper.display({
         id: "status",
         header: "Status",
-        cell: ({ row }: { row: Row<Order> }) => {
+        cell: ({ row }: { row: Row<AllOrder> }) => {
           const items = row.original.items;
           const allDelivered = items.every((i) => i.status === "delivered");
           const anyPending = items.some((i) => i.status === "pending");
@@ -148,7 +148,7 @@ const SellerOrders: React.FC = () => {
       columnHelper.display({
         id: "payment",
         header: "Payment Status",
-        cell: ({ row }: { row: Row<Order> }) => {
+        cell: ({ row }: { row: Row<AllOrder> }) => {
           const paymentStatus = row.original.payment_status;
 
           const displayStatus = paymentStatus === "paid" ? "Success" : "Failed";
@@ -169,7 +169,7 @@ const SellerOrders: React.FC = () => {
       columnHelper.display({
         id: "actions",
         header: "Actions",
-        cell: ({ row }: { row: Row<Order> }) => {
+        cell: ({ row }: { row: Row<AllOrder> }) => {
           const order = row.original;
           return (
             <button
@@ -215,7 +215,7 @@ const SellerOrders: React.FC = () => {
             </p>
           </div>
 
-          <div className="mt-3 sm:mt-0 hover:cursor-pointer">
+          <div className="mt-3 sm:mt-0 ">
             <SellerNotificationDropdown />
           </div>
 

@@ -9,7 +9,7 @@ export interface OrderItem {
   payment_status: "success" | "failed"
 }
 
-export interface Order {
+export interface AllOrder {
   id: number;
   order_number: string;
   customer_name: string;

@@ -1,10 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import API from "./axiosInstance";
-import type { Order, OrderItem, UpdateOrderItemStatusRequest } from "../types/orders";
+import type {  AllOrder,OrderItem, UpdateOrderItemStatusRequest } from "../types/orders";
+import type { Order } from "../types/order";
 
-export const getSellerOrders = async (): Promise<Order[]> => {
+export const getSellerOrders = async (): Promise<AllOrder[]> => {
   const res = await API.get("/seller/orders");
- const transformed: Order[] = res.data.map((order: any) => ({
+ const transformed: AllOrder[] = res.data.map((order: any) => ({
     id: order.id,
     order_number: `ORD-${order.id}`,
     customer_name: order.address?.full_name || "Unknown",
@@ -27,7 +28,7 @@ export const getSellerOrders = async (): Promise<Order[]> => {
 }
 
 export const getOrderById = async (orderId: number): Promise<Order> => {
-  const res = await API.get(`/seller/orders/${orderId}/`);
+  const res = await API.get(`/seller/orders/${orderId}`);
   return res.data;
 };
 
