@@ -47,7 +47,7 @@ const CustomerProfileLayout = () => {
       <main className="flex-grow container mx-auto px-6 md:px-20 py-10">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           {/* Sidebar */}
-          <aside className="rounded-lg shadow-md p-6 h-auto md:h-[calc(100vh-160px)] transition-all duration-300 border border-gray-200 flex flex-col justify-between">
+          <aside className="rounded-lg overflow-y-auto shadow-md p-6 h-auto md:h-[calc(100vh-160px)] transition-all duration-300 border border-gray-200 flex flex-col justify-between">
             <div>
               <div className="text-center mb-6">
                 {user?.profile_picture ? (
@@ -68,7 +68,7 @@ const CustomerProfileLayout = () => {
                 <p className="text-sm text-gray-600">Hello 👋</p>
               </div>
 
-              <nav className="space-y-2">
+              <nav className="space-y-2 ">
                 {menuItems.map(({ label, icon: Icon, path }) => (
                   <NavLink
                     key={path}

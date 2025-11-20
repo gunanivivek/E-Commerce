@@ -7,7 +7,7 @@ export const getAllSellers = async (): Promise<Seller[]> => {
   return res.data;
 };
 
-//  Update seller active status (approve / reject)
+
 export const updateSellerStatus = async (
   id: number,
   status: string
@@ -63,6 +63,6 @@ export const getAllOrders = async (): Promise<Order[]> => {
 };
 
 export const toggleSellerBlockStatus = async (id: number): Promise<Seller> => {
-  const res = await API.patch(`/sellers/${id}/block-toggle`);
+  const res = await API.patch(`/sellers/${id}/toggle-block`);
   return res.data;
 };

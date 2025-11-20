@@ -20,7 +20,7 @@ export interface OrderItem {
   quantity: number;
   unit_price: number;
   total_price: number;
-  status: "pending" | "in_progress" | "delivered" | "cancelled";
+status: "pending" | "shipped" | "delivered" | "cancelled";
 }
 
 export interface OrderAddress {

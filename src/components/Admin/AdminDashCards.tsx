@@ -1,4 +1,4 @@
-// src/components/AdminAnalytics/KpiCards.tsx
+
 
 import React from "react";
 import {
@@ -11,9 +11,6 @@ import {
 } from "lucide-react";
 import type { AdminKpiData } from "../../types/adminAnalyticsTypes";
 
-/* -------------------------
-   ERROR & SKELETON
-------------------------- */
 const ErrorBlock = ({ message }: { message: string }) => (
   <div className="flex items-center justify-center h-28 text-red-600 text-sm font-semibold bg-background border border-border rounded-lg">
     {message}
@@ -25,14 +22,15 @@ const KpiSkeleton = () => (
     {Array(4)
       .fill(0)
       .map((_, i) => (
-        <div key={i} className="bg-white p-4 rounded-xl shadow h-28 animate-pulse" />
+        <div
+          key={i}
+          className="bg-white p-4 rounded-xl shadow h-28 animate-pulse"
+        />
       ))}
   </div>
 );
 
-/* -------------------------
-   KPI CARD
-------------------------- */
+
 interface KpiCardProps {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
@@ -68,77 +66,106 @@ const KpiCard: React.FC<KpiCardProps> = ({
       )}
     </div>
 
-    <h3 className="text-xl font-heading font-bold text-text-primary mb-1">{value}</h3>
+    <h3 className="text-xl font-heading font-bold text-text-primary mb-1">
+      {value}
+    </h3>
     <p className="text-xs text-text-secondary">{title}</p>
     {subtitle && <p className="text-xs text-text-muted mt-1">{subtitle}</p>}
   </div>
 );
 
+/* -------------------------
+   KPI CARDS CONTAINER
+------------------------- */
 
-export const KpiCards: React.FC<{ data?: AdminKpiData; loading: boolean; error?: boolean }> = ({
-  data,
-  loading,
-  error = false,
-}) => {
+export const KpiCards: React.FC<{
+  data?: AdminKpiData;
+  loading: boolean;
+  error?: boolean;
+}> = ({ data, loading, error = false }) => {
   if (loading) return <KpiSkeleton />;
   if (error) return <ErrorBlock message="Failed to load Insights" />;
   if (!data) return null;
+  const calcTrend = (current: number, last: number) => {
+    if (!last || last === 0) return "0%"; // avoid divide-by-zero
+
+    const diff = current - last;
+    const percent = (diff / last) * 100;
+
+    // Round to 1 decimal
+    return `${percent.toFixed(1)}%`;
+  };
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-8 bg-background p-4 rounded-xl">
+      {/* TOTAL REVENUE */}
       <KpiCard
         icon={Rocket}
-        title="Total Revenue"
-        value={`₹${data.totalRevenue.toLocaleString()}`}
-        subtitle="This Month"
-        trend="+13.6% vs last month"
+        title="Current Month Revenue"
+        value={`₹${data.totalRevenue.currentMonthRevenue.toLocaleString()}`}
+        subtitle={`
+          Total Revenue: ₹${data.totalRevenue.totalRevenue.toLocaleString()}
+          Last Month: ₹${data.totalRevenue.lastMonthRevenue.toLocaleString()}`}
+        trend={`${calcTrend(
+          data.totalRevenue.currentMonthRevenue,
+          data.totalRevenue.lastMonthRevenue
+        )} vs last month`}
         isPositive
       />
 
+      {/* TOTAL ORDERS */}
       <KpiCard
         icon={ShoppingBag}
-        title="Total Orders"
-        value={data.totalOrders.toString()}
-        subtitle="This Month"
-        trend="+7.1% vs last month"
+        title="This Month's Orders"
+        value={data.totalOrders.totalOrders.toString()}
+        subtitle={`Last Month: ${data.totalOrders.lastMonthOrders}`}
+        trend={`${calcTrend(
+          data.totalOrders.totalOrders,
+          data.totalOrders.lastMonthOrders
+        )} vs last month`}
         isPositive
       />
+
 
       <KpiCard
         icon={Users}
         title="Active Customers"
-        value={data.totalCustomers.toString()}
-        subtitle={`+${data.newCustomers30Days} new`}
+        value={data.activeCustomers.total.toString()}
+        subtitle={`+${data.activeCustomers.new30Days} new`}
       />
+
 
       <KpiCard
         icon={Users}
         title="Active Sellers"
-        value={data.approvedSellers.toString()}
-        subtitle={`${data.pendingSellers} pending`}
+        value={data.activeSellers.approved.toString()}
+        subtitle={`${data.activeSellers.pending} pending`}
       />
 
+    
       <KpiCard
         icon={Package}
         title="Total Products"
-        value={data.approvedProducts.toString()}
-        subtitle={`${data.pendingProducts} pending`}
+        value={data.totalProducts.approved.toString()}
+        subtitle={`${data.totalProducts.pending} pending`}
       />
+
 
       <KpiCard
         icon={AlertCircle}
         title="Failed Payments"
-        value={data.failedPaymentsToday.toString()}
-        subtitle={`${data.failedPaymentRate}% rate`}
-        trend="+0.5%"
+        value={data.failedPayments.failedToday.toString()}
+        subtitle={`${data.failedPayments.failureRate}% rate`}
+        trend={`${data.failedPayments.failureRate}%`}
         isPositive={false}
       />
 
+     
       <KpiCard
         icon={Tag}
         title="Coupons Used"
-        value={data.couponUsages.toString()}
-        subtitle={`₹${data.totalDiscountGiven.toLocaleString()} discount`}
+        value={data.couponsUsed.usages.toString()}
+        subtitle={`₹${data.couponsUsed.totalDiscount.toLocaleString()} discount`}
       />
     </div>
   );

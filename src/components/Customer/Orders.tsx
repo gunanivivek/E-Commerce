@@ -9,34 +9,38 @@ const Orders: React.FC = () => {
   const storeOrders = useOrderStore((s) => s.orders);
   const navigate = useNavigate();
 
- const getStatusBadge = (status: string, isPaymentFailed = false) => {
-  if (isPaymentFailed) return null; // hide all status badges if payment failed
+  const getStatusBadge = (status: string, isPaymentFailed = false) => {
+    if (isPaymentFailed) return null; // hide all status badges if payment failed
 
-  switch (status) {
-    case "delivered":
-      return (
-        <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">
-          Delivered
-        </span>
-      );
-    case "in_progress":
-    case "pending":
-      return (
-        <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-semibold">
-          In Progress
-        </span>
-      );
-    case "cancelled":
-      return (
-        <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-semibold">
-          Cancelled
-        </span>
-      );
-    default:
-      return null;
-  }
-};
-
+    switch (status) {
+      case "delivered":
+        return (
+          <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-xs font-semibold">
+            Delivered
+          </span>
+        );
+      case "shipped":
+        return (
+          <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold">
+            Shipped
+          </span>
+        );
+      case "pending":
+        return (
+          <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-semibold">
+            In Progress
+          </span>
+        );
+      case "cancelled":
+        return (
+          <span className="bg-red-100 text-red-800 px-3 py-1 rounded-full text-xs font-semibold">
+            Cancelled
+          </span>
+        );
+      default:
+        return null;
+    }
+  };
 
   /** Skeleton Loader **/
   const OrderSkeleton = () => (
@@ -126,8 +130,7 @@ const Orders: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-2 flex-wrap">
-                 {!isPaymentFailed && getStatusBadge(order.status)}
-
+                  {!isPaymentFailed && getStatusBadge(order.status)}
 
                   {isPaymentFailed ? (
                     <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1">
@@ -193,8 +196,7 @@ const Orders: React.FC = () => {
 
                       {order.status !== "cancelled" && (
                         <div className="mt-2 sm:mt-0">
-                        {getStatusBadge(order.status, isPaymentFailed)}
-
+                          {getStatusBadge(item.status, isPaymentFailed)}
                         </div>
                       )}
                     </div>

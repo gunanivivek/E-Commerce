@@ -14,11 +14,11 @@ import {
 
 import api from "./axiosInstance";
 export const adminAnalyticsApi = {
-  getKpis: async (): Promise<AdminKpiData> => {
-   
-    const res = await api.get("/admin/analytics/kpis");
-    return res.data.data;
-  },
+getKpis: async (): Promise<AdminKpiData> => {
+  const res = await api.get("/analytics/kpis");
+  return res.data.kpis;  
+},
+
 
 getCharts: async (): Promise<{
   revenueTrend: AdminRevenueTrendPoint[];
