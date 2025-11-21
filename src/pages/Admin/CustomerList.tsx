@@ -163,7 +163,7 @@ const CustomerList: React.FC = () => {
               ) : (
                 <button
                   onClick={() => handleBlockToggle(customer.id)}
-                  className={`p-1.5 ${
+                  className={`p-1.5 cursor-pointer ${
                     customer.is_blocked
                       ? "bg-green-50 text-green-600 hover:bg-green-100"
                       : "bg-yellow-50 text-yellow-600 hover:bg-yellow-100"
@@ -171,7 +171,7 @@ const CustomerList: React.FC = () => {
                   title={customer.is_blocked ? "Unblock" : "Block"}
                 >
                   {customer.is_blocked ? (
-                  <Unlock className="w-3.5 h-3.5" />
+                  <Unlock className="w-3.5 h-3.5 " />
                 ) : (
                   <Ban className="w-3.5 h-3.5" />
                 )}
@@ -231,7 +231,7 @@ const CustomerList: React.FC = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-400"
+                className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-400"
               >
                 <option value="">All</option>
                 <option value="active">Active</option>
@@ -245,7 +245,7 @@ const CustomerList: React.FC = () => {
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-400"
+                className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-400"
               />
             </div>
 
@@ -255,7 +255,7 @@ const CustomerList: React.FC = () => {
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-400"
+                className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-400"
               />
             </div>
           </div>

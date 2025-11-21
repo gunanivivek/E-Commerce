@@ -312,12 +312,12 @@ const handleBlockToggle = useCallback(
 
           {/* Filters */}
           <div className="flex flex-wrap items-end gap-2 mb-4">
-            <div className="flex flex-col min-w-[120px]">
-              <label className="text-xs text-primary-300 mb-1">Status</label>
+            <div className="flex flex-col min-w-[120px] ">
+              <label className="text-xs text-primary-300 mb-1 ">Status</label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+                className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
               >
                 <option value="">All</option>
                 <option value="active">Active</option>
@@ -332,7 +332,7 @@ const handleBlockToggle = useCallback(
               <select
                 value={blockFilter}
                 onChange={(e) => setBlockFilter(e.target.value)}
-                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+                className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
               >
                 <option value="">All</option>
                 <option value="blocked">Blocked</option>
@@ -346,7 +346,7 @@ const handleBlockToggle = useCallback(
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+                className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
               />
             </div>
 
@@ -356,7 +356,7 @@ const handleBlockToggle = useCallback(
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+                className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
               />
             </div>
           </div>
