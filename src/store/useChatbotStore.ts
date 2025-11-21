@@ -7,6 +7,7 @@ interface ChatbotState {
   toggleChat: () => void;
   addMessage: (msg: ChatMessage) => void;
   resetChat: () => void;
+  clearMessage: () => void;
 }
 
 export const useChatbotStore = create<ChatbotState>((set) => ({
@@ -15,4 +16,5 @@ export const useChatbotStore = create<ChatbotState>((set) => ({
   toggleChat: () => set((s) => ({ isOpen: !s.isOpen })),
   addMessage: (msg) => set((s) => ({ messages: [...s.messages, msg] })),
   resetChat: () => set({ messages: [] }),
+  clearMessage: () => set({ messages: [] }),
 }));

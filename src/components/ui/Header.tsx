@@ -128,7 +128,7 @@ const Header = () => {
                 {/* Wishlist */}
                 <button
                   onClick={() => handleNavigation("/wishlist")}
-                  className="p-2 hover:cursor-pointer text-accent-dark hover:text-light"
+                  className="zp-2 hover:cursor-pointer text-accent-dark hover:text-light"
                   aria-label="Wishlist"
                 >
                   <Heart className="h-5 w-5 cursor-pointer" />

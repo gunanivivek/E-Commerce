@@ -24,7 +24,7 @@ const ProductImageGallery: React.FC<Props> = ({ image, thumbnails, images }) => 
         )}
       </div>
 
-      <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 mt-4 w-full max-w-xl">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 mt-4 w-full max-w-xl">
         {thumbList.slice(0, 6).map((img, idx) => {
           const active = idx === selected;
           return (
@@ -32,7 +32,7 @@ const ProductImageGallery: React.FC<Props> = ({ image, thumbnails, images }) => 
               key={idx}
               onClick={() => setSelected(idx)}
               aria-pressed={active}
-              className={`w-20 h-20 rounded-md overflow-hidden cursor-pointer border transition-all focus:outline-none ${
+              className={`w-20 h-20 rounded-md overflow-hidden cursor-pointer border transition-all focus:outline-none mx-auto ${
                 active
                   ? "border-[var(--color-primary-400)] ring-2 ring-[var(--color-primary-400)]"
                   : "border-gray-200 hover:border-[var(--color-primary-400)]"

@@ -24,8 +24,8 @@ const ChatbotContainer = () => {
     viewState === "minimized"
       ? "w-56 h-12"
       : viewState === "maximized"
-      ? "w-[95vw] md:w-160 h-[95vh]"
-      : "w-80 h-96";
+      ? "w-[85vw] md:w-160 h-[75vh]"
+      : "md:w-120 h-96 w-[85vw]" ;
 
   return (
     <>
@@ -34,6 +34,7 @@ const ChatbotContainer = () => {
           className="fixed bottom-6 right-6 bg-[var(--color-accent)] text-white p-4 rounded-full shadow-md hover:bg-[var(--color-accent-dark)] cursor-pointer z-50"
           onClick={toggleChat}
           aria-label="Open chatbot"
+          title="24/7 Customer Support"
         >
           <MessageCircle className="w-6 h-6" />
         </button>

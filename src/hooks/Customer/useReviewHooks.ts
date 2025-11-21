@@ -40,3 +40,16 @@ export const useCreateReview = (productId?: string | number) => {
     },
   });
 };
+
+// ---- Summarize Reviews ----
+export const useSummarizeReviews = (productId?: string | number) => {
+  return useQuery({
+    queryKey: ["summarize-reviews", productId],
+    queryFn: () => {
+      if (!productId) throw new Error("Missing product id");
+      return reviewApi.summarizeProductReviews(productId);
+    },
+    enabled: !!productId,
+    staleTime: 5 * 60 * 1000, // 5 mins cache
+  });
+};
