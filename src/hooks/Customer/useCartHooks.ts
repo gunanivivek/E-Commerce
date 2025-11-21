@@ -32,8 +32,6 @@ export const useCart = (enabled: boolean) => {
         coupon: data.coupon ?? null,
       };
     },
-    staleTime: 1000 * 60 * 2, // cache for 2 minutes
-    refetchOnWindowFocus: false, // prevent flicker on tab change
     enabled,
   });
 };
@@ -130,6 +128,7 @@ export const useApplyCoupon = () => {
       queryClient.setQueryData(["cart"], updatedCart);
     },
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (err: any) => {
       toast.error(err?.response?.data?.message || "Invalid or expired coupon");
     },

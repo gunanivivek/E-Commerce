@@ -7,7 +7,7 @@ import {
   LogIn,
   X,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuthStore } from "../../store/authStore";
 import { toast } from "react-toastify";
@@ -67,11 +67,11 @@ const Header = () => {
             </button>
 
             {/* Logo */}
-            <a href="/" className="flex items-center">
+            <Link to="/" className="flex items-center">
               <span className="font-logo font-bold text-2xl md:text-3xl tracking-wider text-accent-darker">
                 Cartify
               </span>
-            </a>
+            </Link>
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex gap-4 lg:gap-6 ml-4 lg:ml-8">
