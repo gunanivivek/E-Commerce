@@ -56,3 +56,29 @@ export const createProductReview = async (
       throw new Error(`Create review failed: ${details}`);
     }
 };
+
+// ---------------------- SUMMARIZE Reviews ----------------------------
+export const summarizeProductReviews = async (
+  productId: string | number
+) => {
+  const client = getAPI();
+  const path = `products/${productId}/summarize-reviews`;
+
+  try {
+    const res = await client.post(path, {}, {
+      headers: { "Content-Type": "application/json" }
+    });
+
+    return res.data; // expect: { summary: "...", rating: number, ... }
+  } catch (err: unknown) {
+    let details = "Failed to summarize reviews";
+
+    if (err && typeof err === "object") {
+      const maybe = err as { response?: { status?: number }; message?: unknown };
+      if (maybe.response?.status) details += ` (Status ${maybe.response.status})`;
+      else if (typeof maybe.message === "string") details = maybe.message;
+    }
+
+    throw new Error(details);
+  }
+};

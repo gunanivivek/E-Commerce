@@ -233,7 +233,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
           >
             <Heart
               size={18}
-              className={`transition-colors duration-150 ${inWishlist ? "text-accent-light" : "text-accent"}`}
+              className={`transition-colors duration-150 ${
+                inWishlist ? "text-accent-light" : "text-accent"
+              }`}
               fill={inWishlist ? "accent" : "none"}
             />
           </button>

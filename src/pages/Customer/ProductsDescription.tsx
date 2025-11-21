@@ -18,6 +18,7 @@ import LoadingState from "../../components/LoadingState";
 import {
   useReviews,
   useCreateReview,
+  useSummarizeReviews,
 } from "../../hooks/Customer/useReviewHooks";
 import { toast } from "react-toastify";
 import { useState } from "react";
@@ -114,6 +115,9 @@ const ProductDescription: React.FC = () => {
     };
   });
 
+  const { data: summaryData, isLoading: summaryLoading } =
+    useSummarizeReviews(productId);
+
   // Show Review Visible Count State
   const [visibleCount, setVisibleCount] = useState(3);
 
@@ -125,6 +129,7 @@ const ProductDescription: React.FC = () => {
     Record<string, boolean>
   >({});
   const [reviewAuthor] = useState<string>(user?.full_name ?? "");
+  const [expandSummary, setExpandSummary] = useState(false);
 
   const { mutateAsync: createReviewAsync, isPending: isCreatingReview } =
     useCreateReview(product?.id);
@@ -354,7 +359,7 @@ const ProductDescription: React.FC = () => {
                       });
 
                     return (
-                      <div className="flex items-center gap-2 min-w-61">
+                      <div className="flex items-center gap-2 lg:min-w-61">
                         <button
                           onClick={dec}
                           className="px-3 py-1 bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)] cursor-pointer rounded-md"
@@ -450,25 +455,25 @@ const ProductDescription: React.FC = () => {
 
               {/* Bottom Info */}
               <div className="grid lg:grid-cols-4 grid-cols-2 gap-4 pt-3">
-                <div className="cursor-pointer rounded hover:bg-gray-100 flex flex-col items-center text-center gap-2 text-accent p-2">
+                <div className="cursor-pointer rounded flex flex-col items-center text-center gap-2 text-accent p-2">
                   <Truck className="h-8 w-8 text-accent-darker" />
                   <span className="text-sm font-medium text-accent-darker">
                     Free Shipping
                   </span>
                 </div>
-                <div className="cursor-pointer rounded hover:bg-gray-100 flex flex-col items-center text-center gap-2 text-accent p-2">
+                <div className="cursor-pointer rounded flex flex-col items-center text-center gap-2 text-accent p-2">
                   <ShieldCheck className="h-8 w-8 text-accent-darker" />
                   <span className="text-sm font-medium text-accent-darker">
                     Secure Payments
                   </span>
                 </div>
-                <div className="cursor-pointer rounded hover:bg-gray-100 flex flex-col items-center text-center gap-2 p-2">
+                <div className="cursor-pointer rounded flex flex-col items-center text-center gap-2 text-accent p-2">
                   <Headset className="h-8 w-8 text-accent-darker" />
                   <span className="text-sm font-medium text-accent-darker">
                     24/7 Customer Support
                   </span>
                 </div>
-                <div className="cursor-pointer rounded hover:bg-gray-100 flex flex-col items-center text-center gap-2 text-accent p-2">
+                <div className="cursor-pointer rounded flex flex-col items-center text-center gap-2 text-accent p-2">
                   <BadgeCheck className="h-8 w-8 text-accent-darker" />
                   <span className="text-sm font-medium text-accent-darker">
                     Quality Checked
@@ -506,13 +511,48 @@ const ProductDescription: React.FC = () => {
             </div>
             <div className="mt-2">
               <div className="rounded-xl border border-primary-50 bg-background shadow-sm p-5">
-                <p className="text-accent">
+                <p className="text-accent-dark font-semibold">
                   Based on {normalizedReviews.length} customer reviews, here is
-                  the overall review for this product.
+                  the summarized review for this product.
                 </p>
-                <span className="text-accent-light text-sm">
-                  Average review API will be called here...
-                </span>
+                <div className="mt-2 text-accent-light text-sm">
+                  {summaryLoading ? (
+                    <span>Loading summary...</span>
+                  ) : summaryData ? (
+                    <p className="text-primary-400 leading-relaxed">
+                      {summaryData.summary
+                        ? (() => {
+                            const cleanSummary = summaryData.summary
+                              .replace(/[*#]/g, "")
+                              .trim();
+                            return (
+                              <>
+                                {expandSummary
+                                  ? cleanSummary
+                                  : cleanSummary.length > 320
+                                  ? cleanSummary.slice(0, 320) + "..."
+                                  : cleanSummary}
+
+                                {/* Read More / Read Less Button */}
+                                {cleanSummary.length > 200 && (
+                                  <button
+                                    onClick={() =>
+                                      setExpandSummary(!expandSummary)
+                                    }
+                                    className="text-accent-dark ml-2 hover:underline cursor-pointer text-sm font-bold"
+                                  >
+                                    {expandSummary ? "Read less" : "Read more"}
+                                  </button>
+                                )}
+                              </>
+                            );
+                          })()
+                        : "No summary available"}
+                    </p>
+                  ) : (
+                    <span>No summary available</span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -553,6 +593,20 @@ const ProductDescription: React.FC = () => {
                         <span className="font-medium text-primary-400">
                           {reviewAuthor || user?.full_name || "Anonymous"}
                         </span>
+                      </div>
+                      {/* ⭐ Star Selector */}
+                      <div className="flex items-center gap-1 mt-4">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                          <Star
+                            key={star}
+                            onClick={() => setReviewRating(star)}
+                            className={`w-6 h-6 cursor-pointer transition-colors ${
+                              star <= reviewRating
+                                ? "text-yellow-400 fill-yellow-400"
+                                : "text-primary-100"
+                            }`}
+                          />
+                        ))}
                       </div>
                     </div>
 
