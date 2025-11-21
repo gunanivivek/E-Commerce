@@ -6,14 +6,16 @@ import Header from "../components/ui/Header";
 import Footer from "../components/ui/Footer";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
-import Hero1 from "../assets/Hero1.webp";
-import Hero2 from "../assets/Hero2.png";
-import Hero3 from "../assets/Hero3.jpg";
 import { useState } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react"; // Assuming Lucide icons; adjust as needed
 import { User2, User2Icon, type LucideProps } from "lucide-react";
 import { useCategoryStore } from "../store/categoryStore";
 import { Link } from "react-router";
+
+const Hero1 = "https://res.cloudinary.com/duamb3iin/image/upload/v1763639186/Hero1_n1nrrn.jpg"
+const Hero2 = "https://res.cloudinary.com/duamb3iin/image/upload/v1763639186/Hero2_i3yx8a.png"
+const Hero3 = "https://res.cloudinary.com/duamb3iin/image/upload/v1763639185/Hero3_qxjjnx.jpg"
+
 
 interface Testimonial {
   id?: number;
