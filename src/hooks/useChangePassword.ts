@@ -5,7 +5,6 @@ import type {
   ChangePasswordRequest,
   ChangePasswordResponse,
 } from "../types/auth";
-import { toast } from "react-toastify";
 
 export const useChangePassword = () => {
   return useMutation<ChangePasswordResponse, Error, ChangePasswordRequest>({
