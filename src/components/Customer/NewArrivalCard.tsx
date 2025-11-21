@@ -5,22 +5,24 @@ import type {
   ProductResponse,
   ProductImageResponse,
 } from "../../types/product";
-import {
-  type SortingState,
-  type FilterFn,
-  useReactTable,
-  getCoreRowModel,
-  getFilteredRowModel,
-  getSortedRowModel,
-  getPaginationRowModel,
-  type ColumnFiltersState,
-} from "@tanstack/react-table";
-import type { ColumnDef } from "@tanstack/react-table";
-import type { Product } from "../../store/useProductStore";
 
 import ProductCard from "./SingleProduct";
 
-type LocalProduct = Product & { category?: string | null };
+type LocalProduct = {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  discount_price?: number;
+  stock: number;
+  images?: string[];
+  image: string;
+  slug: string;
+  is_active: boolean;
+  created_at: string;
+  average_rating: number;
+  category?: string | null;
+};
 
 type FilterShape = {
   category?: string | null;
@@ -32,8 +34,9 @@ type FilterShape = {
   search?: string | null;
 };
 
+// Skeleton
 const ProductSkeleton = () => (
-  <div className="grid grid-cols-1  md:grid-cols-2 px-20 lg:grid-cols-4 gap-6">
+  <div className="grid grid-cols-1 md:grid-cols-2 px-20 lg:grid-cols-4 gap-6">
     {Array.from({ length: 8 }).map((_, index) => (
       <div
         key={index}
@@ -54,21 +57,17 @@ const ProductSkeleton = () => (
 );
 
 const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
-  const { data: apiNewArrivals, isLoading } = useQuery<
-    ProductResponse[],
-    Error
-  >({
+  const { data, isLoading } = useQuery<ProductResponse[]>({
     queryKey: ["new-arrivals"],
     queryFn: () => productsApi.getNewArrivals(),
-    staleTime: 1000 * 60 * 30,
-    refetchOnWindowFocus: false,
-    refetchOnMount: false,
-    refetchOnReconnect: false,
+    staleTime: 1000 * 60 * 20,
   });
 
-  const data = useMemo<LocalProduct[]>(() => {
-    if (!apiNewArrivals?.length) return [];
-    return apiNewArrivals.map((p) => ({
+  // Transform API → Local structure
+  const products = useMemo<LocalProduct[]>(() => {
+    if (!data) return [];
+
+    return data.map((p) => ({
       id: p.id,
       name: p.name,
       description: p.description ?? "",
@@ -76,173 +75,128 @@ const NewArrivalCard: React.FC<{ filters?: FilterShape }> = ({ filters }) => {
       discount_price: p.discount_price ? Number(p.discount_price) : undefined,
       stock: p.stock,
       images: p.images?.map((i: ProductImageResponse) => i.url),
-      slug: p.slug,
       image: p.images?.[0]?.url ?? "",
+      slug: p.slug,
       is_active: p.is_active,
       created_at: p.created_at,
       average_rating: p.average_rating ?? 0,
       category: p.category?.name ?? null,
     }));
-  }, [apiNewArrivals]);
+  }, [data]);
 
-  const between: FilterFn<LocalProduct> = (
-    row,
-    id,
-    range: { min?: number; max?: number }
-  ) => {
-    const val = Number(row.getValue(id) ?? 0);
-    if (range?.min != null && val < range.min) return false;
-    if (range?.max != null && val > range.max) return false;
-    return true;
-  };
+  // Apply Filters (Same logic as ProductsCard)
+  const filtered = useMemo(() => {
+    if (!products) return [];
 
-  const columns = useMemo<ColumnDef<LocalProduct>[]>(
-    () => [
-      { accessorKey: "name", header: "Name" },
-      {
-        accessorKey: "price",
-        header: "Price",
-        sortingFn: "auto",
-        filterFn: between,
-      },
-      {
-        accessorKey: "category",
-        header: "Category",
-        sortingFn: "auto",
-      },
-      {
-        accessorKey: "stock",
-        header: "Stock",
-        filterFn: (row, id, value: boolean) => {
-          const stock = Number(row.getValue(id) ?? 0);
-          return value ? stock > 0 : true;
-        },
-      },
-      { accessorKey: "description", header: "Description" },
-    ],
-    []
-  );
+    let list = [...products];
+    const f = filters ?? {};
 
-  const [globalFilter, setGlobalFilter] = useState("");
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [sorting, setSorting] = useState<SortingState>([]);
-
-  // reactively apply filters from props
-  useEffect(() => {
-    const next: ColumnFiltersState = [];
-
-    if (!filters) {
-      setColumnFilters([]);
-      setGlobalFilter("");
-      return;
+    // Search
+    if (f.search) {
+      const q = f.search.toLowerCase();
+      list = list.filter(
+        (p) =>
+          p.name.toLowerCase().includes(q) ||
+          p.description.toLowerCase().includes(q)
+      );
     }
 
-    if (filters.search) setGlobalFilter(filters.search);
+    // Category
+    if (f.category)
+      list = list.filter(
+        (p) => p.category?.toLowerCase() === f.category?.toLowerCase()
+      );
 
-    if (filters.minPrice != null || filters.maxPrice != null) {
-      next.push({
-        id: "price",
-        value: {
-          min: filters.minPrice ?? null,
-          max: filters.maxPrice ?? null,
-        },
-      });
+    // Price range
+    if (f.minPrice != null) list = list.filter((p) => p.price >= f.minPrice!);
+    if (f.maxPrice != null) list = list.filter((p) => p.price <= f.maxPrice!);
+
+    // Rating
+    if (f.ratingGte != null)
+      list = list.filter((p) => p.average_rating >= f.ratingGte!);
+
+    // In stock
+    if (f.in_stock != null && f.in_stock)
+      list = list.filter((p) => p.stock > 0);
+
+    // Sort logic (Same map as original component)
+    if (f.ordering) {
+      const sortMap: Record<
+        string,
+        (a: LocalProduct, b: LocalProduct) => number
+      > = {
+        price: (a, b) => a.price - b.price,
+        "-price": (a, b) => b.price - a.price,
+        rating: (a, b) => b.average_rating - a.average_rating,
+        "-created": (a, b) =>
+          new Date(b.created_at).getTime() -
+          new Date(a.created_at).getTime(),
+      };
+
+      const sorter = sortMap[f.ordering];
+      if (sorter) list.sort(sorter);
     }
 
-    if (filters.in_stock != null) {
-      next.push({
-        id: "stock",
-        value: filters.in_stock,
-      });
-    }
+    return list;
+  }, [products, filters]);
 
-    if (filters.category) {
-      next.push({
-        id: "category",
-        value: filters.category,
-      });
-    }
+  // Pagination
+  const [page, setPage] = useState(1);
+  const pageSize = 8;
 
-    setColumnFilters(next);
+  const totalPages = Math.ceil(filtered.length / pageSize);
+  const paginated = filtered.slice((page - 1) * pageSize, page * pageSize);
 
-    // handle ordering
-    if (filters.ordering) {
-      const ord = filters.ordering;
-      if (ord.startsWith("-")) {
-        setSorting([{ id: ord.substring(1), desc: true }]);
-      } else {
-        setSorting([{ id: ord, desc: false }]);
-      }
-    }
-  }, [filters]);
+  useEffect(() => setPage(1), [filters]);
 
-  const table = useReactTable({
-    data,
-    columns,
-    state: {
-      sorting,
-      globalFilter,
-      columnFilters,
-    },
-    onSortingChange: setSorting,
-    onGlobalFilterChange: setGlobalFilter,
-    onColumnFiltersChange: setColumnFilters,
-    getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    filterFns: {
-      between: (row, id, range: { min?: number; max?: number }) => {
-        const val = Number(row.getValue(id) ?? 0);
-        if (range?.min != null && val < range.min) return false;
-        if (range?.max != null && val > range.max) return false;
-        return true;
-      },
-    },
-  });
+  // Loading view
+  if (isLoading && !data) return <ProductSkeleton />;
 
-  const filteredProducts = table.getRowModel().rows.map((r) => r.original);
-
-  // show loading only if we're actually loading AND have no cached products to show
-  const hasProducts =
-    Array.isArray(apiNewArrivals) && apiNewArrivals.length > 0;
-  if (isLoading && !hasProducts) return <ProductSkeleton />;
-
-  if (!filteredProducts.length) return <p>No products available right now.</p>;
+  if (!paginated.length)
+    return (
+      <p className="text-center text-gray-600 py-10">
+        No new arrival products found.
+      </p>
+    );
 
   return (
-    <section className="py-5 px-6 md:px-20">
-      {/* Product Grid */}
+    <section className="pb-5 px-6 md:px-16 ">
       <div
         className="grid 
-  grid-cols-2 
-  sm:grid-cols-2 
-  md:grid-cols-3 
-  lg:grid-cols-4 
-  gap-4"
+        grid-cols-1
+        
+        md:grid-cols-3 
+        lg:grid-cols-4 
+        gap-4"
       >
-        {filteredProducts.map((product) => {
-          return <ProductCard key={product.id} product={product} />;
-        })}
+        {paginated.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
       </div>
 
-      {/* Pagination */}
-      <div className="flex justify-center mt-8 space-x-2">
-        <button
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-          className="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
-        >
-          Prev
-        </button>
-        <button
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-          className="px-4 py-2 bg-gray-200 rounded-md disabled:opacity-50"
-        >
-          Next
-        </button>
-      </div>
+      {totalPages > 1 && (
+        <div className="flex justify-center mt-8 space-x-2">
+          <button
+            onClick={() => setPage((p) => p - 1)}
+            disabled={page === 1}
+            className="px-4 py-2 bg-gray-200 font-heading rounded-md disabled:opacity-50"
+          >
+            Prev
+          </button>
+
+          <span className="px-4 py-2 font-heading">
+            {page} / {totalPages}
+          </span>
+
+          <button
+            onClick={() => setPage((p) => p + 1)}
+            disabled={page === totalPages}
+            className="px-4 py-2 bg-gray-200 rounded-md font-heading disabled:opacity-50"
+          >
+            Next
+          </button>
+        </div>
+      )}
     </section>
   );
 };

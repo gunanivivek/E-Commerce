@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from "zustand";
-import { markAllNotificationsReadApi, markNotificationReadApi } from "../api/notificationApi";
+import {
+  markAllNotificationsReadApi,
+  markNotificationReadApi,
+} from "../api/notificationApi";
 
 export interface RawNotification {
   id: number;
@@ -64,31 +67,31 @@ export const useNotificationStore = create<NotificationState>((set) => ({
     })),
 
   markAsRead: async (id) => {
-  try {
-    const updated = await markNotificationReadApi(id);
+    try {
+      const updated = await markNotificationReadApi(id);
 
-    set((state) => ({
-      notifications: state.notifications.map((n) =>
-        n.id === id ? { ...n, is_read: updated.is_read } : n
-      ),
-    }));
-  } catch (err) {
-    console.error("Failed to mark notification as read", err);
-  }
-},
+      set((state) => ({
+        notifications: state.notifications.map((n) =>
+          n.id === id ? { ...n, read: updated.is_read } : n
+        ),
+      }));
+    } catch (err) {
+      console.error("Failed to mark notification as read", err);
+    }
+  },
 
   markAllAsRead: async () => {
-  try {
-    await markAllNotificationsReadApi();
+    try {
+      await markAllNotificationsReadApi();
 
-    set((state) => ({
-      notifications: state.notifications.map((n) => ({
-        ...n,
-        is_read: true,
-      })),
-    }));
-  } catch (err) {
-    console.error("Failed to mark all notifications read", err);
-  }
-},
+      set((state) => ({
+        notifications: state.notifications.map((n) => ({
+          ...n,
+          read: true,
+        })),
+      }));
+    } catch (err) {
+      console.error("Failed to mark all notifications read", err);
+    }
+  },
 }));
