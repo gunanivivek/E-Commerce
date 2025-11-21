@@ -109,7 +109,7 @@ const CustomerPage: React.FC = () => {
         {/* Hero Section */}
         <main className="flex">
           <section className="bg-surface w-full">
-            <div className="grid md:grid-cols-2 gap-12 items-center mx-auto py-16 px-6 md:px-20 max-w-7xl">
+            <div className="grid md:grid-cols-2 gap-12 justify-items-center items-center mx-auto py-16 px-6 md:px-20 max-w-7xl">
               {/* Left: Text */}
               <div className="text-center md:text-left">
                 <h1 className="font-logo text-[var(--color-white)] text-5xl lg:text-7xl font-extrabold leading-tight">
@@ -248,7 +248,7 @@ const CustomerPage: React.FC = () => {
 
                     {/* Overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-accent-darker/40 via-accent/30 to-transparent flex items-end justify-between p-6">
-                      <h3 className="text-2xl font-semibold text-[var(--color-white)] tracking-wide">
+                      <h3 className="text-2xl font-semibold text-white tracking-wide">
                         {cat.name}
                       </h3>
                       <motion.span
@@ -322,7 +322,7 @@ const CustomerPage: React.FC = () => {
               >
                 {/* Number Indicator */}
                 <motion.div
-                  className="w-12 h-12 rounded-full mb-4 bg-accent text-white flex items-center justify-center text-lg font-bold"
+                  className="w-12 h-12 rounded-full mb-4 bg-accent-darker text-primary-100 flex items-center justify-center text-lg font-bold"
                   whileHover={{ scale: 1.1 }}
                   transition={{ duration: 0.2 }}
                 >
@@ -331,17 +331,12 @@ const CustomerPage: React.FC = () => {
 
                 {/* Step Title */}
                 <h3
-                  className="text-xl md:text-2xl font-bold mb-3 leading-tight"
-                  style={{
-                    fontFamily: "var(--font-heading)",
-                    color: "var(--color-[var(--color-white)])",
-                  }}
-                >
+                  className="text-xl md:text-2xl font-bold mb-3 leading-tight font-heading text-accent-dark">
                   {item.step}
                 </h3>
 
                 {/* Description */}
-                <p className="text-sm leading-relaxed max-w-xs font-body text-text-secondary">
+                <p className="text-sm leading-relaxed max-w-xs font-body text-accent">
                   {item.desc}
                 </p>
               </motion.div>
@@ -374,7 +369,7 @@ const CustomerPage: React.FC = () => {
                         transition={{ duration: 0.5 }}
                         viewport={{ once: true }}
                         whileHover={{
-                          scale: 1.02,
+                          scale: 1.01,
                           boxShadow: "var(--shadow-md)",
                         }}
                         className="relative  bg-[var(--color-surface-light)] p-6 rounded-[var(--radius-xl)] mx-4 text-center border border-gray-700"
@@ -454,12 +449,12 @@ const CustomerPage: React.FC = () => {
                           scale: 1.02,
                           boxShadow: "var(--shadow-md)",
                         }}
-                        className="relative bg-[var(--color-surface-light)] p-6 rounded-[var(--radius-xl)] mx-4 text-center border border-[var(--color-gray-700)]"
+                        className="relative bg-[var(--color-surface-light)] p-6 rounded-xl text-center border border-[var(--color-gray-700)]"
                       >
                         {/* Avatar */}
                         <div className="mx-auto mb-6 w-16 h-16 rounded-full overflow-hidden border-2 border-[var(--color-accent)]">
-                          <div className="w-full h-full flex items-center justify-center bg-[var(--color-gray-700)]">
-                            <Avatar className="w-8 h-8 text-[var(--color-accent)]" />
+                          <div className="w-full h-full flex items-center justify-center bg-surface">
+                            <Avatar className="w-8 h-8 text-accent-darker" />
                           </div>
                         </div>
 

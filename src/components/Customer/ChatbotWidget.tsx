@@ -20,7 +20,7 @@ const ChatbotWidget = ({
   onMinimize: () => void;
   onClose: () => void;
 }) => {
-  const { messages, addMessage } = useChatbotStore();
+  const { messages, addMessage, clearMessage } = useChatbotStore();
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
   const { mutateAsync, isPending } = useProductQA();
@@ -37,6 +37,10 @@ const ChatbotWidget = ({
     }, 50);
     return () => clearTimeout(t);
   }, [messages, viewState]);
+
+  useEffect(() => {
+    clearMessage();
+  }, [productId, clearMessage]);
 
   const sendMessage = async () => {
     if (!text.trim()) return;
@@ -78,7 +82,7 @@ const ChatbotWidget = ({
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
-      <div className="flex items-center justify-between bg-[var(--color-accent)] text-white px-4 py-3">
+      <div className="flex items-center justify-between bg-accent text-white px-4 py-3">
         <div className="flex flex-col">
           <span className="font-semibold">Need Help?</span>
           <span className="text-xs text-white/80">
@@ -122,7 +126,7 @@ const ChatbotWidget = ({
       {viewState === "minimized" ? null : (
         <>
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-3 bg-[var(--color-background)]">
+          <div className="flex-1 overflow-y-auto p-3 bg-background">
             {messages.map((m) => (
               <div
                 key={m.id}
@@ -141,6 +145,16 @@ const ChatbotWidget = ({
                 </span>
               </div>
             ))}
+
+            {/* Typing Indicator */}
+            {isPending && (
+              <div className="my-2 flex justify-start">
+                <span className="inline-block px-3 py-2 bg-surface text-accent-darker rounded-lg text-sm animate-pulse">
+                  Typing...
+                </span>
+              </div>
+            )}
+
             <div ref={messagesEndRef} />
           </div>
 
@@ -158,8 +172,14 @@ const ChatbotWidget = ({
               <input
                 value={text}
                 onChange={(e) => setText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
                 placeholder="Ask a question about this product..."
-                className="flex-1 border rounded px-3 py-2 focus:outline-none"
+                className="flex-1 border rounded px-3 py-2 focus:outline-none md:w-auto w-full"
               />
 
               <button

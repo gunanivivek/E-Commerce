@@ -103,43 +103,23 @@ const Contact: React.FC = () => {
       </head>
 
       <Header />
-      <div className="flex-1">
-        <div className="container mx-auto px-4 max-w-6xl py-12">
-          <div className="text-center mb-12">
-            <h1
-              className="text-4xl md:text-5xl font-black mb-4 leading-tight"
-              style={{
-                fontFamily: "var(--font-heading)",
-                color: "var(--color-accent-dark)",
-              }}
-            >
+      <div className="flex-1 bg-gradient-to-r from-primary-100/10 to-primary-200/5 py-12 px-4">
+        <div className="mx-auto max-w-7xl">
+          {/* Top Header Section */}
+          <section className="text-center mb-12">
+            <h1 className="text-4xl md:text-5xl font-black mb-4 leading-tight font-heading text-accent-dark">
               Get in Touch
             </h1>
-            <p
-              className="text-lg max-w-2xl mx-auto leading-relaxed"
-              style={{
-                color: "var(--color-accent-light)",
-                fontFamily: "var(--font-body)",
-              }}
-            >
+            <p className="text-lg max-w-2xl mx-auto leading-relaxed font-body text-accent-light">
               Have a question or need assistance? We're here to help! Reach out
               to us through any of the methods below.
             </p>
-          </div>
+          </section>
 
           <div className="grid lg:grid-cols-2 gap-12">
             {/* Contact Form */}
-            <div
-              className="rounded-[var(--radius-xl)] p-8 shadow-[var(--shadow-md)] border border-[var(--color-gray-700)]"
-              style={{ backgroundColor: "var(--color-surface-light)" }}
-            >
-              <h2
-                className="text-2xl font-bold mb-6 leading-tight"
-                style={{
-                  fontFamily: "var(--font-heading)",
-                  color: "var(--color-accent)",
-                }}
-              >
+            <section className="rounded-xl p-8 shadow-md border border-accent">
+              <h2 className="text-2xl font-bold mb-6 leading-tight font-heading text-accent">
                 Send Us a Message
               </h2>
 
@@ -167,7 +147,7 @@ const Contact: React.FC = () => {
                   type="email"
                   value={form.email}
                   onChange={(e) => form.setField("email", e.target.value)}
-                  placeholder="you@example.com"
+                  placeholder="roohishah@gmail.com"
                 />
 
                 <InputField
@@ -177,6 +157,7 @@ const Contact: React.FC = () => {
                   value={form.phone ?? ""}
                   onChange={(e) => form.setField("phone", e.target.value)}
                   placeholder="+91 12345 67890"
+                  maxLength={10}
                 />
 
                 <InputField
@@ -198,20 +179,15 @@ const Contact: React.FC = () => {
                 <button
                   type="submit"
                   disabled={mutation.isPending}
-                  className="w-full py-3 rounded-[var(--radius-lg)] font-bold transition-all duration-[var(--transition-normal)] disabled:opacity-70"
-                  style={{
-                    background: "var(--color-accent)",
-                    color: "var(--color-primary-100)",
-                    border: "var(--color-accent) 2px solid",
-                    boxShadow: "var(--shadow-orange)",
-                  }}
+                  className="w-full py-3 rounded-lg bg-accent-dark text-primary-100 border-2 border-accent font-bold transition-all duration-normal disabled:opacity-70"
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = "transparent";
                     e.currentTarget.style.color = "var(--color-accent)";
                     e.currentTarget.style.cursor = "pointer";
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "var(--color-accent)";
+                    e.currentTarget.style.backgroundColor =
+                      "var(--color-accent)";
                     e.currentTarget.style.color = "var(--color-primary-100)";
                   }}
                 >
@@ -231,21 +207,12 @@ const Contact: React.FC = () => {
                   </p>
                 )}
               </form>
-            </div>
+            </section>
 
             {/* Contact Information */}
             <div className="space-y-6">
-              <div
-                className="rounded-[var(--radius-xl)] p-8 shadow-[var(--shadow-md)] border border-[var(--color-gray-700)]"
-                style={{ backgroundColor: "var(--color-surface-light)" }}
-              >
-                <h2
-                  className="text-2xl font-bold mb-6 leading-tight"
-                  style={{
-                    fontFamily: "var(--font-heading)",
-                    color: "var(--color-accent)",
-                  }}
-                >
+              <div className="rounded-xl p-8 shadow-md border border-accent">
+                <h2 className="text-2xl font-bold mb-6 leading-tight font-heading text-accent">
                   Contact Information
                 </h2>
                 <div className="space-y-6">
@@ -253,33 +220,17 @@ const Contact: React.FC = () => {
                     const Icon = info.icon;
                     return (
                       <div key={i} className="flex items-start gap-4">
-                        <div
-                          className="flex items-center justify-center w-12 h-12 rounded-[var(--radius-md)] flex-shrink-0"
-                          style={{ backgroundColor: "var(--color-accent)/10" }}
-                        >
-                          <Icon
-                            className="h-5 w-5"
-                            style={{ color: "var(--color-accent)" }}
-                          />
+                        <div className="flex items-center justify-center w-12 h-12 rounded-md flex-shrink-0">
+                          <Icon className="h-6 w-6 text-accent" />
                         </div>
                         <div>
-                          <h3
-                            className="font-semibold mb-1 leading-tight"
-                            style={{
-                              fontFamily: "var(--font-heading)",
-                              color: "var(--color-accent)",
-                            }}
-                          >
+                          <h3 className="font-semibold mb-1 leading-tight font-heading text-accent">
                             {info.title}
                           </h3>
                           {info.link ? (
                             <a
                               href={info.link}
-                              className="hover:text-[var(--color-accent)] transition-colors duration-[var(--transition-fast)]"
-                              style={{
-                                color: "var(--color-accent-light)",
-                                fontFamily: "var(--font-body)",
-                              }}
+                              className="hover:text-accent transition-colors duration-fast font-body text-accent-light"
                               target={
                                 info.link.startsWith("http")
                                   ? "_blank"
@@ -294,13 +245,7 @@ const Contact: React.FC = () => {
                               {info.content}
                             </a>
                           ) : (
-                            <p
-                              className="leading-relaxed"
-                              style={{
-                                color: "var(--color-accent-light)",
-                                fontFamily: "var(--font-body)",
-                              }}
-                            >
+                            <p className="leading-relaxed font-body text-accent-light">
                               {info.content}
                             </p>
                           )}
@@ -311,36 +256,16 @@ const Contact: React.FC = () => {
                 </div>
               </div>
 
-              <div
-                className="rounded-[var(--radius-xl)] p-8 shadow-[var(--shadow-md)] border border-[var(--color-gray-700)]"
-                style={{ backgroundColor: "var(--color-surface-light)" }}
-              >
-                <h3
-                  className="text-xl font-bold mb-4 leading-tight"
-                  style={{
-                    fontFamily: "var(--font-heading)",
-                    color: "var(--color-accent)",
-                  }}
-                >
+              <div className="rounded-xl p-8 shadow-md border border-accent">
+                <h3 className="text-xl font-bold mb-4 leading-tight font-heading text-accent">
                   Frequently Asked Questions
                 </h3>
-                <p
-                  className="mb-4 leading-relaxed"
-                  style={{
-                    color: "var(--color-accent-light)",
-                    fontFamily: "var(--font-body)",
-                  }}
-                >
+                <p className="mb-4 leading-relaxed font-body text-accent-light">
                   Before reaching out, you might find answers in our FAQ
                   section.
                 </p>
                 <button
-                  className="w-full py-2 rounded-[var(--radius-md)] font-medium transition-all duration-[var(--transition-normal)]"
-                  style={{
-                    border: "1px solid var(--color-accent)",
-                    color: "var(--color-accent)",
-                    backgroundColor: "transparent",
-                  }}
+                  className="w-full py-2 rounded-md font-medium transition-all duration-normal border border-accent text-accent bg-transparent"
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor =
                       "var(--color-accent)";
@@ -356,38 +281,17 @@ const Contact: React.FC = () => {
                 </button>
               </div>
 
-              <div
-                className="rounded-[var(--radius-xl)] p-6 border border-[var(--color-gray-600)]"
-                style={{ backgroundColor: "var(--color-surface-light)" }}
-              >
-                <h3
-                  className="font-bold mb-2 leading-tight"
-                  style={{
-                    fontFamily: "var(--font-heading)",
-                    color: "var(--color-accent)",
-                  }}
-                >
+              <div className="rounded-xl p-6 border border-accent">
+                <h3 className="font-bold mb-2 leading-tight font-heading text-accent">
                   💬 Live Chat Support
                 </h3>
-                <p
-                  className="text-sm mb-4 leading-relaxed"
-                  style={{
-                    color: "var(--color-accent-light)",
-                    fontFamily: "var(--font-body)",
-                  }}
-                >
+                <p className="text-sm mb-4 leading-relaxed font-body text-accent-light">
                   Get instant help from our support team during business hours
                 </p>
                 <button
-                  className="w-full py-2 rounded-[var(--radius-md)] font-medium transition-all duration-[var(--transition-normal)]"
-                  style={{
-                    border: "1px solid var(--color-accent)",
-                    color: "var(--color-accent)",
-                    backgroundColor: "transparent",
-                  }}
+                  className="w-full py-2 rounded-md font-medium transition-all duration-normal border border-accent text-accent bg-transparent"
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor =
-                      "var(--color-accent)";
+                    e.currentTarget.style.backgroundColor = "var(--color-accent-dark)";
                     e.currentTarget.style.color = "var(--color-primary-100)";
                     e.currentTarget.style.cursor = "pointer";
                   }}
@@ -416,6 +320,7 @@ interface InputFieldProps {
   value: string;
   placeholder?: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  maxLength?: number;
 }
 
 const InputField: React.FC<InputFieldProps> = ({
@@ -425,16 +330,10 @@ const InputField: React.FC<InputFieldProps> = ({
   value,
   placeholder,
   onChange,
+  maxLength,
 }) => (
   <div className="space-y-2">
-    <label
-      htmlFor={id}
-      className="text-sm font-medium"
-      style={{
-        color: "var(--color-accent)",
-        fontFamily: "var(--font-body)",
-      }}
-    >
+    <label htmlFor={id} className="text-sm font-medium font-body text-accent">
       {label}
     </label>
     <input
@@ -443,12 +342,8 @@ const InputField: React.FC<InputFieldProps> = ({
       value={value}
       onChange={onChange}
       placeholder={placeholder}
-      className="w-full px-4 py-3 rounded-[var(--radius-md)] transition-colors duration-[var(--transition-fast)] focus:ring-2 focus:outline-none"
-      style={{
-        backgroundColor: "var(--color-surface-light)",
-        border: "1px solid var(--color-gray-600)",
-        color: "var(--color-accent)",
-      }}
+      className="w-full px-4 py-3 mt-1 rounded-md transition-colors duration-fast focus:ring-2 focus:outline-none text-accent border-1 border-accent-light"
+      maxLength={maxLength}
     />
   </div>
 );
@@ -469,14 +364,7 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
   onChange,
 }) => (
   <div className="space-y-2">
-    <label
-      htmlFor={id}
-      className="text-sm font-medium"
-      style={{
-        color: "var(--color-accent)",
-        fontFamily: "var(--font-body)",
-      }}
-    >
+    <label htmlFor={id} className="text-sm font-medium font-body text-accent">
       {label}
     </label>
     <textarea
@@ -485,12 +373,7 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
       onChange={onChange}
       placeholder={placeholder}
       rows={6}
-      className="w-full px-4 py-3 rounded-[var(--radius-md)] transition-colors duration-[var(--transition-fast)] focus:ring-2 focus:outline-none resize-none"
-      style={{
-        backgroundColor: "var(--color-surface-light)",
-        border: "1px solid var(--color-gray-600)",
-        color: "var(--color-accent)",
-      }}
+      className="w-full px-4 py-3 mt-1 rounded-md transition-colors duration-fast focus:ring-2 focus:outline-none text-accent border-1 border-accent-light"
     />
   </div>
 );

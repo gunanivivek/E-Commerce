@@ -1,6 +1,10 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useWishlistStore } from "../../store/wishlistStore";
+import {
+  useGetWishlist,
+  useRemoveWishlist,
+  useClearWishlist,
+} from "../../hooks/Customer/useWishlistHooks";
 import {
   useCart,
   useRemoveFromCart,
@@ -14,15 +18,32 @@ import { Link } from "react-router-dom";
 const WishlistCard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { wishlistItems, removeItem } = useWishlistStore();
+  const { data: wishlistItems = [] } = useGetWishlist();
+  const removeWishlistMutation = useRemoveWishlist();
+  const clearWishlistMutation = useClearWishlist();
   const { data: cartData } = useCart(true); // gives you cart items and totals
-  const removeMutation = useRemoveFromCart();
+  const removeCartMutation = useRemoveFromCart();
   const updateMutation = useUpdateCart();
   const addMutation = useAddToCart();
   const user = useAuthStore((s) => s.user);
-  const filteredWishlist = wishlistItems.filter(
+  const wishlistArray: Product[] = Array.isArray(wishlistItems)
+    ? ((wishlistItems as any[]).map((wi) =>
+        wi && "product" in wi ? wi.product : wi
+      ) as Product[])
+    : wishlistItems && "items" in wishlistItems
+    ? (((wishlistItems.items ?? []) as any[]).map((wi) =>
+        wi && "product" in wi ? wi.product : wi
+      ) as Product[])
+    : [];
+
+  const filteredWishlist = wishlistArray.filter(
     (product) =>
-      !cartData?.items.some((cartItem) => cartItem.product_id === product.id)
+      // if cartData isn't available yet, don't filter anything out
+      !(
+        cartData?.items?.some(
+          (cartItem) => cartItem.product_id === product.id
+        ) ?? false
+      )
   );
 
   if (!filteredWishlist || filteredWishlist.length === 0) {
@@ -46,9 +67,19 @@ const WishlistCard: React.FC = () => {
 
   return (
     <section className="px-6 md:px-16 py-5 bg-[var(--color-background)] min-h-screen">
-      <h2 className="text-3xl font-bold text-center mb-10 font-logo">
-        Your Wishlist
-      </h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-3xl font-bold text-center text-accent mb-0 font-logo">
+          Your Wishlist
+        </h2>
+        <div>
+          <button
+            onClick={() => clearWishlistMutation.mutate()}
+            className="px-3 cursor-pointer py-2 text-accent-dark rounded-md border border-accent text-sm hover:bg-accent hover:text-white "
+          >
+            Clear Wishlist
+          </button>
+        </div>
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredWishlist.map((product: Product) => {
@@ -160,7 +191,7 @@ const WishlistCard: React.FC = () => {
                     const dec = (ev: React.MouseEvent) => {
                       ev.stopPropagation();
                       if (c.quantity <= 1)
-                        removeMutation.mutate({ product_id: c.product_id });
+                        removeCartMutation.mutate({ product_id: c.product_id });
                       else
                         updateMutation.mutate({
                           product_id: c.product_id,
@@ -200,10 +231,10 @@ const WishlistCard: React.FC = () => {
                   <button
                     onClick={handleAdd}
                     disabled={stock === 0}
-                    className={`flex-1 py-2 rounded-lg font-semibold transition-all duration-150 shadow-sm ${
+                    className={`flex-1 py-2 cursor-pointer rounded-lg font-semibold transition-all duration-150 shadow-sm ${
                       stock === 0
                         ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                        : "bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)] hover:shadow-md transform hover:-translate-y-0.5"
+                        : "bg-[var(--color-accent)] text-primary-100 hover:bg-[var(--color-accent-dark)] hover:shadow-md transform hover:-translate-y-0.5"
                     }`}
                   >
                     {stock === 0 ? "Out of stock" : "Add to Cart"}
@@ -211,7 +242,10 @@ const WishlistCard: React.FC = () => {
                 )}
 
                 <button
-                  onClick={() => removeItem(product.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeWishlistMutation.mutate({ product_id: product.id });
+                  }}
                   className="ml-2 p-2 border cursor-pointer rounded-lg transition-all duration-150 border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-black"
                 >
                   🗑️
