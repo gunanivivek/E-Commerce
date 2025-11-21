@@ -17,7 +17,7 @@ const HelpCenter = () => {
   const [activeSection, setActiveSection] = useState("Orders & Shipping");
 
   // SECTION CONTENT MAPPING
-  const sectionContent = {
+  const sectionContent: Record<string, React.ReactNode> = {
     "Orders & Shipping": (
       <>
         <h2 className="text-2xl font-semibold text-accent-dark mb-2">Orders & Shipping</h2>

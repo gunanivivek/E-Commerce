@@ -83,7 +83,6 @@ const ChatbotWidget = ({
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between bg-accent text-white px-4 py-3">
-        
         <div className="flex flex-col">
           <span className="font-semibold">Need Help?</span>
           <span className="text-xs text-white/80">
@@ -173,6 +172,12 @@ const ChatbotWidget = ({
               <input
                 value={text}
                 onChange={(e) => setText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                  }
+                }}
                 placeholder="Ask a question about this product..."
                 className="flex-1 border rounded px-3 py-2 focus:outline-none md:w-auto w-full"
               />
