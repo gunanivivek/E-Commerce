@@ -34,7 +34,7 @@ export const useChangePassword = () => {
     },
 
     onSuccess: (data) => {
-      toast.success(data.message || "Password changed successfully");
+    
       console.log("✅ Password change successful:", data.message);
     },
 
