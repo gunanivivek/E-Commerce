@@ -196,7 +196,7 @@ const AdminOrderList: React.FC = () => {
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
-                  className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-400"
+                  className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-400"
                 >
                   <option value="">All</option>
                   <option value="pending">Pending</option>
@@ -212,7 +212,7 @@ const AdminOrderList: React.FC = () => {
                 <select
                   value={paymentStatusFilter}
                   onChange={(e) => setPaymentStatusFilter(e.target.value)}
-                  className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-500"
+                  className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-500"
                 >
                   <option value="">All</option>
                   <option value="paid">Paid</option>
@@ -227,7 +227,7 @@ const AdminOrderList: React.FC = () => {
                   type="date"
                   value={dateFrom}
                   onChange={(e) => setDateFrom(e.target.value)}
-                  className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm"
+                  className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm"
                 />
               </div>
 
@@ -237,7 +237,7 @@ const AdminOrderList: React.FC = () => {
                   type="date"
                   value={dateTo}
                   onChange={(e) => setDateTo(e.target.value)}
-                  className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm"
+                  className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm"
                 />
               </div>
             </div>

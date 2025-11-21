@@ -27,7 +27,7 @@ import { useCustomerActions } from "../../hooks/Admin/useCustomerActions";
 const columnHelper = createColumnHelper<Customer>();
 
 const CustomerList: React.FC = () => {
-  const { customers, setCustomers, loading, error } = useAdminStore();
+  const { customers, loading, error } = useAdminStore();
   useFetchCustomers();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -38,41 +38,31 @@ const CustomerList: React.FC = () => {
     null
   );
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { toggleBlockCustomer, isPending } = useCustomerActions();
+  const { toggleBlockCustomer, mutatingId } = useCustomerActions();
 
   const handleBlockToggle = useCallback(
-    (id: number, newState?: boolean) => {
-      setCustomers((prev) =>
-        prev.map((c) =>
-          c.id === id
-            ? {
-                ...c,
-                is_blocked: newState !== undefined ? newState : !c.is_blocked,
-              }
-            : c
-        )
-      );
-
-      const target = customers.find((c) => c.id === id);
-      if (target) {
-        const updatedState =
-          newState !== undefined ? newState : !target.is_blocked;
-        toggleBlockCustomer({ id, is_blocked: updatedState });
-      }
-
-      setIsModalOpen(false); // close modal after block/unblock
+    (id: number) => {
+      toggleBlockCustomer(id);
+      setIsModalOpen(false);
     },
-    [customers, setCustomers, toggleBlockCustomer]
+    [toggleBlockCustomer]
   );
 
   // --- Filter & Search Logic ---
   const filteredData = useMemo(() => {
-    let filtered = customers.filter(
-      (c) =>
-        c.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.phone?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    let filtered = customers.filter((c) => {
+      const name = c.full_name?.toLowerCase() || "";
+      const email = c.email?.toLowerCase() || "";
+      const phone = c.phone ? String(c.phone).toLowerCase() : "";
+
+      const search = searchTerm.toLowerCase();
+
+      return (
+        name.includes(search) ||
+        email.includes(search) ||
+        phone.includes(search)
+      );
+    });
 
     if (statusFilter)
       filtered = filtered.filter((c) =>
@@ -166,28 +156,33 @@ const CustomerList: React.FC = () => {
               >
                 <Eye className="w-3.5 h-3.5" />
               </button>
-              <button
-                disabled={isPending}
-                onClick={() => handleBlockToggle(customer.id)}
-                className={`p-1.5 ${
-                  customer.is_blocked
-                    ? "bg-green-50 text-green-600 hover:cursor-pointer hover:bg-green-100"
-                    : "bg-yellow-50 text-yellow-600 hover:cursor-pointer hover:bg-yellow-100"
-                } rounded disabled:opacity-50`}
-                title={customer.is_blocked ? "Unblock" : "Block"}
-              >
-                {customer.is_blocked ? (
-                  <Unlock className="w-3.5 h-3.5" />
+              {mutatingId === customer.id ? (
+                <div className="p-1.5 flex items-center justify-center">
+                  <span className="w-3.5 h-3.5 animate-spin border border-primary-400 rounded-full border-t-transparent"></span>
+                </div>
+              ) : (
+                <button
+                  onClick={() => handleBlockToggle(customer.id)}
+                  className={`p-1.5 cursor-pointer ${
+                    customer.is_blocked
+                      ? "bg-green-50 text-green-600 hover:bg-green-100"
+                      : "bg-yellow-50 text-yellow-600 hover:bg-yellow-100"
+                  } rounded`}
+                  title={customer.is_blocked ? "Unblock" : "Block"}
+                >
+                  {customer.is_blocked ? (
+                  <Unlock className="w-3.5 h-3.5 " />
                 ) : (
                   <Ban className="w-3.5 h-3.5" />
                 )}
-              </button>
+                </button>
+              )}
             </div>
           );
         },
       }),
     ],
-    [handleBlockToggle]
+    [handleBlockToggle, mutatingId]
   );
 
   const table = useReactTable({
@@ -236,7 +231,7 @@ const CustomerList: React.FC = () => {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-400"
+                className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-400"
               >
                 <option value="">All</option>
                 <option value="active">Active</option>
@@ -250,7 +245,7 @@ const CustomerList: React.FC = () => {
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-400"
+                className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-400"
               />
             </div>
 
@@ -260,7 +255,7 @@ const CustomerList: React.FC = () => {
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-400"
+                className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-400"
               />
             </div>
           </div>
@@ -372,7 +367,7 @@ const CustomerList: React.FC = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         customer={selectedCustomer}
-        onToggleBlock={(id, newState) => handleBlockToggle(id, newState)}
+        onToggleBlock={(id) => handleBlockToggle(id)}
       />
     </div>
   );
