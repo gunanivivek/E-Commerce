@@ -18,13 +18,22 @@ export default function SellerSignupForm() {
   const password = watch("password");
 
   const handleSignup = (data: SignupRequest) => {
-    signupMutation.mutate({ ...data, role: "seller" }, {
+    const finalData = {
+      ...data,
+      phone: "+91" + data.phone, // ← Add +91 here
+      role: "seller" as const,
+    };
+
+    signupMutation.mutate(finalData, {
       onSuccess: () => navigate("/seller"),
     });
   };
 
   return (
-    <form onSubmit={handleSubmit(handleSignup)} className="space-y-4 text-left font-body">
+    <form
+      onSubmit={handleSubmit(handleSignup)}
+      className="space-y-4 text-left font-body"
+    >
       {/* Full Name */}
       <div>
         <label className="block text-sm mb-1 font-medium text-text-primary">
@@ -67,14 +76,18 @@ export default function SellerSignupForm() {
           Store Address <span className="text-error">*</span>
         </label>
         <input
-          {...register("store_address", { required: "Store address is required" })}
+          {...register("store_address", {
+            required: "Store address is required",
+          })}
           placeholder="Enter your store's address"
           className={`w-full rounded-md px-3 py-3 bg-background border text-text-primary focus:ring-2 focus:ring-accent ${
             errors.store_address ? "border-error" : "border-border"
           }`}
         />
         {errors.store_address && (
-          <p className="text-sm mt-1 text-error">{errors.store_address.message}</p>
+          <p className="text-sm mt-1 text-error">
+            {errors.store_address.message}
+          </p>
         )}
       </div>
 
@@ -83,17 +96,20 @@ export default function SellerSignupForm() {
         <label className="block text-sm mb-1 font-medium text-text-primary">
           Phone Number <span className="text-error">*</span>
         </label>
-        <input
+         <input
           type="tel"
-          placeholder="+91XXXXXXXXXX"
+          placeholder="e.g. 9876543210"
           {...register("phone", {
             required: "Phone number is required",
             pattern: {
-              value: /^\+91\d{10}$/,
-              message: "Phone number must start with +91 and contain 10 digits",
+              value: /^[0-9]{10}$/,
+              message: "Phone number must be 10 digits",
+            },
+            onChange: (e) => {
+              e.target.value = e.target.value.replace(/\D/g, "");
             },
           })}
-          className={`w-full rounded-md px-3 py-3 bg-background border text-text-primary focus:ring-2 focus:ring-accent ${
+          className={`w-full rounded-md px-3 py-3 bg-background border text-text-primary placeholder:text-gray-500 focus:ring-2 focus:ring-accent ${
             errors.phone ? "border-error" : "border-border"
           }`}
         />
