@@ -10,13 +10,9 @@ export const updateCustomerProfile = async (
   const res = await API.patch(`/users/${customerId}`, data);
   return res.data;
 };
-
-export const updateCustomerStatus = async (
-  id: number,
-  isBlocked: boolean
+export const toggleCustomerBlock = async (
+  userId: number
 ): Promise<Customer> => {
-  const res = await API.patch(`/admin/customers/${id}/`, {
-    is_blocked: isBlocked,
-  });
+  const res = await API.patch(`/users/${userId}/toggle-block`);
   return res.data;
 };
