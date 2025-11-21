@@ -226,17 +226,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     transition-all duration-150 shrink-0 cursor-pointer
     ${
       inWishlist
-        ? "bg-[var(--color-accent)] text-black border-[var(--color-accent)]"
+        ? "bg-accent text-black border-[var(--color-accent)]"
         : "border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-primary-100"
     }
   `}
           >
             <Heart
               size={18}
-              className={`transition-colors duration-150 ${
-                inWishlist ? "text-accent-light" : "text-accent"
-              }`}
-              fill={inWishlist ? "accent" : "none"}
+              className="transition-colors duration-150"
+              stroke={inWishlist ? "none" : "currentColor"}
+              fill={inWishlist ? "currentColor" : "none"}
             />
           </button>
         </div>

@@ -137,7 +137,7 @@ const ChatbotWidget = ({
                 <span
                   className={`inline-block max-w-[80%] break-words px-3 py-2 rounded-lg text-sm ${
                     m.sender === "user"
-                      ? "bg-accent text-primary-100"
+                      ? "bg-accent-dark text-primary-100"
                       : "bg-surface text-accent-darker"
                   }`}
                 >
