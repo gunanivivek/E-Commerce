@@ -15,30 +15,27 @@ import { toast } from "react-toastify";
 
 export function SkeletonCart() {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-pulse">
-      {/* Left: Cart Items Skeleton */}
-      <div className="lg:col-span-2 space-y-6">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8 animate-pulse">
+      {/* Left: Cart items */}
+      <div className="lg:col-span-2 space-y-4 md:space-y-6">
         {[1, 2].map((i) => (
           <div
             key={i}
-            className="flex justify-between items-center bg-white rounded-lg shadow-md p-6"
+            className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white rounded-lg shadow-md p-4 sm:p-6 gap-4"
           >
-            <div className="flex items-center gap-6">
-              {/* Image Skeleton */}
-              <div className="w-24 h-24 bg-gray-200 rounded-lg"></div>
+            <div className="flex items-center gap-4 sm:gap-6 w-full sm:w-auto">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gray-200 rounded-lg"></div>
 
-              {/* Title + Price Skeleton */}
-              <div className="space-y-2">
-                <div className="h-4 w-40 bg-gray-200 rounded"></div>
-                <div className="h-4 w-24 bg-gray-300 rounded"></div>
+              <div className="flex flex-col gap-2 w-full">
+                <div className="h-4 w-32 bg-gray-200 rounded"></div>
+                <div className="h-4 w-20 bg-gray-300 rounded"></div>
               </div>
             </div>
 
-            {/* Right Controls Skeleton */}
-            <div className="flex flex-col items-end gap-4">
+            <div className="flex flex-col items-end gap-3 w-full sm:w-auto">
               <div className="h-4 w-5 bg-gray-300 rounded"></div>
 
-              <div className="flex items-center gap-3 border rounded-lg px-2 py-1">
+              <div className="flex items-center gap-3 border rounded-lg px-3 py-1">
                 <div className="h-4 w-4 bg-gray-300 rounded"></div>
                 <div className="h-4 w-6 bg-gray-300 rounded"></div>
                 <div className="h-4 w-4 bg-gray-300 rounded"></div>
@@ -48,9 +45,9 @@ export function SkeletonCart() {
         ))}
       </div>
 
-      {/* Right: Order Summary Skeleton */}
-      <div className="bg-white shadow-md rounded-lg p-6 h-fit space-y-4">
-        <div className="h-5 w-40 bg-gray-300 rounded"></div>
+      {/* Right: Summary */}
+      <div className="bg-white shadow-md rounded-lg p-4 sm:p-6 h-fit space-y-3">
+        <div className="h-5 w-32 bg-gray-300 rounded"></div>
 
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
@@ -68,7 +65,7 @@ export function SkeletonCart() {
           <div className="h-5 w-24 bg-gray-300 rounded"></div>
         </div>
 
-        <div className="h-10 w-full bg-gray-200 rounded mt-5"></div>
+        <div className="h-10 w-full bg-gray-200 rounded mt-4"></div>
         <div className="h-10 w-full bg-gray-300 rounded"></div>
       </div>
     </div>
@@ -176,54 +173,61 @@ const Cart: React.FC = () => {
       </div>
 
       {/* Main section */}
-      <section className="min-h-screen bg-background py-12 px-6 md:px-20">
-        <div className="flex justify-between mb-6 itemns-center h-min">
-          <h1 className="text-3xl font-bold text- mb-8 text-accent-darker">
+      <section className="min-h-screen bg-background py-8 px-3 sm:px-6 md:px-14 lg:px-20">
+        <div className="flex flex-col sm:flex-row justify-between mb-6 gap-3">
+          <h1 className="text-2xl sm:text-3xl font-bold text-accent-darker">
             Shopping Cart
           </h1>
+
           <button
             onClick={() => setClearConfirmOpen(true)}
-            className="ml-2 px-4 py-2 h-min bg-accent-dark cursor-pointer text-white rounded-lg hover:opacity-90 transition"
+            className="px-4 py-2 bg-accent-dark text-white rounded-lg hover:opacity-90 w-full sm:w-auto"
           >
             Clear Cart
           </button>
         </div>
+
         {cartLoading ? (
           <SkeletonCart />
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Left: Cart Items */}
-            <div className="lg:col-span-2 space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-8 px-4">
+            {/* Left: Cart items */}
+            <div className="lg:col-span-2 space-y-4 md:space-y-6">
               {cartItems.map((item) => {
                 const isUpdating =
                   (updateMutation.isPending &&
                     updateMutation.variables?.product_id === item.product_id) ||
                   (removeMutation.isPending &&
                     removeMutation.variables?.product_id === item.product_id);
+
                 return (
                   <div
                     key={item.product_id}
-                    className="flex justify-between items-center bg-white rounded-lg shadow-md p-6"
+                    className="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white rounded-lg shadow-md p-4 sm:p-6 gap-4"
                   >
-                    <div className="flex items-center gap-6">
+                    {/* LEFT content (image + name) */}
+                    <div className="flex items-center gap-3 sm:gap-6 w-full sm:w-auto">
                       <img
-                        src={item.image_url || undefined}
+                        src={item.image_url}
                         alt={item.name}
-                        className="w-24 h-24 object-cover rounded-lg"
+                        className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-lg"
                       />
+
                       <div>
-                        <h3 className="font-semibold text-lg text-[var(--color-primary-200)] mb-1">
+                        <h3 className="font-semibold text-md sm:text-lg mb-1 text-primary">
                           {item.name}
                         </h3>
-                        <p className="text-xl font-bold text-[var(--color-accent)]">
+
+                        <p className="text-lg sm:text-xl font-bold text-[var(--color-accent)]">
                           ₹{item.unit_price.toFixed(2)}
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex flex-col items-end gap-4">
+                    {/* RIGHT controls */}
+                    <div className="flex flex-row sm:flex-col sm:items-end justify-end w-full sm:w-auto gap-3">
                       <button
-                        className="text-gray-500 hover:text-[var(--color-error)] transition"
+                        className="text-gray-500 hover:text-red-500 transition"
                         onClick={() => {
                           setPendingDelete(item.product_id);
                           setConfirmOpen(true);
@@ -232,59 +236,58 @@ const Cart: React.FC = () => {
                         <Trash2 size={18} />
                       </button>
 
-                      <div className="flex items-center border rounded-lg px-2 py-1">
-                        {/* DEC BUTTON */}
+                      {/* Quantity changer */}
+                      <div className="flex items-center border rounded-lg px-3 py-1 w-fit">
+                        {/* - */}
                         <button
                           disabled={isUpdating}
                           onClick={(ev) => {
                             ev.stopPropagation();
-                            if (isUpdating) return;
 
-                            if (item.quantity <= 1) {
-                              removeMutation.mutate({
-                                product_id: item.product_id,
-                              });
-                            } else {
-                              updateMutation.mutate({
-                                product_id: item.product_id,
-                                quantity: item.quantity - 1,
-                              });
+                            if (!isUpdating) {
+                              if (item.quantity <= 1) {
+                                removeMutation.mutate({
+                                  product_id: item.product_id,
+                                });
+                              } else {
+                                updateMutation.mutate({
+                                  product_id: item.product_id,
+                                  quantity: item.quantity - 1,
+                                });
+                              }
                             }
                           }}
-                          className={`p-1 transition ${
+                          className={`p-1 ${
                             isUpdating
                               ? "opacity-50 cursor-not-allowed"
-                              : "hover:text-[var(--color-accent)]"
+                              : "hover:text-accent"
                           }`}
                         >
                           <Minus size={14} />
                         </button>
 
-                        {/* QUANTITY / LOADER */}
-                        <span className="px-4 font-medium min-w-[25px] flex justify-center">
+                        {/* Quantity */}
+                        <span className="px-4 font-medium min-w-[25px] text-center">
                           {isUpdating ? (
-                            <div className="w-4 h-4 rounded-full border-2 border-gray-300 border-t-[var(--color-accent)] animate-spin"></div>
+                            <div className="w-4 h-4 rounded-full border-2 border-gray-300 border-t-accent animate-spin mx-auto"></div>
                           ) : (
                             item.quantity
                           )}
                         </span>
 
-                        {/* INC BUTTON */}
+                        {/* + */}
                         <button
                           disabled={isUpdating}
-                          onClick={(ev) => {
-                            ev.stopPropagation();
-                            if (isUpdating) return;
-
+                          onClick={() =>
                             updateMutation.mutate({
                               product_id: item.product_id,
                               quantity: item.quantity + 1,
-                            });
-                          }}
-                          className={`p-1 transition ${
+                            })
+                          }
+                          className={`p-1 ${
                             isUpdating
                               ? "opacity-50 cursor-not-allowed"
-                              : "hover:text-[var(--color-accent)]"
+                              : "hover:text-accent"
                           }`}
                         >
                           <Plus size={14} />
@@ -296,60 +299,57 @@ const Cart: React.FC = () => {
               })}
             </div>
 
-            {/* Right: Order Summary */}
-            <div className="bg-white shadow-md rounded-lg p-6 h-fit">
-              <h2 className="text-xl font-semibold mb-4 text-[var(--color-primary-200)]">
+            {/* Right: Summary */}
+            <div className="bg-white shadow-md rounded-lg p-4 sm:p-6 h-fit sticky top-4">
+              <h2 className="text-lg sm:text-xl font-semibold mb-4 text-primary">
                 Order Summary
               </h2>
-              <div className="space-y-3 text-[var(--color-gray-700)]">
+
+              <div className="space-y-3 text-gray-700 text-sm sm:text-base">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
                   <span className="font-medium">₹{subtotal.toFixed(2)}</span>
                 </div>
+
                 <div className="flex justify-between">
                   <span>Shipping</span>
-                  <span className="font-medium text-[var(--color-success)]">
-                    FREE
-                  </span>
+                  <span className="font-medium text-green-600">FREE</span>
                 </div>
 
                 <div className="flex justify-between">
                   <span>Discount</span>
                   <span className="font-medium">₹{discount.toFixed(2)}</span>
                 </div>
-                <hr className="my-3 border-[var(--color-gray-300)]" />
+
+                <hr className="my-3" />
+
                 <div className="flex justify-between text-lg font-semibold">
                   <span>Total</span>
-                  <span className="text-[var(--color-primary-100)]">
-                    ₹{total.toFixed(2)}
-                  </span>
+                  <span className="text-primary">₹{total.toFixed(2)}</span>
                 </div>
               </div>
 
+              {/* Coupon */}
               <div className="mt-4 space-y-2">
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={couponCode}
-                    onChange={(e) => setCouponCode(e.target.value)}
-                    placeholder="Coupon code"
-                    className="w-full border border-[var(--color-gray-300)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-[var(--color-accent)]"
-                  />
-                </div>
+                <input
+                  type="text"
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value)}
+                  className="w-full border rounded-lg px-3 py-2 text-sm"
+                  placeholder="Coupon code"
+                />
 
-                <div className="flex gap-2">
-                  <button
-                    onClick={handleApplyCoupon}
-                    disabled={isPending}
-                    className="cursor-pointer flex-1 border border-[var(--color-accent)] text-[var(--color-accent)] py-2 rounded-lg hover:bg-[var(--color-accent-light)] hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {isPending ? "Applying..." : "Apply Coupon"}
-                  </button>
-                </div>
+                <button
+                  onClick={handleApplyCoupon}
+                  disabled={isPending}
+                  className="w-full border border-accent text-accent py-2 rounded-lg hover:bg-accent-light hover:text-white transition disabled:opacity-50"
+                >
+                  {isPending ? "Applying..." : "Apply Coupon"}
+                </button>
               </div>
 
               <Link to="/checkout">
-                <button className="w-full cursor-pointer bg-[var(--color-accent)] text-white mt-5 py-3 rounded-lg font-medium hover:bg-[var(--color-accent-dark)] transition">
+                <button className="w-full bg-accent text-white mt-5 py-3 rounded-lg font-medium hover:bg-accent-dark transition">
                   Proceed to Checkout
                 </button>
               </Link>
@@ -357,6 +357,7 @@ const Cart: React.FC = () => {
           </div>
         )}
       </section>
+
       <Footer />
       <ConfirmModal
         isOpen={confirmOpen}
