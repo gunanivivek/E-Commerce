@@ -5,6 +5,7 @@ import { useUploadProfilePicture } from "../../hooks/useUploadProfilePicture";
 import { useMutation } from "@tanstack/react-query";
 import { updateCustomerProfile } from "../../api/customerApi";
 import { toast } from "react-toastify";
+import { showToast } from "../toastManager";
 
 const AccountInfo = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -28,7 +29,7 @@ const AccountInfo = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any) => {
       toast.dismiss();
-      toast.success("Profile updated successfully!");
+      showToast("Profile updated successfully", "success");
 
       // Merge updated fields safely
       updateUser(data);

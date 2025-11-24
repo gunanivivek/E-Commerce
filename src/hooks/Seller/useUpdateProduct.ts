@@ -3,6 +3,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 import { updateProduct } from "../../api/sellerApi";
 import type { ViewProduct } from "../../types/seller";
+import { showToast } from "../../components/toastManager";
 
 /**
  * useUpdateProduct — React Query hook for updating a product
@@ -17,7 +18,7 @@ export const useUpdateProduct = (productId: number | null) => {
       return await updateProduct(productId, formData);
     },
     onSuccess: () => {
-      toast.success("✅ Product updated successfully!");
+      showToast("Product updated successfully!", "success");
       queryClient.invalidateQueries({ queryKey: ["SellerProducts"] });
       if (productId) queryClient.invalidateQueries({ queryKey: ["product", productId] });
     },

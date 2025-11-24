@@ -4,6 +4,7 @@ import { loginUser } from "../api/authApi";
 import { useAuthStore } from "../store/authStore";
 import type { AxiosError } from "axios";
 import { toast } from "react-toastify";
+import { showToast } from "../components/toastManager";
 
 export const useLogin = () => {
   const setAuthUser = useAuthStore((state) => state.setUser);
@@ -35,7 +36,7 @@ export const useLogin = () => {
         user: data.user,
         message: data.message || "Login successful",
       });
-      toast.success("Login successful!");
+      showToast("Login successful!", "success");
     },
 
     onError: (error) => {

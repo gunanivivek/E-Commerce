@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createProduct } from "../../api/sellerApi";
 import { toast } from "react-toastify";
+import { showToast } from "../../components/toastManager";
 
 export const useCreateProduct = (onSuccess?: () => void) => {
   const queryClient = useQueryClient();
@@ -10,7 +11,7 @@ export const useCreateProduct = (onSuccess?: () => void) => {
     mutationFn: createProduct,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     onSuccess: (_data) => {
-      toast.success("Product created successfully!");
+      showToast("Product created successfully!", "success");
 
       queryClient.invalidateQueries({ queryKey: ["SellerProducts"] });
 
