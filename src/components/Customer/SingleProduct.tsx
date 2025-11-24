@@ -34,7 +34,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const wishlistItems = wishlistData?.items ?? [];
   const inWishlist = wishlistItems.some((w) => w.product_id === product.id);
   const stock = Number(product.stock ?? NaN);
-  const inCart = cartData?.items.find((c) => c.product_id === product.id);
+  const inCart = user && cartData?.items.find((c) => c.product_id === product.id);
 
   const handleNavigate = () => navigate(`/product/${product.id}`);
 
