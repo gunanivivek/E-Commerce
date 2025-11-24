@@ -5,6 +5,7 @@ import { useUploadProfilePicture } from "../../hooks/useUploadProfilePicture";
 import { useMutation } from "@tanstack/react-query";
 import { updateCustomerProfile } from "../../api/customerApi";
 import { toast } from "react-toastify";
+import { showToast } from "../toastManager";
 
 const AccountInfo = () => {
   const [isEditing, setIsEditing] = useState(false);
@@ -28,7 +29,7 @@ const AccountInfo = () => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onSuccess: (data: any) => {
       toast.dismiss();
-      toast.success("Profile updated successfully!");
+      showToast("Profile updated successfully", "success");
 
       // Merge updated fields safely
       updateUser(data);
@@ -89,12 +90,12 @@ const AccountInfo = () => {
 
   return (
     <section className="bg-[var(--color-background)] py-5 px-2 md:px-6">
-      <h2 className="text-3xl font-bold mb-8 leading-tight text-[var(--color-primary-400)]">
+      <h2 className="text-2xl sm:text-3xl font-heading font-bold text-accent-dark px-2 mb-8">
         Personal Information
       </h2>
 
       <div className="flex items-center gap-4 mb-8">
-        <div className="w-20 h-20 rounded-full border border-gray-300 overflow-hidden flex items-center justify-center bg-gray-100">
+        <div className="w-20 h-20 rounded-full border border-border overflow-hidden flex items-center justify-center bg-gray-100">
           {profilePreview ? (
             <img
               src={profilePreview}
@@ -109,7 +110,7 @@ const AccountInfo = () => {
         {isUploading ? (
           <div className="flex items-center gap-2">
             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-gray-900"></div>
-            <span className="text-sm text-gray-600">Uploading...</span>
+            <span className="text-sm text-accent-dark">Uploading...</span>
           </div>
         ) : !isEditingImage ? (
           <button
@@ -196,10 +197,7 @@ const AccountInfo = () => {
         {!isEditing ? (
           <button
             onClick={() => setIsEditing(true)}
-            className="px-6 py-3 text-white font-semibold rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
-            style={{
-              backgroundColor: "var(--color-accent)",
-            }}
+            className="px-4 py-3 bg-accent-light text-surface-light font-semibold hover:bg-accent-dark rounded-lg transition-all shadow-sm hover:shadow-md transform hover:cursor-pointer"
           >
             Edit Details
           </button>

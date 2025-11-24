@@ -3,6 +3,7 @@ import React from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateOrderItemStatus } from "../../api/sellerOrderApi"; 
 import { toast } from "react-toastify";
+import { showToast } from "../toastManager";
 
 interface StatusCellProps {
   orderId: number;
@@ -19,7 +20,7 @@ const OrderStatusCell: React.FC<StatusCellProps> = ({ orderId, itemId, initialSt
     mutationFn: (status: "pending" | "shipped" | "delivered" | "cancelled") =>
       updateOrderItemStatus({ order_id: orderId, item_id: itemId, new_status:status }),
     onSuccess: () => {
-      toast.success("Order status updated successfully!");
+       showToast("Order status updated successfully!", "success");
       queryClient.invalidateQueries({ queryKey: ["sellerOrders"] });
       setIsEditing(false);
     },

@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { Upload } from "lucide-react";
 import { bulkUploadProducts, handleDownloadFormat } from "../../api/sellerApi";
 import { toast } from "react-toastify";
+import { showToast } from "../toastManager";
 
 interface BulkUploadFormProps {
   onClose: () => void;
@@ -35,7 +36,7 @@ const BulkUploadForm: React.FC<BulkUploadFormProps> = ({
       const response = await bulkUploadProducts({ file: uploadedFile });
 
       console.log("✅ Upload successful:", response);
-      toast.success(`✅ File "${uploadedFile.name}" uploaded successfully!`);
+      showToast(`✅ File "${uploadedFile.name}" uploaded successfully!`, "success");
       onSuccess();
       onClose();
     } catch (error) {

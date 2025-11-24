@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateProductStock } from "../../api/sellerApi";
 import { toast } from "react-toastify";
+import { showToast } from "../../components/toastManager";
 
 export const useUpdateQuantity = () => {
   const queryClient = useQueryClient();
@@ -11,7 +12,7 @@ export const useUpdateQuantity = () => {
       updateProductStock(id, { quantity }),
     onSuccess: (_, variables) => {
       const { id } = variables;
-      toast.success("Quantity updated successfully!");
+      showToast("Quantity updated successfully!", "success");
       queryClient.invalidateQueries({ queryKey: ["SellerProducts"] });
       queryClient.invalidateQueries({ queryKey: ["product", id] });
     },

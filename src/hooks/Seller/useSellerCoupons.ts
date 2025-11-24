@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as couponApi from "../../api/couponApi"
 import { toast } from "react-toastify";
 import { useMemo } from "react";
+import { showToast } from "../../components/toastManager";
 
 export const useCoupons = () => {
   return useQuery({
@@ -31,7 +32,7 @@ export const useDeleteCoupon = () => {
   return useMutation({
     mutationFn: couponApi.deleteCoupon,
     onSuccess: () => {
-      toast.success("Coupon deleted successfully!");
+       showToast("Coupon deleted successfully!", "success");
       queryClient.invalidateQueries({ queryKey: ["SellerCoupons"] });
       queryClient.invalidateQueries({ queryKey: ["AdminCoupons"] });
     },
@@ -44,7 +45,7 @@ export const useCreateCoupon = () => {
   return useMutation({
     mutationFn: couponApi.createCoupon,
     onSuccess: () => {
-      toast.success("Coupon created successfully!");
+      
       queryClient.invalidateQueries({ queryKey: ["SellerCoupons"] });
       queryClient.invalidateQueries({ queryKey: ["AdminCoupons"] });
     },
@@ -57,7 +58,7 @@ export const useUpdateCoupon = () => {
   return useMutation({
     mutationFn: couponApi.updateCoupon,
     onSuccess: () => {
-      toast.success("Coupon updated successfully!");
+      showToast("Coupon updated successfully!", "success");
       queryClient.invalidateQueries({ queryKey: ["SellerCoupons"] });
       queryClient.invalidateQueries({ queryKey: ["AdminCoupons"] });
     },

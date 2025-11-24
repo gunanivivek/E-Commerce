@@ -1,63 +1,72 @@
-import { useState } from "react";
-import { create } from "zustand";
-import { useMutation } from "@tanstack/react-query";
+import {
+  useForm,
+  type FieldError,
+  type UseFormRegister,
+  type SubmitHandler,
+} from "react-hook-form";
+import { useMutation, type UseMutationResult } from "@tanstack/react-query";
+import { toast } from "react-toastify";
+
 import { Mail, Phone, MapPin, Clock } from "lucide-react";
 import Header from "../../components/ui/Header";
 import Footer from "../../components/ui/Footer";
+import type {
+  ContactFormPayload,
+  ContactFormResponse,
+} from "../../types/customer";
+import { sendContactForm } from "../../api/customerApi";
+import { Link } from "react-router";
 
-// -------------------- 🧠 Zustand Store --------------------
-interface ContactFormState {
+// ------------------ FORM TYPES ------------------
+
+interface ContactFormInputs {
   firstName: string;
   lastName: string;
   email: string;
-  phone?: string;
+  phone: string; // user inputs only 10 numbers
   subject: string;
   message: string;
-  setField: (field: keyof ContactFormState, value: string) => void;
-  reset: () => void;
 }
 
-const useContactFormStore = create<ContactFormState>((set) => ({
-  firstName: "",
-  lastName: "",
-  email: "",
-  phone: "",
-  subject: "",
-  message: "",
-  setField: (field, value) => set((state) => ({ ...state, [field]: value })),
-  reset: () =>
-    set({
-      firstName: "",
-      lastName: "",
-      email: "",
-      phone: "",
-      subject: "",
-      message: "",
-    }),
-}));
+// ------------------ MAIN COMPONENT ------------------
 
-// -------------------- 💬 Fake Submit API --------------------
-const sendContactForm = async (data: ContactFormState) => {
-  await new Promise((resolve) => setTimeout(resolve, 1000)); // simulate delay
-  console.log("📨 Sent contact form:", data);
-  return { success: true, message: "Message sent successfully!" };
-};
-
-// -------------------- 📍 Component --------------------
 const Contact: React.FC = () => {
-  const form = useContactFormStore();
-  const [status, setStatus] = useState<string | null>(null);
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<ContactFormInputs>();
 
-  const mutation = useMutation({
-    mutationFn: sendContactForm,
-    onSuccess: (data) => {
-      setStatus(data.message);
-      form.reset();
+  // FULLY TYPED MUTATION
+  const mutation: UseMutationResult<
+    ContactFormResponse,
+    Error,
+    ContactFormInputs
+  > = useMutation({
+    mutationFn: async (data: ContactFormInputs) => {
+      const payload: ContactFormPayload = {
+        first_name: data.firstName,
+        last_name: data.lastName,
+        email: data.email,
+        phone: `+91${data.phone}`, // Auto-add +91 (Option 3)
+        subject: data.subject,
+        message: data.message,
+      };
+
+      return await sendContactForm(payload);
+    },
+    onSuccess: (res) => {
+      toast.success(res.message);
+      reset();
     },
     onError: () => {
-      setStatus("❌ Failed to send message. Please try again.");
+      toast.error("❌ Failed to send message. Please try again.");
     },
   });
+
+  const onSubmit: SubmitHandler<ContactFormInputs> = (data) =>
+    mutation.mutate(data);
 
   const contactInfo = [
     {
@@ -86,11 +95,6 @@ const Contact: React.FC = () => {
       link: null,
     },
   ];
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    mutation.mutate(form);
-  };
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -123,21 +127,21 @@ const Contact: React.FC = () => {
                 Send Us a Message
               </h2>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid md:grid-cols-2 gap-4">
                   <InputField
                     label="First Name"
                     id="firstName"
-                    value={form.firstName}
-                    onChange={(e) => form.setField("firstName", e.target.value)}
-                    placeholder="Roohi"
+                    placeholder="John"
+                    register={register("firstName", { required: true })}
+                    error={errors.firstName}
                   />
                   <InputField
                     label="Last Name"
                     id="lastName"
-                    value={form.lastName}
-                    onChange={(e) => form.setField("lastName", e.target.value)}
-                    placeholder="Shah"
+                    placeholder="Doe"
+                    register={register("lastName", { required: true })}
+                    error={errors.lastName}
                   />
                 </div>
 
@@ -145,67 +149,52 @@ const Contact: React.FC = () => {
                   label="Email"
                   id="email"
                   type="email"
-                  value={form.email}
-                  onChange={(e) => form.setField("email", e.target.value)}
-                  placeholder="roohishah@gmail.com"
+                  placeholder="user@gmail.com"
+                  register={register("email", {
+                    required: true,
+                    pattern: /^\S+@\S+\.\S+$/,
+                  })}
+                  error={errors.email}
                 />
 
                 <InputField
-                  label="Phone Number (Optional)"
+                  label="Phone Number"
                   id="phone"
                   type="tel"
-                  value={form.phone ?? ""}
-                  onChange={(e) => form.setField("phone", e.target.value)}
-                  placeholder="+91 12345 67890"
                   maxLength={10}
+                  placeholder="eg: 9876543210"
+                  register={register("phone", {
+                    required: true,
+                    minLength: 10,
+                    maxLength: 10,
+                    pattern: /^[0-9]{10}$/,
+                  })}
+                  error={errors.phone}
                 />
 
                 <InputField
                   label="Subject"
                   id="subject"
-                  value={form.subject}
-                  onChange={(e) => form.setField("subject", e.target.value)}
                   placeholder="How can we help you?"
+                  register={register("subject", { required: true })}
+                  error={errors.subject}
                 />
 
                 <TextAreaField
                   label="Message"
                   id="message"
-                  value={form.message}
-                  onChange={(e) => form.setField("message", e.target.value)}
                   placeholder="Tell us more about your inquiry..."
+                  register={register("message", { required: true })}
+                  error={errors.message}
                 />
 
                 <button
                   type="submit"
                   disabled={mutation.isPending}
                   className="w-full py-3 rounded-lg bg-accent-dark text-primary-100 border-2 border-accent font-bold transition-all duration-normal disabled:opacity-70"
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                    e.currentTarget.style.color = "var(--color-accent)";
-                    e.currentTarget.style.cursor = "pointer";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor =
-                      "var(--color-accent)";
-                    e.currentTarget.style.color = "var(--color-primary-100)";
-                  }}
                 >
                   {mutation.isPending ? "Sending..." : "Send Message"}
                 </button>
-
-                {status && (
-                  <p
-                    className="text-center mt-2"
-                    style={{
-                      color: mutation.isError
-                        ? "var(--color-error)"
-                        : "var(--color-success)",
-                    }}
-                  >
-                    {status}
-                  </p>
-                )}
               </form>
             </section>
 
@@ -256,6 +245,7 @@ const Contact: React.FC = () => {
                 </div>
               </div>
 
+              {/* FAQ + Live Chat Keep Same */}
               <div className="rounded-xl p-8 shadow-md border border-accent">
                 <h3 className="text-xl font-bold mb-4 leading-tight font-heading text-accent">
                   Frequently Asked Questions
@@ -264,62 +254,34 @@ const Contact: React.FC = () => {
                   Before reaching out, you might find answers in our FAQ
                   section.
                 </p>
-                <button
-                  className="w-full py-2 rounded-md font-medium transition-all duration-normal border border-accent text-accent bg-transparent"
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor =
-                      "var(--color-accent)";
-                    e.currentTarget.style.color = "var(--color-primary-100)";
-                    e.currentTarget.style.cursor = "pointer";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                    e.currentTarget.style.color = "var(--color-accent)";
-                  }}
+                <Link
+                  to="/#faq"
+                  className="w-full block text-center py-2 rounded-md font-medium border border-accent text-accent bg-transparent"
                 >
                   Visit FAQ Page
-                </button>
-              </div>
-
-              <div className="rounded-xl p-6 border border-accent">
-                <h3 className="font-bold mb-2 leading-tight font-heading text-accent">
-                  💬 Live Chat Support
-                </h3>
-                <p className="text-sm mb-4 leading-relaxed font-body text-accent-light">
-                  Get instant help from our support team during business hours
-                </p>
-                <button
-                  className="w-full py-2 rounded-md font-medium transition-all duration-normal border border-accent text-accent bg-transparent"
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "var(--color-accent-dark)";
-                    e.currentTarget.style.color = "var(--color-primary-100)";
-                    e.currentTarget.style.cursor = "pointer";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "transparent";
-                    e.currentTarget.style.color = "var(--color-accent)";
-                  }}
-                >
-                  Start Live Chat
-                </button>
+                </Link>
               </div>
             </div>
           </div>
         </div>
       </div>
+
       <Footer />
     </div>
   );
 };
 
-// -------------------- 📋 Reusable Components --------------------
+export default Contact;
+
+// ------------------ INPUT FIELD COMPONENT ------------------
+
 interface InputFieldProps {
   label: string;
   id: string;
   type?: string;
-  value: string;
   placeholder?: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  register: ReturnType<UseFormRegister<ContactFormInputs>>;
+  error?: FieldError;
   maxLength?: number;
 }
 
@@ -327,9 +289,9 @@ const InputField: React.FC<InputFieldProps> = ({
   label,
   id,
   type = "text",
-  value,
   placeholder,
-  onChange,
+  register,
+  error,
   maxLength,
 }) => (
   <div className="space-y-2">
@@ -339,29 +301,31 @@ const InputField: React.FC<InputFieldProps> = ({
     <input
       id={id}
       type={type}
-      value={value}
-      onChange={onChange}
+      {...register}
       placeholder={placeholder}
-      className="w-full px-4 py-3 mt-1 rounded-md transition-colors duration-fast focus:ring-2 focus:outline-none text-accent border-1 border-accent-light"
       maxLength={maxLength}
+      className="w-full px-4 py-3 mt-1 rounded-md border-1 border-accent-light focus:ring-2 focus:outline-none text-accent"
     />
+    {error && <p className="text-red-500 text-sm">This field is required</p>}
   </div>
 );
+
+// ------------------ TEXTAREA COMPONENT ------------------
 
 interface TextAreaFieldProps {
   label: string;
   id: string;
-  value: string;
   placeholder?: string;
-  onChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  register: ReturnType<UseFormRegister<ContactFormInputs>>;
+  error?: FieldError;
 }
 
 const TextAreaField: React.FC<TextAreaFieldProps> = ({
   label,
   id,
-  value,
   placeholder,
-  onChange,
+  register,
+  error,
 }) => (
   <div className="space-y-2">
     <label htmlFor={id} className="text-sm font-medium font-body text-accent">
@@ -369,13 +333,11 @@ const TextAreaField: React.FC<TextAreaFieldProps> = ({
     </label>
     <textarea
       id={id}
-      value={value}
-      onChange={onChange}
-      placeholder={placeholder}
+      {...register}
       rows={6}
-      className="w-full px-4 py-3 mt-1 rounded-md transition-colors duration-fast focus:ring-2 focus:outline-none text-accent border-1 border-accent-light"
+      placeholder={placeholder}
+      className="w-full px-4 py-3 mt-1 rounded-md border-1 border-accent-light focus:ring-2 focus:outline-none text-accent"
     />
+    {error && <p className="text-red-500 text-sm">This field is required</p>}
   </div>
 );
-
-export default Contact;

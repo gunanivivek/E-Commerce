@@ -12,6 +12,7 @@ import type {
   UpdateCartQuantityResponse,
 } from "../../types/cart";
 import { useAuthStore } from "../../store/authStore";
+import { showToast } from "../../components/toastManager";
 
 // ---------------------- useCart Hook ----------------------
 export const useCart = (enabled: boolean) => {
@@ -49,7 +50,7 @@ export const useAddToCart = () => {
       return await cartApi.addToCart(payload);
     },
     onSuccess: (data) => {
-      toast.success(data.message || "Item added to cart");
+      showToast(data.message || "Item added to cart", "success");
       queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
     onError: (err) => {
@@ -74,7 +75,7 @@ export const useUpdateCart = () => {
       return await cartApi.updateCartQuantity(payload);
     },
     onSuccess: (data) => {
-      toast.success(data.message || "Cart updated successfully");
+      showToast(data.message || "Cart updated successfully", "success");
       queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
     onError: (err) => {
@@ -90,7 +91,7 @@ export const useRemoveFromCart = () => {
   return useMutation<RemoveFromCartResponse, Error, RemoveFromCartRequest>({
     mutationFn: cartApi.removeFromCart,
     onSuccess: (data) => {
-      toast.success(data.message || "Item removed from cart");
+      showToast(data.message || "Item removed from cart", "success");
       queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
     onError: (err) => {
@@ -106,7 +107,7 @@ export const useClearCart = () => {
   return useMutation<ClearCartResponse, Error>({
     mutationFn: cartApi.clearCart,
     onSuccess: (data) => {
-      toast.success(data.message || "Cart cleared");
+      showToast(data.message || "Cart cleared", "success");
       queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
     onError: (err) => {
@@ -122,7 +123,7 @@ export const useApplyCoupon = () => {
     mutationFn: (code: string) => cartApi.applyCoupon(code),
 
     onSuccess: (updatedCart) => {
-      toast.success("Coupon applied successfully!");
+      showToast("Coupon applied successfully!", "success");
 
       // Replace cart data directly for fast UI update
       queryClient.setQueryData(["cart"], updatedCart);
@@ -130,7 +131,14 @@ export const useApplyCoupon = () => {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (err: any) => {
-      toast.error(err?.response?.data?.message || "Invalid or expired coupon");
+      toast.error(err?.response?.data?.detail || "Invalid or expired coupon");
     },
+  });
+};
+
+export const useApplicableCoupons = () => {
+  return useQuery({
+    queryKey: ["applicableCoupons"],
+    queryFn: cartApi.getApplicableCoupons,
   });
 };
