@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import * as reviewApi from "../../api/reviewApi";
 import type { CreateReviewBody } from "../../api/reviewApi";
 import { toast } from "react-toastify";
+import { showToast } from "../../components/toastManager";
 
 // GET reviews
 export const useReviews = (productId?: string | number) => {
@@ -26,7 +27,7 @@ export const useCreateReview = (productId?: string | number) => {
       return reviewApi.createProductReview(productId, payload);
     },
     onSuccess: () => {
-      toast.success("Review added successfully");
+      showToast("Review added successfully", "success");
       queryClient.invalidateQueries({ queryKey: ["reviews", productId] });
     },
     onError: (err: unknown) => {

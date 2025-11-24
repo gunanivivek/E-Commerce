@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import { forgotPassword } from "../api/authApi";
+import { showToast } from "../components/toastManager";
 
 interface FormData {
   email: string;
@@ -36,7 +37,7 @@ export default function ForgotPassword() {
     setLoading(true);
     try {
       await sendEmail(data.email);
-      toast.success("Email sent successfully to reset the password");
+      showToast("Email sent successfully to reset the password", "success");
       navigate("/login");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {

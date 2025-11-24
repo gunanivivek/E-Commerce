@@ -30,6 +30,7 @@ import { toast } from "react-toastify";
 import TableRowSkeleton from "../../components/TableRowSkeleton";
 import { usePrefetchProduct } from "../../hooks/Seller/usePrefetchProduct";
 import { EditableQuantityCell } from "../../components/Seller/EditableQuantityCell";
+import { showToast } from "../../components/toastManager";
 
 const columnHelper = createColumnHelper<Product>();
 
@@ -100,7 +101,7 @@ const SellerProductList: React.FC = () => {
   const deleteProductMutation = useMutation({
     mutationFn: (productId: number) => deleteProduct(productId),
     onSuccess: (res) => {
-      toast.success(res.message || "Product deleted successfully");
+      showToast(res.message || "Product deleted successfully", "success");
       queryClient.invalidateQueries({ queryKey: ["SellerProducts", user?.id] });
     },
     onError: (error: any) => {

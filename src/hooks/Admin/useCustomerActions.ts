@@ -3,6 +3,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { toggleCustomerBlock } from "../../api/customerApi";
 import type { Customer } from "../../types/admin";
+import { showToast } from "../../components/toastManager";
 
 export const useCustomerActions = () => {
   const queryClient = useQueryClient();
@@ -14,7 +15,7 @@ export const useCustomerActions = () => {
       setMutatingId(variables);
     },
     onSuccess: () => {
-      toast.success("Customer status updated!");
+      showToast("Customer status updated!", "success");
       queryClient.invalidateQueries({ queryKey: ["customers"] });
     },
     onError: () => {

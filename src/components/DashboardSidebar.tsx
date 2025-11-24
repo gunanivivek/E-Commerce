@@ -14,6 +14,7 @@ import {
 import { NavLink } from "react-router";
 import { useAuthStore } from "../store/authStore";
 import { toast } from "react-toastify";
+import { showToast } from "./toastManager";
 
 interface NavItem {
   name: string;
@@ -47,7 +48,7 @@ const DashboardSidebar = () => {
   const handleLogout = async () => {
     try {
       logout();
-      toast.success("Logged out successfully!");
+      showToast("Logged out successfully!", "success");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       toast.error(err?.response?.data?.detail || "Logout failed");

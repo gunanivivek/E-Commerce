@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useChangePassword } from "../../hooks/useChangePassword";
+import { showToast } from "../toastManager";
 
 interface FormData {
   currentPassword: string;
@@ -35,7 +36,7 @@ const ChangePassword = () => {
       {
         onSuccess: (res: { message?: string }) => {
           // identical behavior to your original: dismiss loading, toast, reset form
-          toast.success(res?.message || "✅ Password changed successfully!");
+          showToast(res.message || "Password changed successfully", "success");
           reset();
         },
         onError: (err: Error) => {

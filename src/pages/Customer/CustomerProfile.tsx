@@ -6,6 +6,7 @@ import { User2, Package, RefreshCw, Lock, User2Icon, LogOut } from "lucide-react
 import { useAuthStore } from "../../store/authStore";
 import { toast } from "react-toastify";
 import { useState } from "react";
+import { showToast } from "../../components/toastManager";
 
 const CustomerProfileLayout = () => {
   const { user, logout } = useAuthStore();
@@ -25,7 +26,7 @@ const CustomerProfileLayout = () => {
     try {
       setIsLoggingOut(true);
       await logout();
-      toast.success("Logged out successfully!");
+      showToast("Logged out successfully!", "success");
     } catch (err: unknown) {
       toast.error(getErrorMessage(err));
     } finally {
