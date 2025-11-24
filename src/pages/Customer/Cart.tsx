@@ -1,10 +1,12 @@
-import React from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import Header from "../../components/ui/Header";
 import Footer from "../../components/ui/Footer";
 import ConfirmModal from "../../components/Customer/ConfirmModal";
 import {
+  useApplicableCoupons,
   useApplyCoupon,
   useCart,
   useClearCart,
@@ -77,6 +79,12 @@ const Cart: React.FC = () => {
   const removeMutation = useRemoveFromCart();
   const updateMutation = useUpdateCart();
   const { mutate: applyCoupon, isPending } = useApplyCoupon();
+  const { data: coupons, isLoading: loadingCoupons } = useApplicableCoupons();
+  const couponCodes =
+    coupons?.adminCoupons
+      ?.concat(coupons?.sellerCoupons || [])
+      ?.map((c: any) => c.coupon_code) || [];
+
 
   const cartItems = cartData?.items ?? [];
   const subtotal = cartData?.subtotal ?? 0;
@@ -89,6 +97,8 @@ const Cart: React.FC = () => {
   const [pendingDelete, setPendingDelete] = React.useState<number | null>(null);
   const [couponCode, setCouponCode] = React.useState("");
   const [clearConfirmOpen, setClearConfirmOpen] = React.useState(false);
+
+  const [showCoupons, setShowCoupons] = useState(false);
 
   // Keep the coupon input in sync with the cart store so it remains visible after refresh
   React.useEffect(() => {
@@ -181,7 +191,7 @@ const Cart: React.FC = () => {
 
           <button
             onClick={() => setClearConfirmOpen(true)}
-            className="px-4 py-2 bg-accent-dark text-white rounded-lg hover:opacity-90 w-full sm:w-auto"
+            className="px-4 py-2 bg-accent-dark text-white rounded-lg hover:opacity-90 hover:cursor-pointer w-full sm:w-auto"
           >
             Clear Cart
           </button>
@@ -227,7 +237,7 @@ const Cart: React.FC = () => {
                     {/* RIGHT controls */}
                     <div className="flex flex-row sm:flex-col sm:items-end justify-end w-full sm:w-auto gap-3">
                       <button
-                        className="text-gray-500 hover:text-red-500 transition"
+                        className="text-gray-500 hover:text-red-500 transition hover:cursor-pointer"
                         onClick={() => {
                           setPendingDelete(item.product_id);
                           setConfirmOpen(true);
@@ -257,7 +267,7 @@ const Cart: React.FC = () => {
                               }
                             }
                           }}
-                          className={`p-1 ${
+                          className={`p-1 hover:cursor-pointer ${
                             isUpdating
                               ? "opacity-50 cursor-not-allowed"
                               : "hover:text-accent"
@@ -284,7 +294,7 @@ const Cart: React.FC = () => {
                               quantity: item.quantity + 1,
                             })
                           }
-                          className={`p-1 ${
+                          className={`p-1 hover:cursor-pointer ${
                             isUpdating
                               ? "opacity-50 cursor-not-allowed"
                               : "hover:text-accent"
@@ -331,25 +341,46 @@ const Cart: React.FC = () => {
 
               {/* Coupon */}
               <div className="mt-4 space-y-2">
+                {/* Coupon Tags */}
+                {showCoupons && !loadingCoupons && couponCodes.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {couponCodes.map((code: string) => (
+                      <span
+                        key={code}
+                        onClick={() => {
+                          setCouponCode(code);
+                          setShowCoupons(false); // hide after select
+                        }}
+                        className="px-3 py-1 bg-surface-light text-accent border border-accent rounded-full text-xs cursor-pointer hover:bg-accent hover:text-white transition"
+                      >
+                        {code}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                {/* Coupon Input */}
                 <input
                   type="text"
                   value={couponCode}
                   onChange={(e) => setCouponCode(e.target.value)}
+                  onFocus={() => setShowCoupons(true)} // show dropdown
                   className="w-full border rounded-lg px-3 py-2 text-sm"
                   placeholder="Coupon code"
                 />
 
+                {/* Apply Button */}
                 <button
                   onClick={handleApplyCoupon}
                   disabled={isPending}
-                  className="w-full border border-accent text-accent py-2 rounded-lg hover:bg-accent-light hover:text-white transition disabled:opacity-50"
+                  className="w-full border border-border-light text-accent py-2 rounded-lg hover:bg-primary-200 hover:text-white hover:cursor-pointer transition disabled:opacity-50"
                 >
                   {isPending ? "Applying..." : "Apply Coupon"}
                 </button>
               </div>
 
               <Link to="/checkout">
-                <button className="w-full bg-accent text-white mt-5 py-3 rounded-lg font-medium hover:bg-accent-dark transition">
+                <button className="w-full bg-primary-300 text-white mt-5 py-3 rounded-lg font-medium hover:bg-accent-dark hover:cursor-pointer transition">
                   Proceed to Checkout
                 </button>
               </Link>

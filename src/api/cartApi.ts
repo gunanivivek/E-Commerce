@@ -48,3 +48,8 @@ export const applyCoupon = async (code: string): Promise<CartResponse> => {
   const res = await api.post("/cart/apply-coupon", { code });
   return res.data;
 };
+
+export const getApplicableCoupons = async () => {
+  const res = await api.get("/coupons/customer");
+  return res.data; // same shape as you shared
+};

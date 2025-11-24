@@ -96,7 +96,7 @@ const AddressInfo = () => {
   if (isLoading) {
     return (
       <section className="bg-[var(--color-background)] py-5 px-2 md:px-6">
-        <h2 className="text-3xl font-bold mb-8 leading-tight text-[var(--color-primary-400)]">
+        <h2 className="text-2xl sm:text-3xl font-heading font-bold text-accent-dark px-2 mb-8">
           Address
         </h2>
 
@@ -111,17 +111,14 @@ const AddressInfo = () => {
 
   return (
     <section className="bg-[var(--color-background)] py-5 px-2 md:px-6">
-      <h2 className="text-3xl font-bold mb-8 leading-tight text-[var(--color-primary-400)]">
+      <h2 className="text-2xl sm:text-3xl font-heading font-bold text-accent-dark px-2 mb-8">
         Address
       </h2>
 
       {!editingId && (
         <button
           onClick={startAdd}
-          className="cursor-pointer flex items-center text-white font-semibold gap-2 px-4 py-2 rounded-lg  mb-5 transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
-          style={{
-            backgroundColor: "var(--color-accent)",
-          }}
+          className="cursor-pointer flex items-center text-surface-light font-semibold gap-2 px-4 py-2 rounded-lg  mb-5 bg-accent-light hover:bg-accent-dark transition-all shadow-sm hover:shadow-md transform hover:cursor-pointer"
         >
           <Plus size={18} /> Add New Address
         </button>
@@ -216,10 +213,7 @@ const AddressInfo = () => {
             </button>
             <button
               type="submit"
-              className="cursor-pointer px-4 py-2 text-surface-light rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
-              style={{
-                backgroundColor: "var(--color-accent)",
-              }}
+              className="cursor-pointer px-4 py-2 text-surface-light bg-accent-light hover:bg-accent-dark rounded-lg transition-all shadow-sm hover:shadow-md transform hover:cursor-pointer"
             >
               Save
             </button>

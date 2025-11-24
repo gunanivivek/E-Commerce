@@ -76,7 +76,7 @@ const Orders: React.FC = () => {
   if (isLoading) {
     return (
       <section className="bg-[var(--color-background)] py-5 px-4 md:px-10">
-        <h2 className="text-2xl font-bold mb-6 text-[var(--color-primary-400)]">
+        <h2 className="text-2xl sm:text-3xl font-heading font-bold text-accent-dark px-2 mb-8">
           My Orders
         </h2>
         <div className="space-y-6">
@@ -102,7 +102,7 @@ const Orders: React.FC = () => {
   /** Main **/
   return (
     <section className="bg-[var(--color-background)] py-5 md:px-6">
-      <h2 className="text-3xl px-2 font-bold mb-8 text-[var(--color-primary-400)]">
+      <h2 className="text-2xl sm:text-3xl font-heading font-bold text-accent-dark px-2 mb-8">
         My Orders
       </h2>
 
