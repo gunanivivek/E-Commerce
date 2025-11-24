@@ -130,7 +130,14 @@ export const useApplyCoupon = () => {
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     onError: (err: any) => {
-      toast.error(err?.response?.data?.message || "Invalid or expired coupon");
+      toast.error(err?.response?.data?.detail || "Invalid or expired coupon");
     },
+  });
+};
+
+export const useApplicableCoupons = () => {
+  return useQuery({
+    queryKey: ["applicableCoupons"],
+    queryFn: cartApi.getApplicableCoupons,
   });
 };

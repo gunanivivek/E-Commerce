@@ -75,11 +75,11 @@ const CustomerProfileLayout = () => {
                     to={path}
                     end={path === ""}
                     className={({ isActive }) =>
-                      `w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
-                        isActive
-                          ? "bg-[var(--color-accent)] text-white font-semibold shadow-sm hover:shadow-md transform"
-                          : "text-gray-700 hover:bg-gray-50"
-                      }`
+                      `w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-accent-dark text-primary-100 font-heading"
+                      : "text-primary-300 hover:bg-primary-200/30"
+                  }`
                     }
                   >
                     <Icon size={18} />
