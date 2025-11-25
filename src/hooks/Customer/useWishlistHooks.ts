@@ -6,6 +6,7 @@ import type {
   RemoveWishlistRequest,
 
 } from "../../types/wishlist";
+import { toast } from "react-toastify";
 
 export function useGetWishlist() {
   return useQuery({
@@ -20,6 +21,7 @@ export function useAddWishlist() {
     mutationFn: (body: AddWishlistRequest) => wishlistApi.addToWishlist(body),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["wishlist"] });
+      toast.success("Added to wishlist");
     },
   });
 }
@@ -31,6 +33,7 @@ export function useRemoveWishlist() {
       wishlistApi.removeFromWishlist(product_id),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["wishlist"] });
+      toast.success("Removed from wishlist");
     },
   });
 }
@@ -41,6 +44,7 @@ export function useClearWishlist() {
     mutationFn: wishlistApi.clearWishlist,
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["wishlist"] });
+      toast.success("Wishlist cleared");
     },
   });
 }

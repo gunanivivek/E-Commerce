@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   useGetWishlist,
@@ -26,14 +26,21 @@ const WishlistCard: React.FC = () => {
   const updateMutation = useUpdateCart();
   const addMutation = useAddToCart();
   const user = useAuthStore((s) => s.user);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
+  const [removeTarget, setRemoveTarget] = useState<number | undefined>(undefined);
   const wishlistArray: Product[] = Array.isArray(wishlistItems)
-    ? ((wishlistItems as any[]).map((wi) =>
-        wi && "product" in wi ? wi.product : wi
-      ) as Product[])
+    ? ((
+        wishlistItems as (Product | { product?: Product })[]
+      ).map((wi) =>
+        wi && "product" in wi ? (wi as { product?: Product }).product! : (wi as Product)
+      ))
     : wishlistItems && "items" in wishlistItems
-    ? (((wishlistItems.items ?? []) as any[]).map((wi) =>
-        wi && "product" in wi ? wi.product : wi
-      ) as Product[])
+    ? (((
+        (wishlistItems.items ?? []) as (Product | { product?: Product })[]
+      ).map((wi) =>
+        wi && "product" in wi ? (wi as { product?: Product }).product! : (wi as Product)
+      )))
     : [];
 
   const filteredWishlist = wishlistArray.filter(
@@ -73,7 +80,10 @@ const WishlistCard: React.FC = () => {
         </h2>
         <div>
           <button
-            onClick={() => clearWishlistMutation.mutate()}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowClearConfirm(true);
+            }}
             className="px-3 cursor-pointer py-2 text-accent-dark rounded-md border border-accent text-sm hover:bg-accent hover:text-white "
           >
             Clear Wishlist
@@ -123,15 +133,30 @@ const WishlistCard: React.FC = () => {
                     Out of stock
                   </div>
                 )}
-                {product.image ? (
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    className="object-cover w-full h-full transition-transform duration-300 hover:scale-110"
-                  />
-                ) : (
-                  <span className="text-gray-400">No Image</span>
-                )}
+                {(() => {
+                  const p = product as Partial<{
+                    image?: string;
+                    image_url?: string;
+                    images?: { url?: string }[];
+                    url?: string;
+                  }>;
+                  const imageSrc =
+                    p.image ??
+                    p.image_url ??
+                    (Array.isArray(p.images) && p.images[0]?.url) ??
+                    p.url ??
+                    "";
+
+                  return imageSrc ? (
+                    <img
+                      src={imageSrc}
+                      alt={product.name}
+                      className="object-cover w-full h-full transition-transform duration-300 hover:scale-110"
+                    />
+                  ) : (
+                    <span className="text-gray-400">No Image</span>
+                  );
+                })()}
               </div>
 
               <h3
@@ -244,7 +269,8 @@ const WishlistCard: React.FC = () => {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    removeWishlistMutation.mutate({ product_id: product.id });
+                    setRemoveTarget(product.id);
+                    setShowRemoveConfirm(true);
                   }}
                   className="ml-2 p-2 border cursor-pointer rounded-lg transition-all duration-150 border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-black"
                 >
@@ -255,6 +281,91 @@ const WishlistCard: React.FC = () => {
           );
         })}
       </div>
+
+      {/* Clear confirm modal */}
+      {showClearConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+          onClick={() => setShowClearConfirm(false)}
+        >
+          <div
+            className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold mb-3">Clear wishlist?</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              This will remove all items from your wishlist. Are you sure you
+              want to continue?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowClearConfirm(false)}
+                className="px-4 py-2 rounded border border-accent text-accent cursor-pointer hover:-translate-y-0.5 hover:shadow-lg"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    await clearWishlistMutation.mutateAsync();
+                  } finally {
+                    setShowClearConfirm(false);
+                  }
+                }}
+                disabled={clearWishlistMutation.isPending}
+                className="px-4 py-2 rounded bg-accent text-primary-100 cursor-pointer hover:-translate-y-0.5 hover:shadow-lg"
+              >
+                {clearWishlistMutation.isPending ? "Clearing..." : "Clear"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Remove single-item confirm modal */}
+      {showRemoveConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+          onClick={() => setShowRemoveConfirm(false)}
+        >
+          <div
+            className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-lg font-semibold mb-3">Remove item?</h3>
+            <p className="text-sm text-gray-600 mb-4">
+              This will remove the selected item from your wishlist. Continue?
+            </p>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => setShowRemoveConfirm(false)}
+                className="px-4 py-2 rounded border border-accent text-accent cursor-pointer hover:-translate-y-0.5 hover:shadow-lg"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    if (removeTarget != null) {
+                      await removeWishlistMutation.mutateAsync({
+                        product_id: removeTarget,
+                      });
+                    }
+                  } finally {
+                    setShowRemoveConfirm(false);
+                    setRemoveTarget(undefined);
+                  }
+                }}
+                disabled={removeWishlistMutation.isPending}
+                className="px-4 py-2 rounded bg-accent text-primary-100 cursor-pointer hover:-translate-y-0.5 hover:shadow-lg"
+              >
+                {removeWishlistMutation.isPending ? "Removing..." : "Remove"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </section>
   );
 };

@@ -5,7 +5,7 @@ const Footer = () => {
   // const navigate = useNavigate()
   return (
     <footer className="bg-[var(--color-surface)] text-[var(--color-text-secondary)] border-t border-[var(--color-border-light)]">
-      <div className="max-w-7xl mx-auto px-6 md:px-16 md:py-16 py-6">
+      <div className="max-w-7xl mx-auto px-6 md:px-24 md:py-16 py-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-5">
           {/* Brand */}
           <div>
