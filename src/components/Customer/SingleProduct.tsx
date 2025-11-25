@@ -168,11 +168,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                   <button
                     disabled={isUpdating}
                     onClick={dec}
-                    className={`px-2.5 py-1 rounded-md text-sm
+                    className={`px-2.5 py-1 rounded-md text-sm cursor-pointer
                       ${
                         isUpdating
-                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                          : "bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)]"
+                            ? "bg-primary-100 text-accent cursor-not-allowed"
+                            : "bg-accent text-primary-100 hover:bg-accent-dark"
                       }
                     `}
                   >
@@ -188,11 +188,11 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
                   <button
                     disabled={isUpdating}
                     onClick={inc}
-                    className={`px-2.5 py-1 rounded-md text-sm
+                    className={`px-2.5 py-1 rounded-md text-sm cursor-pointer
                       ${
                         isUpdating
-                          ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                          : "bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)]"
+                          ? "bg-primary-100 text-accent cursor-not-allowed"
+                          : "bg-accent text-primary-100 hover:bg-accent-dark"
                       }
                     `}
                   >
@@ -205,7 +205,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
             <button
               onClick={handleAddToCart}
               disabled={stock === 0}
-              className={`flex-1 py-3 sm:py-2 rounded-lg text-xs sm:text-sm font-semibold transition-all duration-150 shadow-sm
+              className={`flex-1 py-3 sm:py-2 cursor-pointer rounded-lg text-xs sm:text-sm font-semibold transition-all duration-150 shadow-sm
                 ${
                   stock === 0
                     ? "bg-slate-200 text-slate-400 cursor-not-allowed"
