@@ -8,6 +8,7 @@ import { useUploadProfilePicture } from "../../hooks/useUploadProfilePicture";
 import { useSellerProfile } from "../../hooks/Seller/useSellerProfile";
 import { useUpdateSellerProfile } from "../../hooks/Seller/useUpdateSellerProfile";
 import SellerProfileSkeleton from "../../components/Seller/SellerProfileSkeleton";
+import { showToast } from "../../components/toastManager";
 
 interface SellerProfileForm {
   fullName: string;
@@ -112,8 +113,7 @@ const SellerProfilePage = () => {
         fullName: updatedSeller.full_name,
         phoneNumber: updatedSeller.phone,
       });
-
-      toast.success("✅ Seller profile updated successfully!");
+      showToast(" Seller profile updated successfully!", "success");
       setIsEditingDetails(false);
     } catch (err) {
       console.error("❌ Failed to update seller profile:", err);
@@ -161,7 +161,7 @@ const SellerProfilePage = () => {
       { old_password: data.oldPassword, new_password: data.newPassword },
       {
         onSuccess: (res) => {
-          toast.success(res.message || "Password changed successfully!");
+          showToast(res.message || "Password changed successfully!", "success");
           resetPassword();
           setShowChangePassword(false);
         },

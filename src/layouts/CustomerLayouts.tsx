@@ -10,7 +10,7 @@ import { useState } from "react";
 import { ChevronDown, ChevronLeft, ChevronRight } from "lucide-react"; // Assuming Lucide icons; adjust as needed
 import { User2, User2Icon, type LucideProps } from "lucide-react";
 import { useCategoryStore } from "../store/categoryStore";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 
 const Hero1 =
   "https://res.cloudinary.com/duamb3iin/image/upload/v1763639186/Hero1_n1nrrn.jpg";
@@ -104,6 +104,19 @@ const CustomerPage: React.FC = () => {
     return () => clearInterval(interval);
   }, [images.length]);
 
+   const { hash } = useLocation();
+
+  useEffect(() => {
+    if (hash) {
+      const element = document.querySelector(hash);
+      if (element) {
+        // Small timeout ensures DOM is fully rendered
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: "smooth" });
+        }, 50);
+      }
+    }
+  }, [hash]);
   return (
     <>
       <Header />
@@ -506,6 +519,7 @@ const CustomerPage: React.FC = () => {
 
         {/* FAQ */}
         <section
+        id="faq"
           className="py-16 px-6 md:px-20"
           style={{ backgroundColor: "var(--color-surface)" }}
         >

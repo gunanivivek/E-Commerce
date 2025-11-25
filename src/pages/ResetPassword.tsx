@@ -4,6 +4,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import API from "../api/axiosInstance";
+import { showToast } from "../components/toastManager";
 
 interface ResetPasswordForm {
   password: string;
@@ -39,7 +40,7 @@ export default function ResetPassword() {
         token,
         new_password: data.password,
       });
-      toast.success(res.data.message || "Password reset successful!");
+      showToast(res.data.message || "Password reset successful!", "success");
       navigate("/login");
     } catch (err: any) {
       toast.error(err?.response?.data?.detail || "Failed to reset password");

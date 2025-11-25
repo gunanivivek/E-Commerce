@@ -6,6 +6,7 @@ import { User2, Package, RefreshCw, Lock, User2Icon, LogOut } from "lucide-react
 import { useAuthStore } from "../../store/authStore";
 import { toast } from "react-toastify";
 import { useState } from "react";
+import { showToast } from "../../components/toastManager";
 
 const CustomerProfileLayout = () => {
   const { user, logout } = useAuthStore();
@@ -25,7 +26,7 @@ const CustomerProfileLayout = () => {
     try {
       setIsLoggingOut(true);
       await logout();
-      toast.success("Logged out successfully!");
+      showToast("Logged out successfully!", "success");
     } catch (err: unknown) {
       toast.error(getErrorMessage(err));
     } finally {
@@ -75,11 +76,11 @@ const CustomerProfileLayout = () => {
                     to={path}
                     end={path === ""}
                     className={({ isActive }) =>
-                      `w-full flex items-center gap-3 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 ${
-                        isActive
-                          ? "bg-[var(--color-accent)] text-white font-semibold shadow-sm hover:shadow-md transform"
-                          : "text-gray-700 hover:bg-gray-50"
-                      }`
+                      `w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    isActive
+                      ? "bg-accent-dark text-primary-100 font-heading"
+                      : "text-primary-300 hover:bg-primary-200/30"
+                  }`
                     }
                   >
                     <Icon size={18} />

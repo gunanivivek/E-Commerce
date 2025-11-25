@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { uploadProfilePicture } from "../api/adminApi";
 import { useAuthStore } from "../store/authStore";
 import type { AxiosError } from "axios";
+import { showToast } from "../components/toastManager";
 
 interface ApiError {
   message?: string;
@@ -21,7 +22,7 @@ export const useUploadProfilePicture = () => {
     mutationFn: (formData) => uploadProfilePicture(formData),
 
     onSuccess: (data) => {
-      toast.success(data.message || "Profile picture updated successfully!");
+      showToast(data.message || "Profile picture updated successfully!", "success");
       console.log("✅ Uploaded Image URL:", data.image_url);
 
       // 🟢 Update local user state and localStorage

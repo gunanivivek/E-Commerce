@@ -1,6 +1,7 @@
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { useChangePassword } from "../../hooks/useChangePassword";
+import { showToast } from "../toastManager";
 
 interface FormData {
   currentPassword: string;
@@ -35,7 +36,7 @@ const ChangePassword = () => {
       {
         onSuccess: (res: { message?: string }) => {
           // identical behavior to your original: dismiss loading, toast, reset form
-          toast.success(res?.message || "✅ Password changed successfully!");
+          showToast(res.message || "Password changed successfully", "success");
           reset();
         },
         onError: (err: Error) => {
@@ -48,7 +49,7 @@ const ChangePassword = () => {
   return (
     <section className="bg-[var(--color-background)] py-5 px-2 md:px-6">
       <div className=" rounded-lg ">
-        <h2 className="text-3xl font-bold mb-6 leading-tight text-[var(--color-primary-400)]">
+        <h2 className="text-2xl sm:text-3xl font-heading font-bold text-accent-dark px-2 mb-8">
           Change Password
         </h2>
 
