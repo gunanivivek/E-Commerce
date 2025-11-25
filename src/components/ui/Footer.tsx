@@ -5,8 +5,8 @@ const Footer = () => {
   // const navigate = useNavigate()
   return (
     <footer className="bg-[var(--color-surface)] text-[var(--color-text-secondary)] border-t border-[var(--color-border-light)]">
-      <div className="max-w-7xl mx-auto px-6 md:px-12 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+      <div className="max-w-7xl mx-auto px-6 md:px-16 md:py-16 py-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-5">
           {/* Brand */}
           <div>
             <div className="flex items-center space-x-2 mb-4">
@@ -90,9 +90,9 @@ const Footer = () => {
               <input
                 type="email"
                 placeholder="Your email"
-                className="flex-1 bg-[var(--color-surface-light)] text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] border border-[var(--color-border)] rounded-md p-2 focus:ring-2 focus:ring-[var(--color-accent)] outline-none"
+                className="bg-[var(--color-surface-light)] text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] border border-[var(--color-border)] rounded-md p-2 focus:ring-2 focus:ring-[var(--color-accent)] outline-none"
               />
-              <button className="p-3 rounded-md bg-primary-100 border border-accent-darker text-accent-darker hover:cursor-pointer hover:opacity-90 transition-all">
+              <button className="p-2 rounded-md bg-primary-100 border border-accent-darker text-accent-darker hover:cursor-pointer hover:opacity-90 transition-all">
                 <Mail className="h-5 w-5" />
               </button>
             </div>

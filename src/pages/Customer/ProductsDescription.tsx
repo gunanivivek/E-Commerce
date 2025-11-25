@@ -253,6 +253,24 @@ const ProductDescription: React.FC = () => {
     setVisibleCount((prev) => Math.max(prev - 3, 3));
   };
 
+  /* Summary HTML Component */
+  const ReviewSummaryHTML = ({ html }: { html: string }) => {
+    return (
+      <div
+        className=" 
+        prose prose-sm max-w-full
+        prose-h1:text-accent-darker prose-h2:text-accent-darker prose-h3:text-accent-dark
+        prose-p:text-accent-darker
+        prose-strong:text-accent-dark
+        prose-ul:list-disc prose-ul:pl-5 prose-li:text-accent-darker
+        prose-ol:list-decimal prose-ol:pl-5
+        prose-blockquote:border-l-4 prose-blockquote:border-accent prose-blockquote:pl-4 prose-blockquote:italic
+        whitespace-normal "
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+    );
+  };
+
   return (
     <>
       <Header />
@@ -515,40 +533,40 @@ const ProductDescription: React.FC = () => {
                   Based on {normalizedReviews.length} customer reviews, here is
                   the summarized review for this product.
                 </p>
+
                 <div className="mt-2 text-accent-light text-sm">
                   {summaryLoading ? (
                     <span>Loading summary...</span>
                   ) : summaryData ? (
-                    <p className="text-primary-400 leading-relaxed">
-                      {summaryData.summary
-                        ? (() => {
-                            const cleanSummary = summaryData.summary
-                              .replace(/[*#]/g, "")
-                              .trim();
-                            return (
-                              <>
-                                {expandSummary
-                                  ? cleanSummary
-                                  : cleanSummary.length > 320
-                                  ? cleanSummary.slice(0, 320) + "..."
-                                  : cleanSummary}
+                    <div className="text-primary-400 leading-relaxed">
+                      {summaryData.summary ? (
+                        <>
+                          <ReviewSummaryHTML
+                            html={
+                              expandSummary
+                                ? summaryData.summary
+                                : summaryData.summary.length > 320
+                                ? summaryData.summary.slice(0, 320) + "..."
+                                : summaryData.summary
+                            }
+                          />
 
-                                {/* Read More / Read Less Button */}
-                                {cleanSummary.length > 200 && (
-                                  <button
-                                    onClick={() =>
-                                      setExpandSummary(!expandSummary)
-                                    }
-                                    className="text-accent-dark ml-2 hover:underline cursor-pointer text-sm font-bold"
-                                  >
-                                    {expandSummary ? "Read less" : "Read more"}
-                                  </button>
-                                )}
-                              </>
-                            );
-                          })()
-                        : "No summary available"}
-                    </p>
+                          {/* Read More / Read Less Button */}
+                          {summaryData.summary.length > 200 && (
+                            <div className="flex justify-end mt-1">
+                              <button
+                                onClick={() => setExpandSummary(!expandSummary)}
+                                className="text-accent-dark hover:underline cursor-pointer text-sm font-bold"
+                              >
+                                {expandSummary ? "Read less" : "Read more"}
+                              </button>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        "No summary available"
+                      )}
+                    </div>
                   ) : (
                     <span>No summary available</span>
                   )}
@@ -560,11 +578,11 @@ const ProductDescription: React.FC = () => {
           {/* Customer Reviews */}
           <div className="mx-auto max-w-7xl p-6 pb-10">
             <div className="flex justify-between items-center">
-              <h3 className="text-xl font-semibold mb-4 text-accent-dark">
+              <h3 className="text-xl font-semibold text-accent-dark">
                 Customer Reviews ({normalizedReviews.length})
               </h3>
               <button
-                className="border border-accent px-5 py-2 rounded-lg text-accent-darker hover:bg-accent hover:text-primary-100 transition-all"
+                className="border cursor-pointer border-accent px-5 py-2 rounded-lg text-accent-darker hover:bg-accent hover:text-primary-100 transition-all"
                 onClick={handleAddReview}
               >
                 Add Review
@@ -581,7 +599,7 @@ const ProductDescription: React.FC = () => {
                 {showInlineReviewForm && (
                   <div className="rounded-xl border border-primary-50 bg-background shadow-sm p-5">
                     {/* Top: Avatar + Name + Star Selector */}
-                    <div className="flex flex-col md:flex-row justify-between items-center">
+                    <div className="flex flex-col sm:flex-row justify-between items-center">
                       <div className="flex items-center gap-3">
                         <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-sm font-semibold text-primary-400">
                           {(
@@ -595,12 +613,12 @@ const ProductDescription: React.FC = () => {
                         </span>
                       </div>
                       {/* ⭐ Star Selector */}
-                      <div className="flex items-center gap-1 mt-4">
+                      <div className="flex items-center mt-4">
                         {[1, 2, 3, 4, 5].map((star) => (
                           <Star
                             key={star}
                             onClick={() => setReviewRating(star)}
-                            className={`w-6 h-6 cursor-pointer transition-colors ${
+                            className={`sm:w-6 sm:h-6 h-5 w-5 cursor-pointer transition-colors ${
                               star <= reviewRating
                                 ? "text-yellow-400 fill-yellow-400"
                                 : "text-primary-100"

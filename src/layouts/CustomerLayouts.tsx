@@ -12,10 +12,12 @@ import { User2, User2Icon, type LucideProps } from "lucide-react";
 import { useCategoryStore } from "../store/categoryStore";
 import { Link, useLocation } from "react-router";
 
-const Hero1 = "https://res.cloudinary.com/duamb3iin/image/upload/v1763639186/Hero1_n1nrrn.jpg"
-const Hero2 = "https://res.cloudinary.com/duamb3iin/image/upload/v1763639186/Hero2_i3yx8a.png"
-const Hero3 = "https://res.cloudinary.com/duamb3iin/image/upload/v1763639185/Hero3_qxjjnx.jpg"
-
+const Hero1 =
+  "https://res.cloudinary.com/duamb3iin/image/upload/v1763639186/Hero1_n1nrrn.jpg";
+const Hero2 =
+  "https://res.cloudinary.com/duamb3iin/image/upload/v1763639186/Hero2_i3yx8a.png";
+const Hero3 =
+  "https://res.cloudinary.com/duamb3iin/image/upload/v1763639185/Hero3_qxjjnx.jpg";
 
 interface Testimonial {
   id?: number;
@@ -248,10 +250,7 @@ const CustomerPage: React.FC = () => {
                   className="relative group rounded-2xl overflow-hidden bg-accent-darker"
                 >
                   {/* ✅ Use Link instead of <a> */}
-                  <Link
-                    to={`/category/${cat.name}`}
-                    className="block"
-                  >
+                  <Link to={`/category/${cat.name}`} className="block">
                     {/* Image */}
                     <img
                       src={cat.image_url}
@@ -343,8 +342,7 @@ const CustomerPage: React.FC = () => {
                 </motion.div>
 
                 {/* Step Title */}
-                <h3
-                  className="text-xl md:text-2xl font-bold mb-3 leading-tight font-heading text-accent-dark">
+                <h3 className="text-xl md:text-2xl font-bold mb-3 leading-tight font-heading text-accent-dark">
                   {item.step}
                 </h3>
 
@@ -615,9 +613,14 @@ const CustomerPage: React.FC = () => {
             <motion.button
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.98 }}
-              className="px-8 py-3 font-bold cursor-pointer text-white bg-accent rounded-[var(--radius-full)] transition-all duration-[var(--transition-normal)] shadow-[var(--shadow-orange)] hover:shadow-[var(--shadow-xl)]"
+              className="mx-auto"
             >
-              Start Shopping
+              <Link
+                to="/products"
+                className="inline-block font-semibold rounded-full py-3 px-8 transition-all duration-250 text-center bg-gradient-to-r from-accent to-accent-dark text-[var(--color-white)] hover:-translate-y-0.5 hover:shadow-lg"
+              >
+                Start Shopping
+              </Link>
             </motion.button>
           </motion.div>
         </section>
