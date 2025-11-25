@@ -589,77 +589,76 @@ const ProductDescription: React.FC = () => {
               </button>
             </div>
 
+            {/* Always render inline review form outside conditional */}
+            {showInlineReviewForm && (
+              <div className="rounded-xl border border-primary-50 bg-background shadow-sm p-5 my-5">
+                {/* Top: Avatar + Name + Star Selector */}
+                <div className="flex flex-col sm:flex-row justify-between items-center">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-sm font-semibold text-primary-400">
+                      {(
+                        reviewAuthor?.[0] ??
+                        user?.full_name?.[0] ??
+                        "A"
+                      ).toUpperCase()}
+                    </div>
+                    <span className="font-medium text-primary-400">
+                      {reviewAuthor || user?.full_name || "Anonymous"}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center mt-4 sm:mt-0">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        onClick={() => setReviewRating(star)}
+                        className={`sm:w-6 sm:h-6 h-5 w-5 cursor-pointer ${
+                          star <= reviewRating
+                            ? "text-yellow-400 fill-yellow-400"
+                            : "text-primary-100"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <textarea
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  placeholder="Write your review..."
+                  className="mt-4 w-full border border-primary-100 rounded-lg px-3 py-3 text-gray-700 leading-relaxed focus:outline-none focus:ring focus:ring-accent-light h-28"
+                />
+
+                <div className="flex justify-end gap-3 mt-4">
+                  <button
+                    onClick={() => {
+                      setShowInlineReviewForm(false);
+                      setReviewComment("");
+                      setReviewRating(5);
+                    }}
+                    className="px-4 py-2 rounded-md border border-accent-dark text-accent-darker hover:bg-accent-dark hover:text-white transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    onClick={handleSaveReview}
+                    disabled={isCreatingReview}
+                    className="px-4 py-2 rounded-md bg-accent-dark hover:bg-accent text-white transition cursor-pointer"
+                  >
+                    {isCreatingReview ? "Saving..." : "Submit Review"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Now the actual review list OR empty message */}
             {reviewsLoading ? (
               <p className="text-accent-light">Loading reviews...</p>
             ) : normalizedReviews.length === 0 ? (
               <p className="text-accent-light">No reviews yet.</p>
             ) : (
               <div className="space-y-5 my-6">
-                {/* ---- Inline Add Review Card ---- */}
-                {showInlineReviewForm && (
-                  <div className="rounded-xl border border-primary-50 bg-background shadow-sm p-5">
-                    {/* Top: Avatar + Name + Star Selector */}
-                    <div className="flex flex-col sm:flex-row justify-between items-center">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-sm font-semibold text-primary-400">
-                          {(
-                            reviewAuthor?.[0] ??
-                            user?.full_name?.[0] ??
-                            "A"
-                          ).toUpperCase()}
-                        </div>
-                        <span className="font-medium text-primary-400">
-                          {reviewAuthor || user?.full_name || "Anonymous"}
-                        </span>
-                      </div>
-                      {/* ⭐ Star Selector */}
-                      <div className="flex items-center mt-4">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            onClick={() => setReviewRating(star)}
-                            className={`sm:w-6 sm:h-6 h-5 w-5 cursor-pointer transition-colors ${
-                              star <= reviewRating
-                                ? "text-yellow-400 fill-yellow-400"
-                                : "text-primary-100"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Comment Textbox */}
-                    <textarea
-                      value={reviewComment}
-                      onChange={(e) => setReviewComment(e.target.value)}
-                      placeholder="Write your review..."
-                      className="mt-4 w-full border border-primary-100 rounded-lg px-3 py-3 text-gray-700 leading-relaxed focus:outline-none focus:ring focus:ring-accent-light h-28"
-                    />
-
-                    {/* Action Buttons */}
-                    <div className="flex justify-end gap-3 mt-4">
-                      <button
-                        onClick={() => {
-                          setShowInlineReviewForm(false);
-                          setReviewComment("");
-                          setReviewRating(5);
-                        }}
-                        className="px-4 py-2 rounded-md border border-accent-dark text-accent-darker hover:bg-accent-dark hover:text-white transition cursor-pointer"
-                      >
-                        Cancel
-                      </button>
-
-                      <button
-                        onClick={handleSaveReview}
-                        disabled={isCreatingReview}
-                        className="px-4 py-2 rounded-md bg-accent-dark hover:bg-accent text-white transition cursor-pointer"
-                      >
-                        {isCreatingReview ? "Saving..." : "Submit Review"}
-                      </button>
-                    </div>
-                  </div>
-                )}
-
                 {normalizedReviews.slice(0, visibleCount).map((r) => (
                   <div
                     key={r.id}
@@ -667,7 +666,6 @@ const ProductDescription: React.FC = () => {
                   >
                     <div className="flex flex-col md:flex-row justify-between items-center">
                       <div className="flex items-center gap-3">
-                        {/* Optional avatar */}
                         <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-sm font-semibold text-primary-400">
                           {(r.author ?? "A")[0].toUpperCase()}
                         </div>
@@ -699,7 +697,6 @@ const ProductDescription: React.FC = () => {
                             ? r.comment.slice(0, 200) + "..."
                             : r.comment}
 
-                          {/* Toggle Button */}
                           {r.comment.length > 200 && (
                             <button
                               className="text-accent-dark ml-2 hover:underline cursor-pointer text-sm font-bold"
@@ -715,7 +712,8 @@ const ProductDescription: React.FC = () => {
                     </div>
                   </div>
                 ))}
-                {/* Review Visiblity Buttons */}
+
+                {/* Show more / less */}
                 <div className="flex gap-4 mt-10">
                   {visibleCount > 3 && (
                     <button
