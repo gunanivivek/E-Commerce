@@ -79,6 +79,25 @@ const ChatbotWidget = ({
     setShowEmojiPicker(false);
   };
 
+  // Converts HTML content to clean readable text
+  const BotHtmlMessage = ({ html }: { html: string }) => {
+    return (
+      <div
+        className="
+        prose prose-sm max-w-full
+        prose-h1:text-accent-darker prose-h2:text-accent-darker prose-h3:text-accent-dark
+        prose-p:text-accent-darker
+        prose-strong:text-accent-dark
+        prose-ul:list-disc prose-ul:pl-5 prose-li:text-accent-darker
+        prose-ol:list-decimal prose-ol:pl-5
+        prose-blockquote:border-l-4 prose-blockquote:border-accent prose-blockquote:pl-4 prose-blockquote:italic
+        whitespace-normal
+      "
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+    );
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* Header */}
@@ -141,7 +160,11 @@ const ChatbotWidget = ({
                       : "bg-surface text-accent-darker"
                   }`}
                 >
-                  {m.text}
+                  {m.sender === "bot" ? (
+                    <BotHtmlMessage html={m.text} />
+                  ) : (
+                    m.text
+                  )}
                 </span>
               </div>
             ))}

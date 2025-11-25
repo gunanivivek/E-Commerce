@@ -219,7 +219,7 @@ const ProductsCard: React.FC = () => {
             <div key={i} className="flex-1 min-w-[200px] relative">
               <button
                 onClick={() => setActiveFilter(isOpen ? null : i)}
-                className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200"
+                className="w-full cursor-pointer flex items-center justify-between px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200"
               >
                 {label}
                 <motion.div
@@ -242,7 +242,7 @@ const ProductsCard: React.FC = () => {
                     {filter.options.map((option, j) => (
                     <button
                       key={j}
-                      className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
+                      className="w-full cursor-pointer text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
                       onClick={() => {
                         setSelectedFilters((prev) => ({ ...prev, ...option.value }));
                         setActiveFilter(null);
@@ -284,7 +284,7 @@ const ProductsCard: React.FC = () => {
           <button
             onClick={() => setPage((p) => p - 1)}
             disabled={page === 1}
-            className="px-4 py-2 bg-gray-200 rounded-md font-heading disabled:opacity-50"
+            className="px-4 py-2 cursor-pointer bg-gray-200 rounded-md font-heading disabled:opacity-50"
           >
             Prev
           </button>
@@ -296,7 +296,7 @@ const ProductsCard: React.FC = () => {
           <button
             onClick={() => setPage((p) => p + 1)}
             disabled={page === totalPages}
-            className="px-4 py-2 bg-gray-200 font-heading rounded-md disabled:opacity-50"
+            className="px-4 py-2 cursor-pointer bg-gray-200 font-heading rounded-md disabled:opacity-50"
           >
             Next
           </button>
