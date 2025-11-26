@@ -31,10 +31,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const addWishlistMutation = useAddWishlist();
   const removeWishlistMutation = useRemoveWishlist();
 
-  // Robust check for wishlist membership: wishlist shape can vary between
-  // endpoints (array, { items: [...] }, items that contain `product` object
-  // or `product_id`), and ids may be string/number. This helper covers common
-  // shapes so the UI toggles reliably.
   const isProductInWishlist = (
     prodId: number | string | undefined,
     data: unknown

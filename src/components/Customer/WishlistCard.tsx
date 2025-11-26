@@ -14,9 +14,13 @@ import {
 import type { Product } from "../../store/useProductStore";
 import { useAuthStore } from "../../store/authStore";
 import { Link } from "react-router-dom";
-import { Trash } from "lucide-react";
+import { Trash, Star } from "lucide-react";
 
-const WishlistCard: React.FC = () => {
+interface ProductCardProps {
+  product: Product & { rating?: number; category?: string | null };
+}
+
+const WishlistCard: React.FC<ProductCardProps> = ({ product }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: wishlistItems = [] } = useGetWishlist(true);
@@ -29,20 +33,17 @@ const WishlistCard: React.FC = () => {
   const user = useAuthStore((s) => s.user);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
-  const [removeTarget, setRemoveTarget] = useState<number | undefined>(undefined);
-  const wishlistArray: Product[] = Array.isArray(wishlistItems)
-    ? ((
-        wishlistItems as (Product | { product?: Product })[]
-      ).map((wi) =>
-        wi && "product" in wi ? (wi as { product?: Product }).product! : (wi as Product)
-      ))
-    : wishlistItems && "items" in wishlistItems
-    ? (((
-        (wishlistItems.items ?? []) as (Product | { product?: Product })[]
-      ).map((wi) =>
-        wi && "product" in wi ? (wi as { product?: Product }).product! : (wi as Product)
-      )))
-    : [];
+  const [removeTarget, setRemoveTarget] = useState<number | undefined>(
+    undefined
+  );
+  // Normalize wishlist items safely
+  const rawList = Array.isArray(wishlistItems)
+    ? wishlistItems
+    : wishlistItems?.items ?? [];
+
+  const wishlistArray: Product[] = rawList
+    .map((wi: any) => wi?.product ?? wi) // if { product }, use product
+    .filter((p: any) => p && p.id); // remove undefined/bad entries
 
   const filteredWishlist = wishlistArray.filter(
     (product) =>
@@ -53,6 +54,9 @@ const WishlistCard: React.FC = () => {
         ) ?? false
       )
   );
+
+  const average_rating = product?.average_rating ?? 0;
+  const hasRating = average_rating > 0;
 
   if (!filteredWishlist || filteredWishlist.length === 0) {
     return (
@@ -160,55 +164,47 @@ const WishlistCard: React.FC = () => {
                 })()}
               </div>
 
-              <h3
-                onClick={() => navigate(`/product/${product.id}`)}
-                className="text-[var(--color-primary-400)] cursor-pointer font-semibold text-lg text-center mb-2"
-              >
-                {product.name?.length > 20
-                  ? product.name.slice(0, 20) + "..."
+              <h3 className=" sm:text-[15px] text-accent-dark font-semibold mb-1 line-clamp-2 min-h-[2.5rem]">
+                {product.name.length > 75
+                  ? product.name.slice(0, 75) + "..."
                   : product.name}
               </h3>
 
-              <p className="text-[var(--color-primary-300)] text-md">
-                {product.description
-                  ? product.description.length > 55
-                    ? product.description.slice(0, 55) + "..."
-                    : product.description
-                  : ""}
-              </p>
+              <div className="mt-1 flex items-center justify-between gap-2">
+                <p className="text-[var(--color-primary-400)] font-bold text-base sm:text-lg whitespace-nowrap">
+                  ₹{product.discount_price ?? product.price}
+                  {product.discount_price && (
+                    <span className="text-gray-400 line-through text-xs sm:text-sm ml-1.5">
+                      ₹{product.price}
+                    </span>
+                  )}
+                </p>
 
-              <p className="text-[var(--color-primary-400)] font-bold text-lg">
-                ₹{product.discount_price ?? product.price}
-                {product.discount_price && (
-                  <span className="text-gray-400 line-through text-sm ml-2">
-                    ₹{product.price}
+                <div
+                  className={`
+              flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] sm:text-xs font-medium shadow-sm
+              ${
+                hasRating
+                  ? "bg-yellow-100 text-yellow-700"
+                  : "bg-slate-200 text-slate-700"
+              }
+            `}
+                >
+                  <Star
+                    size={12}
+                    className={hasRating ? "text-yellow-500" : "text-slate-500"}
+                  />
+                  <span className="font-semibold">
+                    {hasRating ? average_rating.toFixed(1) : "No Ratings"}
                   </span>
-                )}
-              </p>
+                </div>
+              </div>
 
               {Number.isFinite(stock) && stock <= 0 ? (
                 <p className="text-xs text-gray-500 mb-2">
                   Stock: {stock > 0 ? stock : "Out of stock"}
                 </p>
               ) : null}
-
-              {/* Rating */}
-              <div className="flex items-center mb-3">
-                {Array.from({ length: 5 }).map((_, index) => (
-                  <svg
-                    key={index}
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill={index < 4 ? "#facc15" : "#e5e7eb"}
-                    className="w-5 h-5"
-                  >
-                    <path d="M12 .587l3.668 7.568L24 9.75l-6 5.854L19.335 24 12 19.896 4.665 24 6 15.604 0 9.75l8.332-1.595z" />
-                  </svg>
-                ))}
-                <span className="text-sm text-gray-600 ml-2">
-                  {product.average_rating}
-                </span>
-              </div>
 
               <div className="flex items-center justify-between mt-3">
                 {inCart ? (
@@ -366,7 +362,6 @@ const WishlistCard: React.FC = () => {
           </div>
         </div>
       )}
-
     </section>
   );
 };
