@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -16,11 +17,7 @@ import { useAuthStore } from "../../store/authStore";
 import { Link } from "react-router-dom";
 import { Trash, Star } from "lucide-react";
 
-interface ProductCardProps {
-  product: Product & { rating?: number; category?: string | null };
-}
-
-const WishlistCard: React.FC<ProductCardProps> = ({ product }) => {
+const WishlistCard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: wishlistItems = [] } = useGetWishlist(true);
@@ -54,9 +51,6 @@ const WishlistCard: React.FC<ProductCardProps> = ({ product }) => {
         ) ?? false
       )
   );
-
-  const average_rating = product?.average_rating ?? 0;
-  const hasRating = average_rating > 0;
 
   if (!filteredWishlist || filteredWishlist.length === 0) {
     return (
@@ -102,6 +96,8 @@ const WishlistCard: React.FC<ProductCardProps> = ({ product }) => {
             (c) => c.product_id === product.id
           );
           const stock = Number(product.stock ?? 0);
+          const average_rating = product?.average_rating ?? 0;
+          const hasRating = average_rating > 0;
 
           const handleAdd = async (e: React.MouseEvent) => {
             e.stopPropagation();
