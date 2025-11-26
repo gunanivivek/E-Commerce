@@ -16,10 +16,10 @@ interface AuthState {
   user: User | null;
   message: string | null;
 
-  // ✅ New: update only parts of the user safely
+  //  New: update only parts of the user safely
   updateUser: (updatedData: Partial<User>) => void;
 
-  // ✅ Existing API for login/set user
+  // Existing API for login/set user
   setUser: (data: { user: User | null; message: string | null }) => void;
 
   logout: () => void;
@@ -41,7 +41,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     localStorage.setItem("authData", JSON.stringify(data));
   },
 
-  // ✅ For profile updates (merge safely)
+  //  For profile updates (merge safely)
   updateUser: (updatedData) => {
     const currentUser = get().user;
     if (!currentUser) return;

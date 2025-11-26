@@ -81,7 +81,7 @@ const ViewCustomerModal: React.FC<ViewCustomerModalProps> = ({
               </span>
               <button
                 onClick={onClose}
-                className="p-1 rounded-full hover:cursor-pointer text-primary-400 transition-colors"
+                className="p-1 cursor-pointer rounded-full  text-primary-400 transition-colors"
               >
                 <X size={20} />
               </button>
@@ -132,7 +132,7 @@ const ViewCustomerModal: React.FC<ViewCustomerModalProps> = ({
           <div className="p-6 border-t border-primary-border/50 bg-primary-50/50 flex justify-end">
             <button
               onClick={() => onToggleBlock(customer.id, !customer.is_blocked)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+              className={`flex cursor-pointer items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
                 customer.is_blocked
                   ? "border border-green-300 bg-green-100 text-green-700 hover:bg-green-200"
                   : "border border-red-300 bg-red-100 text-red-700 hover:bg-red-200"

@@ -201,7 +201,7 @@ const AdminProductList: React.FC = () => {
                   <button
                     disabled={isRowLoading}
                     onClick={() => approveProduct(product.id)}
-                    className={`p-1.5 rounded transition-colors ${
+                    className={`p-1.5 cursor-pointer rounded transition-colors ${
                       isRowLoading
                         ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                         : "bg-green-50 text-green-600 hover:bg-green-100"
@@ -214,7 +214,7 @@ const AdminProductList: React.FC = () => {
                   <button
                     disabled={isRowLoading}
                     onClick={() => rejectProduct(product.id)}
-                    className={`p-1.5 rounded transition-colors ${
+                    className={`p-1.5 cursor-pointer rounded transition-colors ${
                       isRowLoading
                         ? "bg-gray-200 text-gray-400 cursor-not-allowed"
                         : "bg-red-50 text-red-600 hover:bg-red-100"
@@ -491,14 +491,14 @@ const AdminProductList: React.FC = () => {
                 <button
                   onClick={() => table.previousPage()}
                   disabled={!table.getCanPreviousPage()}
-                  className="px-2 sm:px-3 py-1 border border-primary-400/20 text-xs sm:text-sm text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex-1 sm:flex-none"
+                  className="px-2 cursor-pointer sm:px-3 py-1 border border-primary-400/20 text-xs sm:text-sm text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex-1 sm:flex-none"
                 >
                   Previous
                 </button>
                 <button
                   onClick={() => table.nextPage()}
                   disabled={!table.getCanNextPage()}
-                  className="px-2 sm:px-3 py-1 border border-primary-400/20 text-xs sm:text-sm text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex-1 sm:flex-none"
+                  className="cursor-pointer px-2 sm:px-3 py-1 border border-primary-400/20 text-xs sm:text-sm text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex-1 sm:flex-none"
                 >
                   Next
                 </button>

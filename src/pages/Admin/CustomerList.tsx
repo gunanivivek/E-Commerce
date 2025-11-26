@@ -348,14 +348,14 @@ const CustomerList: React.FC = () => {
               <button
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
-                className="px-3 py-1 border border-primary-400/20 text-xs text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50"
+                className="cursor-pointer px-3 py-1 border border-primary-400/20 text-xs text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50"
               >
                 Previous
               </button>
               <button
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
-                className="px-3 py-1 border border-primary-400/20 text-xs text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50"
+                className="cursor-pointer px-3 py-1 border border-primary-400/20 text-xs text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50"
               >
                 Next
               </button>

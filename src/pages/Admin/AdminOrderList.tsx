@@ -306,7 +306,7 @@ const AdminOrderList: React.FC = () => {
                 <button
                   onClick={() => table.previousPage()}
                   disabled={!table.getCanPreviousPage()}
-                  className="px-3 py-1 border border-border text-xs sm:text-sm text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50 transition-colors"
+                  className="px-3 cursor-pointer py-1 border border-border text-xs sm:text-sm text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50 transition-colors"
                 >
                   Previous
                 </button>
@@ -314,7 +314,7 @@ const AdminOrderList: React.FC = () => {
                 <button
                   onClick={() => table.nextPage()}
                   disabled={!table.getCanNextPage()}
-                  className="px-3 py-1 border border-border text-xs sm:text-sm text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50 transition-colors"
+                  className="px-3 cursor-pointer py-1 border border-border text-xs sm:text-sm text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50 transition-colors"
                 >
                   Next
                 </button>
