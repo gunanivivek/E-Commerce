@@ -67,10 +67,14 @@ const SellerProfilePage = () => {
 
   useEffect(() => {
     if (sellerData) {
+      const cleanedPhone = sellerData.phone
+        ? sellerData.phone.replace(/\D/g, "").slice(-10)
+        : "";
+
       reset({
         fullName: sellerData.full_name || "",
         email: sellerData.email || "",
-        phoneNumber: sellerData.phone || "",
+        phoneNumber: cleanedPhone,
         storeName: sellerData.store_name || "",
         storeDescription: sellerData.store_description || "",
         storeAddress: sellerData.store_address || "",
@@ -93,12 +97,21 @@ const SellerProfilePage = () => {
   const onSubmit = async (formData: SellerProfileForm) => {
     if (!numericSellerId) return;
 
+    // Clean digits + add prefix
+    const cleanedPhone = formData.phoneNumber.replace(/\D/g, "").slice(-10);
+    const finalPhone = `tel:+91-${cleanedPhone}`;
+
+    const finalData = {
+      ...formData,
+      phone: finalPhone,
+    };
+
     const payload = {
-      store_name: formData.storeName,
-      store_description: formData.storeDescription,
-      store_address: formData.storeAddress,
-      full_name: formData.fullName,
-      phone: formData.phoneNumber,
+      store_name: finalData.storeName,
+      store_description: finalData.storeDescription,
+      store_address: finalData.storeAddress,
+      full_name: finalData.fullName,
+      phone: finalData.phone,
     };
 
     try {
@@ -117,14 +130,14 @@ const SellerProfilePage = () => {
       showToast(" Seller profile updated successfully!", "success");
       setIsEditingDetails(false);
     } catch (err) {
-  const errorMessage =
-    (err as any)?.response?.data?.detail?.[0]?.msg ||
-    (err as any)?.response?.data?.msg ||
-    (err as Error)?.message ||
-    "❌ Failed to update profile. Try again.";
+      const errorMessage =
+        (err as any)?.response?.data?.detail?.[0]?.msg ||
+        (err as any)?.response?.data?.msg ||
+        (err as Error)?.message ||
+        "❌ Failed to update profile. Try again.";
 
-  toast.error(errorMessage);
-}
+      toast.error(errorMessage);
+    }
   };
 
   // Handle profile image upload
@@ -179,9 +192,7 @@ const SellerProfilePage = () => {
   };
 
   if (isLoading) {
-    return (
-      <SellerProfileSkeleton />
-    );
+    return <SellerProfileSkeleton />;
   }
 
   return (
@@ -378,6 +389,11 @@ const SellerProfilePage = () => {
                 type="tel"
                 {...register("phoneNumber", {
                   required: "Phone number is required",
+                  onChange: (e) => {
+                    e.target.value = e.target.value
+                      .replace(/\D/g, "")
+                      .slice(0, 10);
+                  },
                 })}
                 disabled={!isEditingDetails}
                 className="border border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 w-full"
