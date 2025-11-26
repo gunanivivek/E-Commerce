@@ -215,7 +215,7 @@ const UpdateProductForm: React.FC<UpdateProductModalProps> = ({
               {/* Show existing or newly selected previews */}
               <div className="flex flex-wrap gap-2 mb-2">
                 {previewImages.length > 0 ? (
-                  previewImages.map((img, index) => (
+                  previewImages.slice(0,5).map((img, index) => (
                     <img
                       key={index}
                       src={img}

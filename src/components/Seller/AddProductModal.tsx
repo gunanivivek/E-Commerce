@@ -15,7 +15,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
   if (!isOpen) return null;
 
   return ReactDOM.createPortal(
-     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/10 backdrop-blur-xs">
       {/* Outer Wrapper */}
       <div
         className="relative w-[95%] max-w-2xl max-h-[90vh] overflow-y-auto 
@@ -27,7 +27,7 @@ const AddProductModal: React.FC<AddProductModalProps> = ({
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-primary-400 hover:text-primary-300 
-                     transition transform hover:scale-110 active:scale-95"
+                     transition transform hover:cursor-pointer"
           aria-label="Close modal"
         >
           <X size={22} />
