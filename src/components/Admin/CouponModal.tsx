@@ -128,7 +128,7 @@ const CouponModal: React.FC<CouponModalProps> = ({
             </h2>
             <button
               onClick={onClose}
-              className="p-1 rounded-full text-primary-400 hover:cursor-pointer"
+              className="p-1 cursor-pointer rounded-full text-primary-400"
             >
               <X size={20} />
             </button>
@@ -278,14 +278,14 @@ const CouponModal: React.FC<CouponModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-sm rounded-lg border border-primary-border text-primary-500 hover:bg-primary-50"
+                className="px-4 cursor-pointer py-2 text-sm rounded-lg border border-primary-border text-primary-500 hover:bg-primary-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={createMutation.isPending || updateMutation.isPending}
-                className="px-4 py-2 text-sm rounded-lg bg-primary-400 text-white hover:bg-primary-500"
+                className="px-4 cursor-pointer py-2 text-sm rounded-lg bg-primary-400 text-white hover:bg-primary-500"
               >
                 {isEdit
                   ? updateMutation.isPending
