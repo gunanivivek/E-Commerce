@@ -18,11 +18,12 @@ const NewArrivals: React.FC = () => {
 
   const [selectedFilters, setSelectedFilters] = useState<FilterShape>({});
   const categories = useCategoryStore((state) => state.categories);
+  const filteredCategories = categories.filter((c) => c.name !== "Default");
 
   const filters = [
     {
       title: "Category",
-     options: ["All Categories", ...categories.map((cat) => cat.name)],
+     options: ["All Categories", ...filteredCategories.map((cat) => cat.name)],
     },
     {
       title: "Price Range",
