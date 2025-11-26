@@ -261,8 +261,8 @@ const SellerProductList: React.FC = () => {
                   });
                   setIsDeleteOpen(true);
                 }}
-                className="p-1.5 bg-blue-50 text-red-600 hover:bg-blue-100 hover:cursor-pointer rounded transition-colors"
-                title="View Product"
+                className="p-1.5 bg-blue-50 text-red-600 hover:bg-red-100 hover:cursor-pointer rounded transition-colors"
+                title="Delete Product"
               >
                 <Trash2 className="w-3.5 h-3.5" />
               </button>
@@ -501,7 +501,7 @@ const SellerProductList: React.FC = () => {
               </thead>
               <tbody>
                 {isLoading ? (
-                  <TableRowSkeleton rows={5} columns={6} />
+                  <TableRowSkeleton rows={5} columns={7} />
                 ) : isError ? (
                   <div className="text-red-500 text-sm">
                     Failed to fetch products.
@@ -537,14 +537,14 @@ const SellerProductList: React.FC = () => {
               <button
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
-                className="px-2 sm:px-3 py-1 border border-primary-400/20 text-xs sm:text-sm text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex-1 sm:flex-none"
+                className="px-2 sm:px-3 py-1 border border-primary-400/20 text-xs sm:text-sm text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex-1 sm:flex-none hover:cursor-pointer"
               >
                 Previous
               </button>
               <button
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
-                className="px-2 sm:px-3 py-1 border border-primary-400/20 text-xs sm:text-sm text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex-1 sm:flex-none"
+                className="px-2 sm:px-3 py-1 border border-primary-400/20 text-xs sm:text-sm text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50 disabled:cursor-not-allowed transition-colors font-medium flex-1 sm:flex-none hover:cursor-pointer"
               >
                 Next
               </button>

@@ -33,7 +33,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
 
   const [preview, setPreview] = useState<string | null>(null);
 
-  // ✅ Reset form when modal closes
+  //  Reset form when modal closes
   useEffect(() => {
     if (!isOpen) {
       reset({
@@ -45,7 +45,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
     }
   }, [isOpen, reset]);
 
-  // ✅ Pre-fill form in edit mode
+  //  Pre-fill form in edit mode
   useEffect(() => {
     if (isEdit && category) {
       reset({
@@ -69,7 +69,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
     }
   };
 
-  // ✅ Handle form submission
+
   const onSubmit = (data: CreateCategoryRequest) => {
     if (isEdit && category) {
       // 🧠 Compare new data with old and only append changed fields
@@ -87,14 +87,14 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
         formData.append("image", data.image);
       }
 
-      // ⚡ If no changes, show info toast and close
+      //  If no changes, show info toast and close
       if ([...formData.keys()].length === 0) {
         toast.info("No changes detected ✨");
         onClose();
         return;
       }
 
-      // ✅ Update existing category
+
       updateCategory(
         { id: category.id, formData },
         {
@@ -106,7 +106,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
         }
       );
     } else {
-      // 🟢 Create new category
+      //  Create new category
       const formData = new FormData();
       formData.append("name", data.name);
       formData.append("description", data.description);
@@ -145,7 +145,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
             </h2>
             <button
               onClick={onClose}
-              className="p-1 rounded-full  text-primary-400 hover:cursor-pointer"
+              className="p-1 cursor-pointer rounded-full  text-primary-400 hover:cursor-pointer"
             >
               <X size={20} />
             </button>
@@ -227,14 +227,14 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-sm rounded-lg border border-primary-border text-primary-500 hover:bg-primary-50"
+                className="px-4 cursor-pointer py-2 text-sm rounded-lg border border-primary-border text-primary-500 hover:bg-primary-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={isCreating || isUpdating}
-                className="px-4 py-2 text-sm rounded-lg bg-primary-400 text-white hover:bg-primary-500 disabled:opacity-60"
+                className="px-4 py-2 cursor-pointer text-sm rounded-lg bg-primary-400 text-white hover:bg-primary-500 disabled:opacity-60"
               >
                 {isEdit
                   ? isUpdating

@@ -46,7 +46,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose }) => {
         price: Number(data.price),
         stock: Number(data.stock),
         category: Number(data.category_id),
-        images: Array.from(data.image), // take the actual File
+        images: Array.from(data.image), 
       };
 
      createProductMutation(productData);
@@ -192,7 +192,7 @@ const AddProductForm: React.FC<AddProductFormProps> = ({ onClose }) => {
       <button
         type="submit"
         disabled={isPending}
-        className="w-full bg-primary-400 hover:bg-primary-300 text-white font-semibold py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg"
+        className="w-full bg-accent-dark hover:bg-accent-light text-surface-light font-heading py-3 px-4 rounded-xl transition-all shadow-md hover:shadow-lg hover:cursor-pointer"
       >
          {isPending ? "Submitting..." : "Submit Product"}
       </button>

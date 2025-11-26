@@ -52,7 +52,7 @@ const ViewSellerModal: React.FC<ViewSellerModalProps> = ({
     <>
       {/* Overlay */}
       <div
-        className="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm"
+        className=" fixed  inset-0 z-40 bg-black/50 backdrop-blur-sm"
         onClick={onClose}
       />
 
@@ -89,7 +89,7 @@ const ViewSellerModal: React.FC<ViewSellerModalProps> = ({
               </span>
               <button
                 onClick={onClose}
-                className="p-1 rounded-full bg-primary-100/50 text-primary-400 hover:bg-primary-200/30 transition-colors"
+                className="p-1 cursor-pointer rounded-full bg-primary-100/50 text-primary-400 hover:bg-primary-200/30 transition-colors"
               >
                 <X size={20} />
               </button>
@@ -167,7 +167,7 @@ const ViewSellerModal: React.FC<ViewSellerModalProps> = ({
             ) : (
               <button
                 onClick={() => onToggleBlock(seller.id, !seller.is_blocked)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
+                className={`flex cursor-pointer items-center gap-2 px-4 py-2 rounded-lg font-medium text-sm transition-colors ${
                   seller.is_blocked
                     ? "border border-green-300 bg-green-100 text-green-700 hover:bg-green-200"
                     : "border border-red-300 bg-red-100 text-red-700 hover:bg-red-200"

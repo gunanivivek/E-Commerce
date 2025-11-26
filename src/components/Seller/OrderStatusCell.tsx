@@ -65,6 +65,7 @@ const OrderStatusCell: React.FC<StatusCellProps> = ({ orderId, itemId, initialSt
         <span
           onDoubleClick={() => setIsEditing(true)}
           className={`px-4 py-1 rounded-full text-xs font-medium cursor-pointer ${colorClass}`}
+          title="Double click to change the status of product"
         >
           {selectedStatus.charAt(0).toUpperCase() + selectedStatus.slice(1)}
         </span>
