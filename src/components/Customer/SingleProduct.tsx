@@ -31,8 +31,39 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const addWishlistMutation = useAddWishlist();
   const removeWishlistMutation = useRemoveWishlist();
 
-  const wishlistItems = wishlistData?.items ?? [];
-  const inWishlist = wishlistItems.some((w) => w.product_id === product.id);
+  // Robust check for wishlist membership: wishlist shape can vary between
+  // endpoints (array, { items: [...] }, items that contain `product` object
+  // or `product_id`), and ids may be string/number. This helper covers common
+  // shapes so the UI toggles reliably.
+  const isProductInWishlist = (
+    prodId: number | string | undefined,
+    data: unknown
+  ) => {
+    if (prodId == null) return false;
+    const idNum = Number(prodId);
+    if (!data) return false;
+    const items = Array.isArray(data) ? data : (data as { items?: unknown }).items ?? [];
+    return (items as unknown[]).some((it) => {
+      if (it == null) return false;
+      if (typeof it === "number") return Number(it) === idNum;
+      if (typeof it === "object") {
+        const obj = it as Record<string, unknown>;
+        const maybe = (key: string) => obj[key] as unknown;
+        const v1 = maybe("product_id");
+        if (v1 !== undefined && v1 !== null) return Number(String(v1)) === idNum;
+        const prod = obj["product"] as Record<string, unknown> | undefined;
+        if (prod && prod["id"] !== undefined && prod["id"] !== null)
+          return Number(String(prod["id"])) === idNum;
+        const v2 = maybe("id");
+        if (v2 !== undefined && v2 !== null) return Number(String(v2)) === idNum;
+        const v3 = maybe("productId");
+        if (v3 !== undefined && v3 !== null) return Number(String(v3)) === idNum;
+      }
+      return false;
+    });
+  };
+
+  const inWishlist = isProductInWishlist(product.id, wishlistData);
   const stock = Number(product.stock ?? NaN);
   const inCart = user && cartData?.items.find((c) => c.product_id === product.id);
 
@@ -226,8 +257,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     transition-all duration-150 shrink-0 cursor-pointer
     ${
       inWishlist
-        ? "bg-accent text-black border-[var(--color-accent)]"
-        : "border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-primary-100"
+        ? "bg-transparent text-accent border-accent hover:bg-accent hover:text-primary-100"
+        : "border-accent text-accent hover:bg-accent hover:text-primary-100"
     }
   `}
           >

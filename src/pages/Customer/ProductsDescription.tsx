@@ -29,6 +29,7 @@ import {
   useUpdateCart,
 } from "../../hooks/Customer/useCartHooks";
 import ChatbotContainer from "../../components/Customer/ChatbotContainer";
+import { Heart, Handbag } from "lucide-react";
 
 const ProductDescription: React.FC = () => {
   const { productId } = useParams<{ productId: string }>();
@@ -58,8 +59,41 @@ const ProductDescription: React.FC = () => {
   const location = useLocation();
 
   const cartItems = cartData?.items ?? [];
-  const wishlistItems = wishlistData?.items ?? [];
-  const isInWishlist = wishlistItems.some((w) => w.product_id === product?.id);
+
+  const isProductInWishlist = (
+    prodId: number | string | undefined,
+    data: unknown
+  ) => {
+    if (prodId == null) return false;
+    const idNum = Number(prodId);
+    if (!data) return false;
+    const items = Array.isArray(data)
+      ? data
+      : (data as { items?: unknown }).items ?? [];
+    return (items as unknown[]).some((it) => {
+      if (it == null) return false;
+      if (typeof it === "number") return Number(it) === idNum;
+      if (typeof it === "object") {
+        const obj = it as Record<string, unknown>;
+        const maybe = (key: string) => obj[key] as unknown;
+        const v1 = maybe("product_id");
+        if (v1 !== undefined && v1 !== null)
+          return Number(String(v1)) === idNum;
+        const prod = obj["product"] as Record<string, unknown> | undefined;
+        if (prod && prod["id"] !== undefined && prod["id"] !== null)
+          return Number(String(prod["id"])) === idNum;
+        const v2 = maybe("id");
+        if (v2 !== undefined && v2 !== null)
+          return Number(String(v2)) === idNum;
+        const v3 = maybe("productId");
+        if (v3 !== undefined && v3 !== null)
+          return Number(String(v3)) === idNum;
+      }
+      return false;
+    });
+  };
+
+  const isInWishlist = isProductInWishlist(product?.id, wishlistData);
 
   // Fetch reviews using the centralized review hooks
   const { data: reviews = [], isLoading: reviewsLoading } = useReviews(
@@ -353,13 +387,14 @@ const ProductDescription: React.FC = () => {
               </p>
 
               {/* Bottom Actions */}
-              <div className="flex items-center gap-4 mb-6">
-                {/* If product in cart show quantity controls, else show add button */}
+              <div className="flex flex-wrap items-center gap-4 mb-6">
+                {/* ===== Quantity Buttons (When in cart) ===== */}
                 {cartItems.find((c) => c.product_id === product.id) ? (
                   (() => {
                     const c = cartItems.find(
                       (ci) => ci.product_id === product.id
                     )!;
+
                     const dec = () => {
                       if (c.quantity <= 1)
                         removeMutation.mutate({ product_id: c.product_id });
@@ -377,20 +412,22 @@ const ProductDescription: React.FC = () => {
                       });
 
                     return (
-                      <div className="flex items-center gap-2 lg:min-w-61">
+                      <div className="flex flex-2 items-center gap-3 lg:min-w-61">
                         <button
                           onClick={dec}
-                          className="px-3 py-1 bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)] cursor-pointer rounded-md"
+                          className="px-3 py-2 bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)] cursor-pointer rounded-md font-semibold"
                           aria-label="decrease"
                         >
-                          -
+                          –
                         </button>
-                        <span className="px-3 py-1 border rounded-md min-w-[36px] text-center">
+
+                        <span className="px-4 py-2 border rounded-md min-w-[40px] text-center font-semibold">
                           {c.quantity}
                         </span>
+
                         <button
                           onClick={inc}
-                          className="px-3 py-1 bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)] cursor-pointer rounded-md"
+                          className="px-3 py-2 bg-[var(--color-accent)] text-black hover:bg-[var(--color-accent-dark)] cursor-pointer rounded-md font-semibold"
                           aria-label="increase"
                         >
                           +
@@ -399,6 +436,7 @@ const ProductDescription: React.FC = () => {
                     );
                   })()
                 ) : (
+                  /* ===== Add to Bag Button ===== */
                   <button
                     onClick={async () => {
                       if (!user)
@@ -411,20 +449,28 @@ const ProductDescription: React.FC = () => {
                           quantity: 1,
                         });
                       } catch {
-                        // handled in hook
+                        // ignore
                       }
                     }}
                     disabled={product.stock === 0}
-                    className={`flex-1 py-3 rounded-lg font-semibold transition-all duration-150 shadow-sm ${
-                      product.stock === 0
-                        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                        : "bg-[var(--color-accent)] text-primary-100 hover:bg-[var(--color-accent-dark)] hover:shadow-md transform hover:-translate-y-0.5 cursor-pointer"
-                    }`}
+                    className={`flex flex-1 min-w-[200px] items-center justify-center gap-2 px-5 py-3 rounded-lg font-semibold whitespace-nowrap transition-all duration-150 shadow-sm
+        ${
+          product.stock === 0
+            ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+            : "bg-[var(--color-accent)] text-primary-100 hover:bg-[var(--color-accent-dark)] hover:shadow-md transform hover:-translate-y-0.5 cursor-pointer"
+        }`}
                   >
+                    <Handbag
+                      size={18}
+                      className="transition-colors duration-150"
+                      stroke={product.stock === 0 ? "none" : "currentColor"}
+                      fill={product.stock === 0 ? "currentColor" : "none"}
+                    />
                     {product.stock === 0 ? "Out of stock" : "ADD TO BAG"}
                   </button>
                 )}
 
+                {/* ===== Wishlist Button ===== */}
                 <button
                   onClick={async () => {
                     if (!user)
@@ -443,30 +489,36 @@ const ProductDescription: React.FC = () => {
                         });
                       }
                     } catch {
-                      /* handled in hook */
+                      // ignore
                     }
                   }}
                   disabled={
                     addWishlistMutation.isPending ||
                     removeWishlistMutation.isPending
                   }
-                  className={`flex-1 py-3 rounded-lg font-semibold transition-all duration-150 border 
-    ${
-      isInWishlist
-        ? "border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
-        : "border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-white"
-    }
-    cursor-pointer
-  `}
+                  className={`flex flex-1 min-w-[200px] items-center justify-center gap-2 px-5 py-3 rounded-lg font-semibold whitespace-nowrap transition-all duration-150 shadow-sm
+      ${
+        isInWishlist
+          ? "bg-accent text-primary-100 border border-accent hover:bg-transparent hover:text-accent"
+          : "border border-accent bg-transparent text-accent hover:bg-accent hover:text-primary-100"
+      }
+      cursor-pointer`}
                 >
+                  <Heart
+                    size={18}
+                    className="transition-colors duration-150"
+                    stroke={isInWishlist ? "none" : "currentColor"}
+                    fill={isInWishlist ? "currentColor" : "none"}
+                  />
+
                   {isInWishlist
                     ? addWishlistMutation.isPending ||
                       removeWishlistMutation.isPending
-                      ? "Updating..."
-                      : "Remove Wishlist"
+                      ? "Removing..."
+                      : "ADDED TO WISHLIST"
                     : addWishlistMutation.isPending
                     ? "Adding..."
-                    : "Add to Wishlist"}
+                    : "ADD TO WISHLIST"}
                 </button>
               </div>
               <hr className="my-3 border-[var(--color-gray-300)]" />
@@ -589,77 +641,76 @@ const ProductDescription: React.FC = () => {
               </button>
             </div>
 
+            {/* Always render inline review form outside conditional */}
+            {showInlineReviewForm && (
+              <div className="rounded-xl border border-primary-50 bg-background shadow-sm p-5 my-5">
+                {/* Top: Avatar + Name + Star Selector */}
+                <div className="flex flex-col sm:flex-row justify-between items-center">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-sm font-semibold text-primary-400">
+                      {(
+                        reviewAuthor?.[0] ??
+                        user?.full_name?.[0] ??
+                        "A"
+                      ).toUpperCase()}
+                    </div>
+                    <span className="font-medium text-primary-400">
+                      {reviewAuthor || user?.full_name || "Anonymous"}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center mt-4 sm:mt-0">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star
+                        key={star}
+                        onClick={() => setReviewRating(star)}
+                        className={`sm:w-6 sm:h-6 h-5 w-5 cursor-pointer ${
+                          star <= reviewRating
+                            ? "text-yellow-400 fill-yellow-400"
+                            : "text-primary-100"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <textarea
+                  value={reviewComment}
+                  onChange={(e) => setReviewComment(e.target.value)}
+                  placeholder="Write your review..."
+                  className="mt-4 w-full border border-primary-100 rounded-lg px-3 py-3 text-gray-700 leading-relaxed focus:outline-none focus:ring focus:ring-accent-light h-28"
+                />
+
+                <div className="flex justify-end gap-3 mt-4">
+                  <button
+                    onClick={() => {
+                      setShowInlineReviewForm(false);
+                      setReviewComment("");
+                      setReviewRating(5);
+                    }}
+                    className="px-4 py-2 rounded-md border border-accent-dark text-accent-darker hover:bg-accent-dark hover:text-white transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    onClick={handleSaveReview}
+                    disabled={isCreatingReview}
+                    className="px-4 py-2 rounded-md bg-accent-dark hover:bg-accent text-white transition cursor-pointer"
+                  >
+                    {isCreatingReview ? "Saving..." : "Submit Review"}
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Now the actual review list OR empty message */}
             {reviewsLoading ? (
               <p className="text-accent-light">Loading reviews...</p>
             ) : normalizedReviews.length === 0 ? (
               <p className="text-accent-light">No reviews yet.</p>
             ) : (
               <div className="space-y-5 my-6">
-                {/* ---- Inline Add Review Card ---- */}
-                {showInlineReviewForm && (
-                  <div className="rounded-xl border border-primary-50 bg-background shadow-sm p-5">
-                    {/* Top: Avatar + Name + Star Selector */}
-                    <div className="flex flex-col sm:flex-row justify-between items-center">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-sm font-semibold text-primary-400">
-                          {(
-                            reviewAuthor?.[0] ??
-                            user?.full_name?.[0] ??
-                            "A"
-                          ).toUpperCase()}
-                        </div>
-                        <span className="font-medium text-primary-400">
-                          {reviewAuthor || user?.full_name || "Anonymous"}
-                        </span>
-                      </div>
-                      {/* ⭐ Star Selector */}
-                      <div className="flex items-center mt-4">
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Star
-                            key={star}
-                            onClick={() => setReviewRating(star)}
-                            className={`sm:w-6 sm:h-6 h-5 w-5 cursor-pointer transition-colors ${
-                              star <= reviewRating
-                                ? "text-yellow-400 fill-yellow-400"
-                                : "text-primary-100"
-                            }`}
-                          />
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Comment Textbox */}
-                    <textarea
-                      value={reviewComment}
-                      onChange={(e) => setReviewComment(e.target.value)}
-                      placeholder="Write your review..."
-                      className="mt-4 w-full border border-primary-100 rounded-lg px-3 py-3 text-gray-700 leading-relaxed focus:outline-none focus:ring focus:ring-accent-light h-28"
-                    />
-
-                    {/* Action Buttons */}
-                    <div className="flex justify-end gap-3 mt-4">
-                      <button
-                        onClick={() => {
-                          setShowInlineReviewForm(false);
-                          setReviewComment("");
-                          setReviewRating(5);
-                        }}
-                        className="px-4 py-2 rounded-md border border-accent-dark text-accent-darker hover:bg-accent-dark hover:text-white transition cursor-pointer"
-                      >
-                        Cancel
-                      </button>
-
-                      <button
-                        onClick={handleSaveReview}
-                        disabled={isCreatingReview}
-                        className="px-4 py-2 rounded-md bg-accent-dark hover:bg-accent text-white transition cursor-pointer"
-                      >
-                        {isCreatingReview ? "Saving..." : "Submit Review"}
-                      </button>
-                    </div>
-                  </div>
-                )}
-
                 {normalizedReviews.slice(0, visibleCount).map((r) => (
                   <div
                     key={r.id}
@@ -667,7 +718,6 @@ const ProductDescription: React.FC = () => {
                   >
                     <div className="flex flex-col md:flex-row justify-between items-center">
                       <div className="flex items-center gap-3">
-                        {/* Optional avatar */}
                         <div className="w-8 h-8 rounded-full bg-primary-100 flex items-center justify-center text-sm font-semibold text-primary-400">
                           {(r.author ?? "A")[0].toUpperCase()}
                         </div>
@@ -699,7 +749,6 @@ const ProductDescription: React.FC = () => {
                             ? r.comment.slice(0, 200) + "..."
                             : r.comment}
 
-                          {/* Toggle Button */}
                           {r.comment.length > 200 && (
                             <button
                               className="text-accent-dark ml-2 hover:underline cursor-pointer text-sm font-bold"
@@ -715,7 +764,8 @@ const ProductDescription: React.FC = () => {
                     </div>
                   </div>
                 ))}
-                {/* Review Visiblity Buttons */}
+
+                {/* Show more / less */}
                 <div className="flex gap-4 mt-10">
                   {visibleCount > 3 && (
                     <button
