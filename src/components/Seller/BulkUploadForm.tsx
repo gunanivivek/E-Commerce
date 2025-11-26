@@ -4,6 +4,7 @@ import { Upload } from "lucide-react";
 import { bulkUploadProducts, handleDownloadFormat } from "../../api/sellerApi";
 import { toast } from "react-toastify";
 import { showToast } from "../toastManager";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface BulkUploadFormProps {
   onClose: () => void;
@@ -13,6 +14,24 @@ interface BulkUploadFormProps {
 interface FormValues {
   file: FileList;
 }
+const useBulkUpload = (afterSuccess?: () => void) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (file: File) => {
+      return await bulkUploadProducts({ file });
+    },
+    onSuccess: (_, file) => {
+      showToast(`✅ File "${file.name}" uploaded successfully!`, "success");
+      queryClient.invalidateQueries({ queryKey: ["SellerProducts"] });
+      if (afterSuccess) {
+        afterSuccess();
+      }
+    },
+    onError: () => {
+      toast.error("❌ Upload failed. Please try again.");
+    },
+  });
+};
 
 const BulkUploadForm: React.FC<BulkUploadFormProps> = ({
   onClose,
@@ -29,20 +48,15 @@ const BulkUploadForm: React.FC<BulkUploadFormProps> = ({
 
   const fileWatch = watch("file");
 
-  const onSubmit = async (data: FormValues) => {
-    const uploadedFile = data.file[0];
-    if (!uploadedFile) return;
-    try {
-      const response = await bulkUploadProducts({ file: uploadedFile });
+  const { mutate: uploadFile, } = useBulkUpload(() => {
+    onSuccess();
+    onClose();
+  });
 
-      console.log("✅ Upload successful:", response);
-      showToast(`✅ File "${uploadedFile.name}" uploaded successfully!`, "success");
-      onSuccess();
-      onClose();
-    } catch (error) {
-      console.error("❌ Upload failed:", error);
-      toast.error("Upload failed. Please try again.");
-    }
+  const onSubmit = (data: FormValues) => {
+    const uploadedFile = data.file?.[0];
+    if (!uploadedFile) return;
+    uploadFile(uploadedFile);
   };
 
   React.useEffect(() => {
@@ -66,9 +80,8 @@ const BulkUploadForm: React.FC<BulkUploadFormProps> = ({
         >
           here
         </button>
-        .
       </p>
-      .
+
       <div>
         <label className="block text-gray-700 text-sm font-medium mb-2">
           Upload Excel or CSV File
@@ -110,7 +123,7 @@ const BulkUploadForm: React.FC<BulkUploadFormProps> = ({
       </div>
       <button
         type="submit"
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-heading py-2 px-4 rounded-lg transition hover:cursor-pointer"
       >
         Upload File
       </button>

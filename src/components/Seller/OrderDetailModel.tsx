@@ -22,7 +22,7 @@ const OrderDetailModel: React.FC<OrderDetailModelProps> = ({
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700"
+          className="absolute top-4 right-4 text-gray-500 hover:text-gray-700 hover:cursor-pointer"
         >
           <X size={20} />
         </button>
@@ -78,9 +78,9 @@ const OrderDetailModel: React.FC<OrderDetailModelProps> = ({
                   <td className="p-3">
                     <span
                       className={`px-2 py-1 rounded text-xs font-medium ${
-                        item.payment_status === "success"
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-700"
+                        item.payment_status === "paid"
+                          ? "bg-red-100 text-red-700"
+                          : " bg-green-100 text-green-700"
                       }`}
                     >
                       {order.payment_status.toLocaleUpperCase()}

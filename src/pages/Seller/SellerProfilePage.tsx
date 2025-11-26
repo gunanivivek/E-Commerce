@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useRef, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { User } from "lucide-react";
@@ -116,9 +117,14 @@ const SellerProfilePage = () => {
       showToast(" Seller profile updated successfully!", "success");
       setIsEditingDetails(false);
     } catch (err) {
-      console.error("❌ Failed to update seller profile:", err);
-      toast.error("❌ Failed to update profile. Try again.");
-    }
+  const errorMessage =
+    (err as any)?.response?.data?.detail?.[0]?.msg ||
+    (err as any)?.response?.data?.msg ||
+    (err as Error)?.message ||
+    "❌ Failed to update profile. Try again.";
+
+  toast.error(errorMessage);
+}
   };
 
   // Handle profile image upload

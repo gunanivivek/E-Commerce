@@ -6,7 +6,7 @@ export interface OrderItem {
   price: number;
   total_price: number;
   status: "pending" | "shipped" | "delivered" | "cancelled";
-  payment_status: "success" | "failed"
+  payment_status: "paid" | "failed"
 }
 
 export interface AllOrder {
