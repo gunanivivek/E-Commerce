@@ -66,10 +66,7 @@ function App() {
             <Route path="/signup" element={<SignUp />} />
             <Route path="/forgotPassword" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route
-              path="/newsletter/unsubscribe"
-              element={<UnsubscribePage />}
-            />
+           
           </Route>
 
           {/* Open Customer Routes (accessible to everyone) */}
@@ -89,6 +86,10 @@ function App() {
             <Route path="privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/help-center" element={<HelpCenter />} />
             <Route path="/returns-refunds" element={<ReturnsAndRefunds />} />
+             <Route
+              path="/newsletter/unsubscribe"
+              element={<UnsubscribePage />}
+            />
           </Route>
 
           {/* Customer private pages */}

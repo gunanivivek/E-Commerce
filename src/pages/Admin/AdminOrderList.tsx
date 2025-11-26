@@ -1,11 +1,5 @@
 import React, { useState, useMemo, useCallback } from "react";
-import {
-  Search,
-  Eye,
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-} from "lucide-react";
+import { Search, Eye, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import {
   useReactTable,
   getCoreRowModel,
@@ -38,40 +32,42 @@ const AdminOrderList: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
-  const handleView = useCallback((id: number) => {
-    const order = orders.find((o) => o.id === id);
-    if (order) {
-      setSelectedOrder(order);
-      setIsModalOpen(true);
-    }
-  }, [orders]);
+  const handleView = useCallback(
+    (id: number) => {
+      const order = orders.find((o) => o.id === id);
+      if (order) {
+        setSelectedOrder(order);
+        setIsModalOpen(true);
+      }
+    },
+    [orders]
+  );
 
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedOrder(null);
   };
 
- const filteredData = useMemo(() => {
-  return orders.filter((o: Order) => {
-    const matchesSearch = o.id.toString().includes(searchTerm.trim());
+  const filteredData = useMemo(() => {
+    return orders.filter((o: Order) => {
+      const matchesSearch = o.id.toString().includes(searchTerm.trim());
 
-    const matchesStatus = statusFilter ? o.status === statusFilter : true;
-    const matchesPayment = paymentStatusFilter
-      ? o.payment_status === paymentStatusFilter
-      : true;
-    const matchesDateFrom = dateFrom ? o.created_at >= dateFrom : true;
-    const matchesDateTo = dateTo ? o.created_at <= dateTo : true;
+      const matchesStatus = statusFilter ? o.status === statusFilter : true;
+      const matchesPayment = paymentStatusFilter
+        ? o.payment_status === paymentStatusFilter
+        : true;
+      const matchesDateFrom = dateFrom ? o.created_at >= dateFrom : true;
+      const matchesDateTo = dateTo ? o.created_at <= dateTo : true;
 
-    return (
-      matchesSearch &&
-      matchesStatus &&
-      matchesPayment &&
-      matchesDateFrom &&
-      matchesDateTo
-    );
-  });
-}, [orders, searchTerm, statusFilter, paymentStatusFilter, dateFrom, dateTo]);
-
+      return (
+        matchesSearch &&
+        matchesStatus &&
+        matchesPayment &&
+        matchesDateFrom &&
+        matchesDateTo
+      );
+    });
+  }, [orders, searchTerm, statusFilter, paymentStatusFilter, dateFrom, dateTo]);
 
   const columns = useMemo(
     () => [
@@ -83,7 +79,7 @@ const AdminOrderList: React.FC = () => {
           </span>
         ),
       }),
-    
+
       columnHelper.accessor("total_amount", {
         header: "Amount",
         cell: (info) => (
@@ -104,7 +100,11 @@ const AdminOrderList: React.FC = () => {
             cancelled: "bg-red-100 text-red-700 border-red-300",
           };
           return (
-            <span className={`px-3 py-1 border rounded-full text-xs font-medium ${map[status] || "bg-gray-100 text-gray-700 border-gray-300"}`}>
+            <span
+              className={`px-3 py-1 border rounded-full text-xs font-medium ${
+                map[status] || "bg-gray-100 text-gray-700 border-gray-300"
+              }`}
+            >
               {status.charAt(0).toUpperCase() + status.slice(1)}
             </span>
           );
@@ -112,9 +112,22 @@ const AdminOrderList: React.FC = () => {
       }),
       columnHelper.accessor("payment_status", {
         header: "Payment",
-        cell: (info) => (
-          <span className="text-primary-400 capitalize">{info.getValue()}</span>
-        ),
+        cell: (info) => 
+          {
+            const status = info.getValue();
+            const map: Record<string, string> = {
+              paid: "bg-green-100 text-green-700 border-green-300",
+           
+              failed: "bg-red-100 text-red-700 border-red-300",
+          };
+          return (
+            <span className={`px-3 py-1 border rounded-full capitalize text-xs font-medium ${
+              map[status] || "bg-yellow-100 text-yellow-700 border-yellow-300"
+            }`}>
+              {info.getValue()}
+            </span>
+          );
+        },
       }),
       columnHelper.accessor("created_at", {
         header: "Date",
@@ -152,7 +165,9 @@ const AdminOrderList: React.FC = () => {
   });
 
   if (error)
-    return <p className="text-center text-red-500 mt-10">Failed to load orders 😕</p>;
+    return (
+      <p className="text-center text-red-500 mt-10">Failed to load orders 😕</p>
+    );
 
   return (
     <>
@@ -170,7 +185,6 @@ const AdminOrderList: React.FC = () => {
 
           {/* Main Card */}
           <div className="bg-white rounded-lg shadow-xl p-3 sm:p-4">
-
             {/* Search + Heading */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 gap-3 sm:gap-0">
               <h2 className="text-primary-400 font-semibold text-base sm:text-lg">
@@ -192,7 +206,9 @@ const AdminOrderList: React.FC = () => {
             {/* Filters */}
             <div className="flex flex-wrap items-end gap-2 mb-4">
               <div className="flex flex-col min-w-[120px]">
-                <label className="text-xs text-primary-300 mb-1">Order Status</label>
+                <label className="text-xs text-primary-300 mb-1">
+                  Order Status
+                </label>
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
@@ -222,7 +238,9 @@ const AdminOrderList: React.FC = () => {
               </div>
 
               <div className="flex flex-col min-w-[130px]">
-                <label className="text-xs text-primary-300 mb-1">From Date</label>
+                <label className="text-xs text-primary-300 mb-1">
+                  From Date
+                </label>
                 <input
                   type="date"
                   value={dateFrom}
@@ -255,7 +273,10 @@ const AdminOrderList: React.FC = () => {
                           onClick={header.column.getToggleSortingHandler()}
                         >
                           <div className="flex items-center">
-                            {flexRender(header.column.columnDef.header, header.getContext())}
+                            {flexRender(
+                              header.column.columnDef.header,
+                              header.getContext()
+                            )}
                             <span className="ml-1 opacity-60">
                               {header.column.getIsSorted() === "asc" ? (
                                 <ArrowUp className="w-3" />
@@ -277,17 +298,29 @@ const AdminOrderList: React.FC = () => {
                     <TableRowSkeleton rows={8} columns={7} />
                   ) : table.getRowModel().rows.length > 0 ? (
                     table.getRowModel().rows.map((row) => (
-                      <tr key={row.id} className="border-b border-primary-400/5 hover:bg-primary-400/5">
+                      <tr
+                        key={row.id}
+                        className="border-b border-primary-400/5 hover:bg-primary-400/5"
+                      >
                         {row.getVisibleCells().map((cell) => (
-                          <td key={cell.id} className="py-2 px-3 text-xs sm:text-sm text-primary-300">
-                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                          <td
+                            key={cell.id}
+                            className="py-2 px-3 text-xs sm:text-sm text-primary-300"
+                          >
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )}
                           </td>
                         ))}
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan={7} className="text-center py-4 text-primary-400/60 text-sm">
+                      <td
+                        colSpan={7}
+                        className="text-center py-4 text-primary-400/60 text-sm"
+                      >
                         No orders found
                       </td>
                     </tr>
@@ -299,7 +332,8 @@ const AdminOrderList: React.FC = () => {
             {/* Pagination */}
             <div className="flex flex-col sm:flex-row items-center justify-between mt-4 border-t border-border pt-2">
               <div className="text-xs sm:text-sm text-primary-400">
-                Page {table.getState().pagination.pageIndex + 1} of {table.getPageCount()}
+                Page {table.getState().pagination.pageIndex + 1} of{" "}
+                {table.getPageCount()}
               </div>
 
               <div className="flex space-x-2">
@@ -320,12 +354,15 @@ const AdminOrderList: React.FC = () => {
                 </button>
               </div>
             </div>
-
           </div>
         </div>
       </div>
 
-      <ViewOrderModal isOpen={isModalOpen} onClose={closeModal} order={selectedOrder} />
+      <ViewOrderModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        order={selectedOrder}
+      />
     </>
   );
 };
