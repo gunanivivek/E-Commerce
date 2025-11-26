@@ -58,9 +58,10 @@ const ProductSkeleton = () => (
 
 const ProductsCard: React.FC = () => {
   const categories = useCategoryStore((state) => state.categories);
+  const filteredCategories = categories.filter((c) => c.name !== "Default");
   const [activeFilter, setActiveFilter] = useState<number | null>(null);
   const [selectedFilters, setSelectedFilters] = useState<FilterShape>({});
-
+  
   // Pagination
   const [page, setPage] = useState(1);
   const pageSize = 12;
@@ -75,7 +76,7 @@ const ProductsCard: React.FC = () => {
       title: "Category",
       options: [
         { label: "All Categories", value: { category: null } },
-        ...categories.map((c) => ({
+        ...filteredCategories.map((c) => ({
           label: c.name,
           value: { category: c.name },
         })),
