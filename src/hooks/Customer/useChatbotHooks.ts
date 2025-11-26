@@ -14,9 +14,6 @@ export const useProductQA = () => {
       question: string;
     }) => qaApi.askProductQuestion(productId, question),
 
-    onSuccess: (data) => {
-      console.log("AI Response:", data.answer);
-    },
     onError: (err: unknown) => {
       if (axios.isAxiosError(err) && err.response?.data?.message) {
         toast.error(String(err.response.data.message));
