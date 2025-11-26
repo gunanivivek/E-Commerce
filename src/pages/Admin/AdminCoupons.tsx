@@ -20,7 +20,6 @@ const SkeletonCard = () => {
     <div className="bg-white rounded-xl border border-primary-400/10 p-4 min-h-[220px] animate-pulse">
       <div className="flex justify-between items-center">
         <div className="h-4 w-24 bg-primary-200/40 rounded"></div>
-       
       </div>
 
       <div className="mt-3 h-3 w-32 bg-primary-200/40 rounded"></div>
@@ -49,7 +48,9 @@ const AdminCoupons: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState<any>(null);
+
   const deleteMutation = useDeleteCoupon();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const { adminCoupons, sellerCoupons, isLoading, isError } = useAdminCoupons();
 
@@ -68,6 +69,15 @@ const AdminCoupons: React.FC = () => {
   const handleEdit = (coupon: any) => {
     setEditingCoupon(coupon);
     setModalOpen(true);
+  };
+
+  const handleDelete = (id: string | number) => {
+    setDeletingId(String(id)); // convert to string
+    deleteMutation.mutate(Number(id), {
+      onSettled: () => {
+        setDeletingId(null);
+      },
+    });
   };
 
   if (isError) {
@@ -97,7 +107,7 @@ const AdminCoupons: React.FC = () => {
               onClick={() =>
                 setViewMode(viewMode === "admin" ? "seller" : "admin")
               }
-              className="flex items-center bg-surface-light border-border-light rounded-full px-3 py-1.5 text-sm font-medium text-primary-300 hover:bg-surface hover:cursor-pointer transition"
+              className="flex cursor-pointer items-center bg-surface-light border-border-light rounded-full px-3 py-1.5 text-sm font-medium text-primary-300 hover:bg-surface  transition"
             >
               {viewMode === "admin"
                 ? "Switch to Seller View"
@@ -129,6 +139,8 @@ const AdminCoupons: React.FC = () => {
             className="pl-9 pr-3 py-1.5 w-full border border-border-light rounded-lg bg-primary-100/30 text-primary-300 focus:outline-none focus:ring-2 focus:ring-border text-sm"
           />
         </div>
+
+        {/* Coupon Cards */}
         {isLoading ? (
           <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {Array.from({ length: 8 }).map((_, i) => (
@@ -160,7 +172,6 @@ const AdminCoupons: React.FC = () => {
                             <Tag className="w-4 h-4" />
                             {coupon.coupon_code}
                           </div>
-                          
                         </h3>
 
                         <p className="text-primary-400/70 text-sm mt-1">
@@ -188,14 +199,14 @@ const AdminCoupons: React.FC = () => {
                         >
                           <Edit className="w-4 h-4" />
                         </button>
+
                         <button
-                            onClick={() => deleteMutation.mutate(coupon.id)}
-                            className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100 hover:cursor-pointer disabled:opacity-50"
-                            title="Delete"
-                            disabled={deleteMutation.isPending}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                          onClick={() => handleDelete(coupon.id)}
+                          disabled={deletingId === String(coupon.id)}
+                          className="p-1.5 bg-red-50 text-red-600 rounded hover:bg-red-100 hover:cursor-pointer disabled:opacity-50"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -204,8 +215,6 @@ const AdminCoupons: React.FC = () => {
             )}
           </div>
         )}
-
-        {/* Coupon Grid */}
       </div>
 
       {/* Modal */}

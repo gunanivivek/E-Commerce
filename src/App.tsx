@@ -48,6 +48,7 @@ import TermsAndConditions from "./pages/Customer/TermsAndConditions";
 import PrivacyPolicy from "./pages/Customer/PrivacyPolicy";
 import HelpCenter from "./pages/Customer/HelpCenter";
 import ReturnsAndRefunds from "./pages/Customer/ReturnsAndRefunds";
+import UnsubscribePage from "./pages/Customer/newsletter-unsubscribe";
 
 // Only call loadStripe when a publishable key is provided to avoid runtime errors
 const stripeKey = import.meta.env.VITE_STRIPE_PUBLIC_KEY as string | undefined;
@@ -65,6 +66,10 @@ function App() {
             <Route path="/signup" element={<SignUp />} />
             <Route path="/forgotPassword" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
+            <Route
+              path="/newsletter/unsubscribe"
+              element={<UnsubscribePage />}
+            />
           </Route>
 
           {/* Open Customer Routes (accessible to everyone) */}

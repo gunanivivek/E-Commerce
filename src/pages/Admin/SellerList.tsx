@@ -2,7 +2,6 @@ import React, { useState, useMemo, useCallback, useEffect } from "react";
 import {
   Check,
   X,
- 
   Ban,
   Unlock,
   Search,
@@ -38,11 +37,13 @@ const SellerList: React.FC = () => {
   const [blockFilter, setBlockFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
-  const { approveSeller, rejectSeller,toggleBlockSeller } = useSellerActions();
+  const { approveSeller, rejectSeller, toggleBlockSeller, mutatingId } =
+    useSellerActions();
+
   const [selectedSeller, setSelectedSeller] = useState<Seller | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-   useEffect(() => {
+  useEffect(() => {
     if (approveSeller.isSuccess || rejectSeller.isSuccess) {
       setIsModalOpen(false);
       setSelectedSeller(null);
@@ -50,44 +51,41 @@ const SellerList: React.FC = () => {
       rejectSeller.reset();
     }
   }, [approveSeller, rejectSeller]);
- 
+
   const handleApprove = useCallback(
     (id: number) => {
-      approveSeller.mutate(id); // 
+      approveSeller.mutate(id);
     },
     [approveSeller]
   );
 
+  useEffect(() => {
+    if (!selectedSeller) return;
+
+    const updated = sellers.find((s) => s.id === selectedSeller.id);
+    if (updated) setSelectedSeller(updated);
+  }, [sellers]);
+
   const handleReject = useCallback(
     (id: number) => {
-      rejectSeller.mutate(id); // 
+      rejectSeller.mutate(id);
     },
     [rejectSeller]
   );
-const handleBlockToggle = useCallback(
-  (id: number) => {
-    toggleBlockSeller.mutate(id);
-  },
-  [toggleBlockSeller]
-);
 
+  const handleBlockToggle = useCallback(
+    (id: number) => {
+      toggleBlockSeller.mutate(id);
+    },
+    [toggleBlockSeller]
+  );
 
-  const handleEdit = useCallback((id: number) => {
-    console.log("Edit seller:", id);
-  }, []);
-
-  // const handleDelete = useCallback(
-  //   (id: number) => {
-  //     setSellers((prev) => prev.filter((s) => s.id !== id));
-  //   },
-  //   [setSellers]
-  // );
   const handleView = (seller: Seller) => {
     setSelectedSeller(seller);
     setIsModalOpen(true);
   };
 
-
+  // ----------------- FILTER LOGIC -----------------
   const filteredData = useMemo(() => {
     let filtered = sellers.filter(
       (s) =>
@@ -116,7 +114,7 @@ const handleBlockToggle = useCallback(
     return filtered;
   }, [sellers, searchTerm, statusFilter, blockFilter, dateFrom, dateTo]);
 
-  // --- TABLE COLUMNS ---
+  // ----------------- TABLE COLUMNS -----------------
   const columns = useMemo(
     () => [
       columnHelper.display({
@@ -137,6 +135,7 @@ const handleBlockToggle = useCallback(
           );
         },
       }),
+
       columnHelper.accessor("store_name", {
         header: "Store Name",
         cell: (info) => (
@@ -145,24 +144,28 @@ const handleBlockToggle = useCallback(
           </span>
         ),
       }),
+
       columnHelper.accessor("full_name", {
         header: "Full Name",
         cell: (info) => (
           <span className="text-primary-400">{info.getValue()}</span>
         ),
       }),
+
       columnHelper.accessor("email", {
         header: "Email",
         cell: (info) => (
           <span className="text-primary-400">{info.getValue()}</span>
         ),
       }),
+
       columnHelper.accessor("phone", {
         header: "Phone",
         cell: (info) => (
           <span className="text-primary-400">{info.getValue() || "—"}</span>
         ),
       }),
+
       columnHelper.accessor("created_at", {
         header: "Join Date",
         cell: (info) => (
@@ -171,6 +174,7 @@ const handleBlockToggle = useCallback(
           </span>
         ),
       }),
+
       columnHelper.accessor("is_active", {
         header: "Status",
         cell: (info) => {
@@ -188,6 +192,7 @@ const handleBlockToggle = useCallback(
           );
         },
       }),
+
       columnHelper.accessor("is_blocked", {
         header: "Blocked",
         cell: (info) => {
@@ -205,32 +210,37 @@ const handleBlockToggle = useCallback(
           );
         },
       }),
+
+      // ---------------- ACTIONS COLUMN -----------------
       columnHelper.display({
         id: "actions",
         header: "Actions",
         cell: ({ row }: { row: Row<Seller> }) => {
           const seller = row.original;
+
           return (
             <div className="flex gap-1">
               {!seller.is_active ? (
                 <>
                   <button
                     onClick={() => handleApprove(seller.id)}
-                    className="p-1.5 bg-green-50 text-green-600 hover:bg-green-100 rounded"
+                    className="p-1.5 cursor-pointer bg-green-50 text-green-600 hover:bg-green-100 rounded"
                     title="Approve"
                   >
                     <Check className="w-3.5 h-3.5" />
                   </button>
+
                   <button
                     onClick={() => handleReject(seller.id)}
-                    className="p-1.5 bg-red-50 text-red-600 hover:bg-red-100 rounded"
+                    className="p-1.5 cursor-pointer bg-red-50 text-red-600 hover:bg-red-100 rounded"
                     title="Reject"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
-                   <button
+
+                  <button
                     onClick={() => handleView(seller)}
-                    className="p-1.5 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded"
+                    className="p-1.5 cursor-pointer bg-blue-50 text-blue-600 hover:bg-blue-100 rounded"
                     title="View"
                   >
                     <Eye className="w-3.5 h-3.5" />
@@ -238,29 +248,37 @@ const handleBlockToggle = useCallback(
                 </>
               ) : (
                 <>
-                 
-                     <button
+                  {/* ---------- VIEW BUTTON ---------- */}
+                  <button
                     onClick={() => handleView(seller)}
-                    className="p-1.5 bg-blue-50 text-blue-600 hover:cursor-pointer hover:bg-blue-100 rounded"
+                    className="p-1.5 cursor-pointer bg-blue-50 text-blue-600 hover:bg-blue-100 rounded"
                     title="View"
                   >
                     <Eye className="w-3.5 h-3.5" />
                   </button>
-                  <button
-                    onClick={() => handleBlockToggle(seller.id)}
-                    className={`p-1.5 ${
-                      seller.is_blocked
-                        ? "bg-green-50 text-green-600 hover:cursor-pointer hover:bg-green-100"
-                        : "bg-yellow-50 text-yellow-600 hover:cursor-pointer hover:bg-yellow-100"
-                    } rounded`}
-                    title={seller.is_blocked ? "Unblock" : "Block"}
-                  >
-                    {seller.is_blocked ? (
-                      <Unlock className="w-3.5 h-3.5" />
-                    ) : (
-                      <Ban className="w-3.5 h-3.5" />
-                    )}
-                  </button>
+
+                  {/* ---------- BLOCK / UNBLOCK LOADER ---------- */}
+                  {mutatingId === seller.id ? (
+                    <div className="p-1.5 flex items-center justify-center">
+                      <span className="w-3 h-3 animate-spin border border-primary-400 rounded-full border-t-transparent"></span>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => handleBlockToggle(seller.id)}
+                      className={`p-1.5 cursor-pointer ${
+                        seller.is_blocked
+                          ? "bg-green-50 text-green-600 hover:bg-green-100"
+                          : "bg-yellow-50 text-yellow-600 hover:bg-yellow-100"
+                      } rounded`}
+                      title={seller.is_blocked ? "Unblock" : "Block"}
+                    >
+                      {seller.is_blocked ? (
+                        <Unlock className="w-3.5 h-3.5" />
+                      ) : (
+                        <Ban className="w-3.5 h-3.5" />
+                      )}
+                    </button>
+                  )}
                 </>
               )}
             </div>
@@ -268,7 +286,7 @@ const handleBlockToggle = useCallback(
         },
       }),
     ],
-    [handleApprove, handleReject, handleEdit, handleBlockToggle]
+    [handleApprove, handleReject, handleBlockToggle, mutatingId]
   );
 
   const table = useReactTable({
@@ -298,6 +316,7 @@ const handleBlockToggle = useCallback(
             <h2 className="text-primary-400 font-semibold text-base sm:text-lg">
               All Sellers
             </h2>
+
             <div className="relative w-full sm:w-80">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-primary-300 w-4 h-4" />
               <input
@@ -312,12 +331,12 @@ const handleBlockToggle = useCallback(
 
           {/* Filters */}
           <div className="flex flex-wrap items-end gap-2 mb-4">
-            <div className="flex flex-col min-w-[120px] ">
-              <label className="text-xs text-primary-300 mb-1 ">Status</label>
+            <div className="flex flex-col min-w-[120px]">
+              <label className="text-xs text-primary-300 mb-1">Status</label>
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+                className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-400"
               >
                 <option value="">All</option>
                 <option value="active">Active</option>
@@ -332,7 +351,7 @@ const handleBlockToggle = useCallback(
               <select
                 value={blockFilter}
                 onChange={(e) => setBlockFilter(e.target.value)}
-                className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+                className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-400"
               >
                 <option value="">All</option>
                 <option value="blocked">Blocked</option>
@@ -346,7 +365,7 @@ const handleBlockToggle = useCallback(
                 type="date"
                 value={dateFrom}
                 onChange={(e) => setDateFrom(e.target.value)}
-                className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+                className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-400"
               />
             </div>
 
@@ -356,7 +375,7 @@ const handleBlockToggle = useCallback(
                 type="date"
                 value={dateTo}
                 onChange={(e) => setDateTo(e.target.value)}
-                className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400"
+                className="border cursor-pointer border-border-light rounded-lg bg-primary-100/30 text-primary-300 px-2 py-1 text-sm focus:ring-primary-400"
               />
             </div>
           </div>
@@ -446,18 +465,20 @@ const handleBlockToggle = useCallback(
               Page {table.getState().pagination.pageIndex + 1} of{" "}
               {table.getPageCount()}
             </div>
+
             <div className="flex space-x-2">
               <button
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
-                className="px-3 py-1 border border-primary-400/20 text-xs text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50"
+                className="px-3 cursor-pointer py-1 border border-primary-400/20 text-xs text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50"
               >
                 Previous
               </button>
+
               <button
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
-                className="px-3 py-1 border border-primary-400/20 text-xs text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50"
+                className="px-3 cursor-pointer py-1 border border-primary-400/20 text-xs text-primary-400 rounded-lg hover:bg-primary-400/10 disabled:opacity-50"
               >
                 Next
               </button>
@@ -465,6 +486,7 @@ const handleBlockToggle = useCallback(
           </div>
         </div>
       </div>
+
       {selectedSeller && (
         <ViewSellerModal
           isOpen={isModalOpen}

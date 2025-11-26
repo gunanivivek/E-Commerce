@@ -266,13 +266,13 @@ const ViewProductModal: React.FC<ViewProductModalProps> = ({
             <div className="p-6 border-t border-primary-border/50 bg-primary-50/50 flex justify-end gap-3">
               <button
                 onClick={() => onReject?.(product.id)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg border border-red-300 bg-red-100 text-red-700 hover:bg-red-200 transition-colors font-medium text-sm"
+                className="flex cursor-pointer items-center gap-2 px-4 py-2 rounded-lg border border-red-300 bg-red-100 text-red-700 hover:bg-red-200 transition-colors font-medium text-sm"
               >
                 Reject
               </button>
               <button
                 onClick={() => onApprove?.(product.id)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-400 hover:bg-primary-300 text-white shadow-sm transition-all font-medium text-sm"
+                className="flex cursor-pointer items-center gap-2 px-4 py-2 rounded-lg bg-primary-400 hover:bg-primary-300 text-white shadow-sm transition-all font-medium text-sm"
               >
                 Approve
               </button>

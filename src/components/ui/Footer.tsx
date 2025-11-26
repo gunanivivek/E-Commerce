@@ -1,12 +1,37 @@
 import { Link } from "react-router-dom";
-import { Mail } from "lucide-react";
+import { Mail, Loader2, CheckCircle2 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { useMutation } from "@tanstack/react-query";
+import { subscribeNewsletter } from "../../api/newsletterApi"; // <-- your API
+import { useState } from "react";
 
 const Footer = () => {
-  // const navigate = useNavigate()
+  const [success, setSuccess] = useState(false);
+
+  // React Hook Form
+  const { register, handleSubmit, reset } = useForm<{ email: string }>({
+    defaultValues: { email: "" },
+  });
+
+  // React Query Mutation
+  const mutation = useMutation({
+    mutationFn: subscribeNewsletter,
+    onSuccess: () => {
+      setSuccess(true);
+      reset();
+      setTimeout(() => setSuccess(false), 2000);
+    },
+  });
+
+  const onSubmit = (data: { email: string }) => {
+    mutation.mutate({ email: data.email });
+  };
+
   return (
     <footer className="bg-[var(--color-surface)] text-[var(--color-text-secondary)] border-t border-[var(--color-border-light)]">
       <div className="max-w-7xl mx-auto px-6 md:px-24 md:py-16 py-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-5">
+
           {/* Brand */}
           <div>
             <div className="flex items-center space-x-2 mb-4">
@@ -18,18 +43,6 @@ const Footer = () => {
               Your trusted destination for premium products at unbeatable
               prices.
             </p>
-            {/* <div className="flex gap-4">
-              {[Facebook, Twitter, Instagram].map((Icon, i) => (
-                <button
-                  key={i}
-                  onClick={() => navigate("/")}
-                  disabled
-                  className="p-2 rounded-full hover:cursor-pointer  hover:bg-surface transition-all duration-200"
-                >
-                  <Icon className="h-4 w-4 text-[var(--color-text-primary)]" />
-                </button>
-              ))}
-            </div> */}
           </div>
 
           {/* Shop */}
@@ -86,16 +99,39 @@ const Footer = () => {
             <p className="text-[var(--color-text-secondary)] text-base mb-4">
               Subscribe for special offers & updates.
             </p>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="Your email"
-                className="bg-[var(--color-surface-light)] text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] border border-[var(--color-border)] rounded-md p-2 focus:ring-2 focus:ring-[var(--color-accent)] outline-none"
-              />
-              <button className="p-2 rounded-md bg-primary-100 border border-accent-darker text-accent-darker hover:cursor-pointer hover:opacity-90 transition-all">
-                <Mail className="h-5 w-5" />
-              </button>
-            </div>
+
+            {/* FORM */}
+            <form onSubmit={handleSubmit(onSubmit)}>
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  placeholder="Your email"
+                  {...register("email", { required: true })}
+                  className="bg-[var(--color-surface-light)] text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] border border-[var(--color-border)] rounded-md p-2 focus:ring-2 focus:ring-[var(--color-accent)] outline-none"
+                />
+
+                <button
+                  type="submit"
+                  disabled={mutation.isPending}
+                  className="p-2 rounded-md bg-primary-100 border border-accent-darker text-accent-darker hover:cursor-pointer hover:opacity-90 transition-all flex items-center justify-center w-10"
+                >
+                  {/* Loader */}
+                  {mutation.isPending && (
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                  )}
+
+                  {/* Success checkmark */}
+                  {success && !mutation.isPending && (
+                    <CheckCircle2 className="h-5 w-5 text-green-600" />
+                  )}
+
+                  {/* Default icon */}
+                  {!mutation.isPending && !success && (
+                    <Mail className="h-5 w-5" />
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
 
