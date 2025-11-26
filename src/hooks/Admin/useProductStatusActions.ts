@@ -43,6 +43,7 @@ export const useProductStatusActions = () => {
 
     
       await queryClient.invalidateQueries({ queryKey: ["admin-products"] });
+      await queryClient.invalidateQueries({queryKey: ["products"]});
     },
 
     onError: (error: AxiosError<{ detail?: string }>, _variables, context) => {
