@@ -14,11 +14,12 @@ import {
 import type { Product } from "../../store/useProductStore";
 import { useAuthStore } from "../../store/authStore";
 import { Link } from "react-router-dom";
+import { Trash } from "lucide-react";
 
 const WishlistCard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { data: wishlistItems = [] } = useGetWishlist();
+  const { data: wishlistItems = [] } = useGetWishlist(true);
   const removeWishlistMutation = useRemoveWishlist();
   const clearWishlistMutation = useClearWishlist();
   const { data: cartData } = useCart(true); // gives you cart items and totals
@@ -84,7 +85,7 @@ const WishlistCard: React.FC = () => {
               e.stopPropagation();
               setShowClearConfirm(true);
             }}
-            className="px-3 cursor-pointer py-2 text-accent-dark rounded-md border border-accent text-sm hover:bg-accent hover:text-white "
+            className="px-3 cursor-pointer py-2 text-accent-dark rounded-md border border-accent text-sm hover:bg-accent hover:text-primary-100 "
           >
             Clear Wishlist
           </button>
@@ -272,9 +273,9 @@ const WishlistCard: React.FC = () => {
                     setRemoveTarget(product.id);
                     setShowRemoveConfirm(true);
                   }}
-                  className="ml-2 p-2 border cursor-pointer rounded-lg transition-all duration-150 border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-black"
+                  className="ml-2 p-2 border cursor-pointer rounded-lg transition-all duration-150 border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-accent hover:text-primary-100"
                 >
-                  🗑️
+                  <Trash />
                 </button>
               </div>
             </div>

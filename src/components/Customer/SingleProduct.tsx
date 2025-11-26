@@ -23,7 +23,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const user = useAuthStore((s) => s.user);
-  const { data: wishlistData } = useGetWishlist();
+  const { data: wishlistData } = useGetWishlist(true);
   const { data: cartData } = useCart(true);
   const removeMutation = useRemoveFromCart();
   const updateMutation = useUpdateCart();
@@ -63,7 +63,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     });
   };
 
-  const inWishlist = isProductInWishlist(product.id, wishlistData);
+  const inWishlist = user && isProductInWishlist(product.id, wishlistData);
   const stock = Number(product.stock ?? NaN);
   const inCart = user && cartData?.items.find((c) => c.product_id === product.id);
 
