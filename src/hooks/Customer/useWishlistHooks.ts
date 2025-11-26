@@ -6,12 +6,16 @@ import type {
   RemoveWishlistRequest,
 
 } from "../../types/wishlist";
-import { toast } from "react-toastify";
+import { showToast } from "../../components/toastManager";
+import { useAuthStore } from "../../store/authStore";
 
-export function useGetWishlist() {
+export function useGetWishlist(enabled: boolean) {
+   const user = useAuthStore((state) => state.user);
+
   return useQuery({
     queryKey: ["wishlist"],
     queryFn: wishlistApi.getWishlist,
+    enabled: enabled && !!user,
   });
 }
 
@@ -19,9 +23,9 @@ export function useAddWishlist() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (body: AddWishlistRequest) => wishlistApi.addToWishlist(body),
-    onSuccess: () => {
+    onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["wishlist"] });
-      toast.success("Added to wishlist");
+      showToast(data.message || "Item added to wishlist", "success");
     },
   });
 }
@@ -31,9 +35,9 @@ export function useRemoveWishlist() {
   return useMutation({
     mutationFn: ({ product_id }: RemoveWishlistRequest) =>
       wishlistApi.removeFromWishlist(product_id),
-    onSuccess: () => {
+    onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["wishlist"] });
-      toast.success("Removed from wishlist");
+      showToast(data.message || "Item removed from wishlist", "success");
     },
   });
 }
@@ -42,9 +46,9 @@ export function useClearWishlist() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: wishlistApi.clearWishlist,
-    onSuccess: () => {
+    onSuccess: (data) => {
       qc.invalidateQueries({ queryKey: ["wishlist"] });
-      toast.success("Wishlist cleared");
+      showToast(data.message || "Wishlist cleared", "success");
     },
   });
 }
