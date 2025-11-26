@@ -48,7 +48,7 @@ const ProductDescription: React.FC = () => {
   });
 
   // wishlist hook (mutations mirror cart hooks)
-  const { data: wishlistData } = useGetWishlist();
+  const { data: wishlistData } = useGetWishlist(true);
   const addWishlistMutation = useAddWishlist();
   const removeWishlistMutation = useRemoveWishlist();
   const { data: cartData } = useCart(true); // gives you cart items and totals

@@ -12,6 +12,7 @@ import { useState } from "react";
 import { useAuthStore } from "../../store/authStore";
 import { toast } from "react-toastify";
 import { useCart } from "../../hooks/Customer/useCartHooks";
+import { useGetWishlist } from "../../hooks/Customer/useWishlistHooks";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -38,14 +39,22 @@ const Header = () => {
     setIsMobileMenuOpen(false);
   };
 
-   const handleNavigationCart = (path: string) => {
+  const handleNavigationCart = (path: string) => {
     refetchCart(); // fetch the latest cart items
     navigate(path); // navigate to the cart page
   };
 
-    const { refetch: refetchCart, data: cartData } = useCart(false);
+  const { refetch: refetchCart, data: cartData } = useCart(false);
 
-     const cartCount = cartData?.items?.length ?? 0;
+  const cartCount = cartData?.items?.length ?? 0;
+
+  const handleNavigationWishlist = (path: string) => {
+    refetchWishlist(); 
+    navigate(path); 
+  };
+
+  const { refetch: refetchWishlist } =
+    useGetWishlist(false);
 
   return (
     <>
@@ -127,7 +136,7 @@ const Header = () => {
               <>
                 {/* Wishlist */}
                 <button
-                  onClick={() => handleNavigation("/wishlist")}
+                  onClick={() => handleNavigationWishlist("/wishlist")}
                   className="zp-2 hover:cursor-pointer text-accent-dark hover:text-light"
                   aria-label="Wishlist"
                 >
@@ -163,9 +172,8 @@ const Header = () => {
                 className="flex text-sm bg-accent-light/40 rounded-xl px-4 py-2 justify-center flex-row items-center gap-1  hover:cursor-pointer text-accent-dark hover:text-accent-darker"
                 aria-label="Login"
               >
-                <span className="font-semibold">Login</span> 
+                <span className="font-semibold">Login</span>
                 <LogIn className="h-5 w-5" />
-               
               </button>
             )}
           </div>
