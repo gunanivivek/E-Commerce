@@ -20,8 +20,8 @@ export const useCart = (enabled: boolean) => {
   return useQuery<CartResponse>({
     queryKey: ["cart"],
     queryFn: async () => {
-       if (!user) {
-        throw new Error("Please login to add items in the cart")
+      if (!user) {
+        throw new Error("Please login to add items in the cart");
       }
       const data = await cartApi.getCart();
 
@@ -31,6 +31,7 @@ export const useCart = (enabled: boolean) => {
         discount: Number(data.discount ?? 0),
         total: Number(data.total ?? 0),
         coupon: data.coupon ?? null,
+        message: data.message,
       };
     },
     enabled,
@@ -45,7 +46,7 @@ export const useAddToCart = () => {
   return useMutation<AddToCartResponse, Error, AddToCartRequest>({
     mutationFn: async (payload) => {
       if (!user) {
-        throw new Error("Please login to add items in the cart")
+        throw new Error("Please login to add items in the cart");
       }
       return await cartApi.addToCart(payload);
     },
@@ -70,7 +71,7 @@ export const useUpdateCart = () => {
   >({
     mutationFn: async (payload) => {
       if (!user) {
-        throw new Error("Please login to update items in the cart")
+        throw new Error("Please login to update items in the cart");
       }
       return await cartApi.updateCartQuantity(payload);
     },
@@ -123,7 +124,11 @@ export const useApplyCoupon = () => {
     mutationFn: (code: string) => cartApi.applyCoupon(code),
 
     onSuccess: (updatedCart) => {
-      showToast("Coupon applied successfully!", "success");
+      if (updatedCart.message === null) {
+        showToast("Coupon applied successfully", "success");
+      } else {
+        showToast(updatedCart.message, "error");
+      }
 
       // Replace cart data directly for fast UI update
       queryClient.setQueryData(["cart"], updatedCart);
