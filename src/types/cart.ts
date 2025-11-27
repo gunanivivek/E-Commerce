@@ -17,6 +17,7 @@ export interface CartResponse {
   discount: number;
   total: number;
   coupon: string | null;
+  message: string | null;
 }
 
 // ---------------------- Add to Cart ----------------------
