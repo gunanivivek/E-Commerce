@@ -4,7 +4,7 @@ import { X, Image as ImageIcon, Upload } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { useCreateCategory, useUpdateCategory } from "../../hooks/useCategoryActions";
 import type { Category, CreateCategoryRequest } from "../../types/category";
-import { toast } from "react-toastify";
+import { showToast } from "../toastManager";
 
 interface CategoryModalProps {
   isOpen: boolean;
@@ -89,7 +89,7 @@ const CategoryModal: React.FC<CategoryModalProps> = ({
 
       //  If no changes, show info toast and close
       if ([...formData.keys()].length === 0) {
-        toast.info("No changes detected ✨");
+        showToast("No changes detected", "info");
         onClose();
         return;
       }
