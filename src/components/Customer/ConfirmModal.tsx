@@ -26,7 +26,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   if (!isOpen) return null;
 
   const confirmClass = danger
-    ? "bg-[var(--color-accent-light)] hover:bg-[var(--color-accent-darker)] text-[var(--color-white)]"
+    ? "bg-accent hover:bg-accent-darker text-primary-100"
     : "bg-[var(--color-accent)] hover:bg-[var(--color-accent-dark)] text-[var(--color-text-dark)]";
 
   return ReactDOM.createPortal(
@@ -34,20 +34,20 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
       <div className="bg-[var(--color-white)] rounded-2xl shadow-xl w-[90%] max-w-md p-6 relative" style={{ fontFamily: "var(--font-body)" }}>
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 text-[var(--color-text-muted)] hover:text-[var(--color-text-dark)] transition"
+          className="cursor-pointer absolute top-3 right-3 text-[var(--color-text-muted)] hover:text-[var(--color-text-dark)] transition"
           aria-label="close"
         >
           <X size={20} />
         </button>
 
-        <h2 className="text-lg font-semibold text-[var(--color-text-dark)] mb-2" style={{ fontFamily: "var(--font-heading)" }}>{title}</h2>
+        <h2 className="text-lg font-semibold text-accent-dark mb-2" style={{ fontFamily: "var(--font-heading)" }}>{title}</h2>
 
         <div className="text-sm text-[var(--color-text-muted)] mb-6">{message}</div>
 
         <div className="flex justify-between gap-3">
           <button
             onClick={onClose}
-            className="flex-1 border border-[var(--color-border-orange)] text-[var(--color-text-orange)] font-medium py-2 rounded-lg hover:bg-[var(--color-accent-darker)] hover:text-[var(--color-white)] transition"
+            className="cursor-pointer flex-1 border border-accent text-accent font-medium py-2 rounded-lg hover:bg-accent-darker hover:text-primary-100 transition"
           >
             {cancelText}
           </button>
@@ -55,7 +55,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
             onClick={() => {
               onConfirm();
             }}
-            className={`flex-1 font-medium py-2 rounded-lg transition ${confirmClass}`}
+            className={`cursor-pointer flex-1 font-medium py-2 rounded-lg transition ${confirmClass}`}
           >
             {confirmText}
           </button>

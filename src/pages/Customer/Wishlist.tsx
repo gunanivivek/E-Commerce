@@ -13,20 +13,20 @@ const WishlistPage: React.FC = () => {
         <nav className="flex items-center gap-2 justify-center">
           <Link
             to="/"
-            className="text-[var(--color-text-dark)] hover:text-[var(--color-accent)] transition"
+            className="text-black hover:text-[var(--color-accent)] transition"
           >
             Home
           </Link>
           <span>/</span>
           <Link
             to="/products"
-            className="text-[var(--color-text-dark)] hover:text-[var(--color-accent)] transition"
+            className="text-black hover:text-[var(--color-accent)] transition"
           >
             Products
           </Link>
           <span>/</span>
           <a
-            className="text-[var(--color-accent)]"
+            className="text-accent"
           >
             Wishlist
           </a>

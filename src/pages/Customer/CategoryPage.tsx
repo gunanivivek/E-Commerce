@@ -165,7 +165,7 @@ const CategoryPage: React.FC = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-3xl md:text-4xl text-white font-extrabold font-logo "
+            className="text-3xl md:text-4xl text-accent-light font-extrabold font-logo "
           >
             Explore{" "}
             <span className="bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-dark)] bg-clip-text text-accent-darker capitalize">
@@ -261,7 +261,7 @@ const CategoryPage: React.FC = () => {
                             setActiveFilter(null);
                             setPage(1); // reset page on filter change
                           }}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                          className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 cursor-pointer"
                         >
                           {option}
                         </button>

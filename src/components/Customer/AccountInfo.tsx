@@ -116,7 +116,7 @@ const AccountInfo = () => {
           <button
             type="button"
             onClick={() => setIsEditingImage(true)}
-            className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50 cursor-pointer transition-all"
+            className="px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50 text-accent cursor-pointer transition-all"
           >
             Change Image
           </button>
@@ -125,11 +125,7 @@ const AccountInfo = () => {
             <button
               type="button"
               onClick={handleAddProfileClick}
-              className="cursor-pointer px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
-              style={{
-                backgroundColor: "var(--color-accent)",
-                color: "black",
-              }}
+              className="cursor-pointer px-4 py-2 rounded-lg text-sm font-medium bg-accent-dark text-primary-100 transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5"
             >
               Choose Image
             </button>
@@ -143,7 +139,7 @@ const AccountInfo = () => {
             <button
               type="button"
               onClick={() => setIsEditingImage(false)}
-              className="cursor-pointer px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium hover:bg-gray-50 transition-all"
+              className="cursor-pointer px-4 py-2 rounded-lg border border-gray-300 text-sm font-medium text-accent hover:bg-gray-50 transition-all"
             >
               Cancel
             </button>
@@ -206,10 +202,7 @@ const AccountInfo = () => {
             <button
               onClick={handleSave}
               disabled={isUpdating}
-              className="cursor-pointer px-6 py-3 text-white font-semibold rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
-              style={{
-                backgroundColor: "var(--color-accent)",
-              }}
+              className="cursor-pointer px-6 py-3 text-primary-100 bg-accent-dark font-semibold rounded-lg transition-all duration-150 shadow-sm hover:shadow-md transform hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isUpdating ? "Saving..." : "Save Changes"}
             </button>

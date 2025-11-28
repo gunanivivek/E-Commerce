@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { MapPin, CreditCard, ShoppingBag, CheckCircle2 } from "lucide-react";
+import {
+  MapPin,
+  CreditCard,
+  ShoppingBag,
+  CheckCircle2,
+  MapPinPlus,
+} from "lucide-react";
 import Header from "../../components/ui/Header";
 import Footer from "../../components/ui/Footer";
 import { useAddresses } from "../../hooks/useAddresses";
 import { useAddressStore } from "../../store/addressStore";
-import {
-  useCart,
-} from "../../hooks/Customer/useCartHooks";
+import { useCart } from "../../hooks/Customer/useCartHooks";
 
 import CardPaymentModal from "../../components/Customer/PaymentModal";
 
@@ -96,26 +100,26 @@ const Checkout: React.FC = () => {
   return (
     <>
       <Header />
-
-      <div className="py-3 px-4 sm:px-6 md:px-20 border-b border-primary-200">
-        <nav className="flex items-center gap-2 justify-center text-sm flex-wrap">
+      {/* Breadcrumb */}
+      <div className="px-6 md:px-20 my-5 bg-[var(--color-primary-50)] text-md">
+        <nav className="flex items-center gap-2 justify-center">
           <Link
             to="/"
-            className="text-[var(--color-text-dark)] hover:text-[var(--color-primary-400)] transition-colors"
+            className="text-black hover:text-[var(--color-primary-400)] transition-colors"
           >
             Home
           </Link>
           <span className="text-[var(--color-text-muted)]">/</span>
           <Link
             to="/products"
-            className="text-[var(--color-text-dark)] hover:text-[var(--color-primary-400)] transition-colors"
+            className="text-black hover:text-[var(--color-primary-400)] transition-colors"
           >
             Products
           </Link>
           <span className="text-[var(--color-text-muted)]">/</span>
           <Link
             to="/cart"
-            className="text-[var(--color-text-dark)] hover:text-[var(--color-primary-400)] transition-colors"
+            className="text-black hover:text-[var(--color-primary-400)] transition-colors"
           >
             Cart
           </Link>
@@ -126,8 +130,9 @@ const Checkout: React.FC = () => {
         </nav>
       </div>
 
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-primary-50 py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl">
+      {/* Main section */}
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-3 sm:px-6 md:px-14 lg:px-20">
+        <div className="mx-auto max-w-[90rem]">
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Left Column - Address & Items */}
             <div className="lg:col-span-2 space-y-6">
@@ -165,9 +170,12 @@ const Checkout: React.FC = () => {
                           No saved addresses found
                         </p>
                         <Link
-                          to="/profile"
-                          className="text-primary-400 font-medium hover:underline"
+                          to="/profile/address"
+                          className="text-primary-400 font-medium hover:underline justify-center flex items-center gap-2"
                         >
+                          <div className="w-7 h-7 bg-primary-400 rounded-full flex items-center justify-center">
+                            <MapPinPlus className="w-5 h-5 text-white" />
+                          </div>
                           Add an address in your profile
                         </Link>
                       </div>
@@ -175,7 +183,7 @@ const Checkout: React.FC = () => {
                   ) : (
                     <>
                       {/* Existing Address Cards — NO DESIGN CHANGE */}
-                      <div className="grid md:grid-cols-2 gap-4">
+                      <div className="grid md:grid-cols-2 gap-4 items-center">
                         {addresses.map((address) => (
                           <label
                             key={address.id}
@@ -226,6 +234,15 @@ const Checkout: React.FC = () => {
                             )}
                           </label>
                         ))}
+                        <Link
+                          to="/profile/address"
+                          className="text-primary-400 font-medium hover:underline justify-center flex items-center gap-2"
+                        >
+                          <div className="w-7 h-7 bg-primary-400 rounded-full flex items-center justify-center">
+                            <MapPinPlus className="w-5 h-5 text-white" />
+                          </div>
+                          Add other address in your profile
+                        </Link>
                       </div>
                     </>
                   )}
