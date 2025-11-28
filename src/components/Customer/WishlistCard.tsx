@@ -17,10 +17,25 @@ import { useAuthStore } from "../../store/authStore";
 import { Link } from "react-router-dom";
 import { Trash, Star } from "lucide-react";
 
+const ProductSkeleton = () => (
+  <div className="bg-white rounded-lg shadow-md p-4 flex flex-col animate-pulse">
+    <div className="h-40 bg-gray-200 rounded-md mb-3"></div>
+    <div className="h-5 bg-gray-200 rounded-md mb-2 w-3/4"></div>
+    <div className="h-4 bg-gray-200 rounded-md mb-2 w-full"></div>
+    <div className="h-4 bg-gray-200 rounded-md mb-3 w-2/3"></div>
+    <div className="h-6 bg-gray-200 rounded-md w-1/2 mb-4"></div>
+    <div className="flex gap-2 mt-auto">
+      <div className="h-9 flex-1 bg-gray-200 rounded-md"></div>
+      <div className="h-9 w-9 bg-gray-200 rounded-md"></div>
+    </div>
+  </div>
+);
+
 const WishlistCard: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { data: wishlistItems = [] } = useGetWishlist(true);
+  const { data: wishlistItems = [], isLoading: wishlistLoading } =
+    useGetWishlist(true);
   const removeWishlistMutation = useRemoveWishlist();
   const clearWishlistMutation = useClearWishlist();
   const { data: cartData } = useCart(true); // gives you cart items and totals
@@ -52,7 +67,20 @@ const WishlistCard: React.FC = () => {
       )
   );
 
-  if (!filteredWishlist || filteredWishlist.length === 0) {
+  if (wishlistLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6">
+        {Array.from({ length: 12 }).map((_, i) => (
+          <ProductSkeleton key={i} />
+        ))}
+      </div>
+    );
+  }
+
+  if (
+    !wishlistLoading &&
+    (!filteredWishlist || filteredWishlist.length === 0)
+  ) {
     return (
       <div className="min-h-screen flex items-center justify-center flex-col text-center">
         <h1 className="text-4xl font-bold mb-4 text-[var(--color-primary-400)]">
