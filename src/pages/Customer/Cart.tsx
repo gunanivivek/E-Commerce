@@ -85,7 +85,6 @@ const Cart: React.FC = () => {
       ?.concat(coupons?.sellerCoupons || [])
       ?.map((c: any) => c.coupon_code) || [];
 
-
   const cartItems = cartData?.items ?? [];
   const subtotal = cartData?.subtotal ?? 0;
   const discount = cartData?.discount ?? 0;
@@ -119,25 +118,26 @@ const Cart: React.FC = () => {
       <>
         <Header />
         {/* Breadcrumb */}
-        <div className="px-6 md:px-20 mt-10 mb-5 bg-[var(--color-primary-50)] text-md">
+        <div className="px-6 md:px-20 mt-5 mb-5 bg-[var(--color-primary-50)] text-md">
           <nav className="flex items-center gap-2 justify-center">
             <Link
               to="/"
-              className="text-[var(--color-text-dark)] hover:text-[var(--color-accent)] transition"
+              className="text-black hover:text-[var(--color-accent)] transition"
             >
               Home
             </Link>
             <span>/</span>
             <Link
               to="/products"
-              className="text-[var(--color-text-dark)] hover:text-[var(--color-accent)] transition"
+              className="text-black hover:text-[var(--color-accent)] transition"
             >
               Products
             </Link>
             <span>/</span>
-            <span className="text-[var(--color-text-orange)]">My Cart</span>
+            <a className="text-accent">My Cart</a>
           </nav>
         </div>
+
         {/* Main section */}
         <div className="min-h-screen flex items-center justify-center flex-col text-center">
           <h1 className="text-4xl font-bold mb-4 text-[var(--color-primary-400)]">
@@ -166,19 +166,19 @@ const Cart: React.FC = () => {
         <nav className="flex items-center gap-2 justify-center">
           <Link
             to="/"
-            className="text-[var(--color-text-dark)] hover:text-[var(--color-accent)] transition"
+            className="text-black hover:text-accent transition"
           >
             Home
           </Link>
           <span>/</span>
           <Link
             to="/products"
-            className="text-[var(--color-text-dark)] hover:text-[var(--color-accent)] transition"
+            className="text-black hover:text-accent transition"
           >
             Products
           </Link>
           <span>/</span>
-          <span className="text-[var(--color-text-orange)]">My Cart</span>
+          <span className="text-accent">My Cart</span>
         </nav>
       </div>
 
@@ -224,11 +224,11 @@ const Cart: React.FC = () => {
                       />
 
                       <div>
-                        <h3 className="font-semibold text-md sm:text-lg mb-1 text-primary">
+                        <h3 className="font-semibold text-md sm:text-lg mb-1 text-accent">
                           {item.name}
                         </h3>
 
-                        <p className="text-lg sm:text-xl font-bold text-[var(--color-accent)]">
+                        <p className="text-lg sm:text-xl font-bold text-accent-light">
                           ₹{item.unit_price.toFixed(2)}
                         </p>
                       </div>
@@ -237,7 +237,7 @@ const Cart: React.FC = () => {
                     {/* RIGHT controls */}
                     <div className="flex flex-row sm:flex-col sm:items-end justify-end w-full sm:w-auto gap-3">
                       <button
-                        className="text-gray-500 hover:text-red-500 transition hover:cursor-pointer"
+                        className="text-red-500 hover:text-red-600 transition hover:cursor-pointer"
                         onClick={() => {
                           setPendingDelete(item.product_id);
                           setConfirmOpen(true);
@@ -247,7 +247,7 @@ const Cart: React.FC = () => {
                       </button>
 
                       {/* Quantity changer */}
-                      <div className="flex items-center border rounded-lg px-3 py-1 w-fit">
+                      <div className="flex items-center border border-accent rounded-lg px-3 py-1 w-fit">
                         {/* - */}
                         <button
                           disabled={isUpdating}

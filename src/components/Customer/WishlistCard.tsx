@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
   useGetWishlist,
@@ -16,6 +16,7 @@ import type { Product } from "../../store/useProductStore";
 import { useAuthStore } from "../../store/authStore";
 import { Link } from "react-router-dom";
 import { Trash, Star } from "lucide-react";
+import ConfirmModal from "../../components/Customer/ConfirmModal";
 
 const ProductSkeleton = () => (
   <div className="bg-white rounded-lg shadow-md p-4 flex flex-col animate-pulse">
@@ -43,11 +44,11 @@ const WishlistCard: React.FC = () => {
   const updateMutation = useUpdateCart();
   const addMutation = useAddToCart();
   const user = useAuthStore((s) => s.user);
-  const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const [showRemoveConfirm, setShowRemoveConfirm] = useState(false);
-  const [removeTarget, setRemoveTarget] = useState<number | undefined>(
-    undefined
-  );
+  const [pendingDelete, setPendingDelete] = React.useState<number | null>(null);
+  const [confirmOpen, setConfirmOpen] = React.useState(false);
+
+  const [clearConfirmOpen, setClearConfirmOpen] = React.useState(false);
+
   // Normalize wishlist items safely
   const rawList = Array.isArray(wishlistItems)
     ? wishlistItems
@@ -109,7 +110,7 @@ const WishlistCard: React.FC = () => {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setShowClearConfirm(true);
+              setClearConfirmOpen(true);
             }}
             className="px-3 cursor-pointer py-2 text-accent-dark rounded-md border border-accent text-sm hover:bg-accent hover:text-primary-100 "
           >
@@ -288,10 +289,9 @@ const WishlistCard: React.FC = () => {
                 )}
 
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setRemoveTarget(product.id);
-                    setShowRemoveConfirm(true);
+                  onClick={() => {
+                    setPendingDelete(product.id);
+                    setConfirmOpen(true);
                   }}
                   className="ml-2 p-2 border cursor-pointer rounded-lg transition-all duration-150 border-[var(--color-accent)] text-[var(--color-accent)] hover:bg-accent hover:text-primary-100"
                 >
@@ -304,88 +304,61 @@ const WishlistCard: React.FC = () => {
       </div>
 
       {/* Clear confirm modal */}
-      {showClearConfirm && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-          onClick={() => setShowClearConfirm(false)}
-        >
-          <div
-            className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-lg font-semibold mb-3">Clear wishlist?</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              This will remove all items from your wishlist. Are you sure you
-              want to continue?
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowClearConfirm(false)}
-                className="px-4 py-2 rounded border border-accent text-accent cursor-pointer hover:-translate-y-0.5 hover:shadow-lg"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={async () => {
-                  try {
-                    await clearWishlistMutation.mutateAsync();
-                  } finally {
-                    setShowClearConfirm(false);
-                  }
-                }}
-                disabled={clearWishlistMutation.isPending}
-                className="px-4 py-2 rounded bg-accent text-primary-100 cursor-pointer hover:-translate-y-0.5 hover:shadow-lg"
-              >
-                {clearWishlistMutation.isPending ? "Clearing..." : "Clear"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        isOpen={clearConfirmOpen}
+        title="Remove Item?"
+        message={
+          <>
+            Are you sure you want to clear your wishlist? This will remove all
+            items from wishlist.
+          </>
+        }
+        confirmText="Clear"
+        cancelText="Cancel"
+        danger
+        onClose={() => setClearConfirmOpen(false)}
+        onConfirm={async () => {
+          try {
+            await clearWishlistMutation.mutateAsync();
+          } catch {
+            // handled by hook
+          }
+          setClearConfirmOpen(false);
+        }}
+      />
 
       {/* Remove single-item confirm modal */}
-      {showRemoveConfirm && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-          onClick={() => setShowRemoveConfirm(false)}
-        >
-          <div
-            className="bg-white rounded-lg p-6 w-full max-w-md shadow-lg"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-lg font-semibold mb-3">Remove item?</h3>
-            <p className="text-sm text-gray-600 mb-4">
-              This will remove the selected item from your wishlist. Continue?
-            </p>
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => setShowRemoveConfirm(false)}
-                className="px-4 py-2 rounded border border-accent text-accent cursor-pointer hover:-translate-y-0.5 hover:shadow-lg"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={async () => {
-                  try {
-                    if (removeTarget != null) {
-                      await removeWishlistMutation.mutateAsync({
-                        product_id: removeTarget,
-                      });
-                    }
-                  } finally {
-                    setShowRemoveConfirm(false);
-                    setRemoveTarget(undefined);
-                  }
-                }}
-                disabled={removeWishlistMutation.isPending}
-                className="px-4 py-2 rounded bg-accent text-primary-100 cursor-pointer hover:-translate-y-0.5 hover:shadow-lg"
-              >
-                {removeWishlistMutation.isPending ? "Removing..." : "Remove"}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmModal
+        isOpen={confirmOpen}
+        title="Clear wishlist?"
+        message={
+          <>
+            Are you sure you want to remove your item from wishlist? This will
+            remove selected item from wishlist.
+          </>
+        }
+        confirmText="Remove"
+        cancelText="Cancel"
+        danger
+        onClose={() => {
+          setConfirmOpen(false);
+          setPendingDelete(null);
+        }}
+        onConfirm={async () => {
+          if (pendingDelete != null) {
+            try {
+              // Call the remove mutation hook
+              await removeWishlistMutation.mutateAsync({
+                product_id: pendingDelete,
+              });
+            } catch {
+              // error is handled by the hook
+            }
+          }
+          setConfirmOpen(false);
+          setPendingDelete(null);
+        }}
+      />
     </section>
   );
 };

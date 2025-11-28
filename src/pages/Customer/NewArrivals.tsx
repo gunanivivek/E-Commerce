@@ -70,10 +70,10 @@ const NewArrivals: React.FC = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="text-3xl md:text-4xl pt-2 font-extrabold font-logo "
+            className="text-3xl md:text-4xl pt-2 font-extrabold font-logo text-accent-light"
           >
-            Step Into Our
-            <span className="bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-dark)] bg-clip-text text-transparent">
+            Step Into Our {" "}
+            <span className="bg-gradient-to-r from-[var(--color-accent)] to-[var(--color-accent-dark)] bg-clip-text text-accent-darker">
               Fresh Arrivals
             </span>
           </motion.h1>
@@ -145,7 +145,7 @@ const NewArrivals: React.FC = () => {
                 <div key={i} className="flex-1 min-w-[200px] relative">
                   <button
                     onClick={() => setActiveFilter(isOpen ? null : i)}
-                    className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200 transition-colors duration-200"
+                    className="w-full flex items-center justify-between px-4 py-3 rounded-lg bg-gray-100 border border-gray-300 text-gray-800 hover:bg-gray-200 transition-colors duration-200 cursor-pointer"
                   >
                     {label}
                     <motion.div
@@ -168,7 +168,7 @@ const NewArrivals: React.FC = () => {
                       {filter.options.map((option, j) => (
                         <button
                           key={j}
-                          className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition"
+                          className="w-full text-left px-4 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition cursor-pointer"
                           onClick={() => {
                             // map option to filter values
                             const next = { ...selectedFilters };

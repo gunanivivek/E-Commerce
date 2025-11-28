@@ -4,6 +4,7 @@ import { Plus, Trash2, Pencil } from "lucide-react";
 import type { Address } from "../../types/Address";
 import { useAddresses } from "../../hooks/useAddresses";
 import { useAddressStore } from "../../store/addressStore";
+import ConfirmModal from "./ConfirmModal";
 
 // ✅ Skeleton Component
 const AddressSkeleton = () => {
@@ -31,6 +32,7 @@ const AddressInfo = () => {
   const { setSelectedAddress } = useAddressStore();
   const [isAdding, setIsAdding] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
 
   const {
     register,
@@ -89,8 +91,11 @@ const AddressInfo = () => {
     cancelForm();
   };
 
-  const onDelete = (id: number) => {
-    deleteMutation.mutate(id);
+  const confirmDelete = () => {
+    if (confirmDeleteId) {
+      deleteMutation.mutate(confirmDeleteId);
+      setConfirmDeleteId(null); // close modal
+    }
   };
 
   if (isLoading) {
@@ -151,12 +156,10 @@ const AddressInfo = () => {
                 onChange: (e) => {
                   let val = e.target.value.replace(/[^\d+]/g, "");
 
-                
                   if (!val.startsWith("+91")) {
                     val = "+91" + val.replace(/^(\+|91)/, "");
                   }
 
-               
                   val = val.slice(0, 13);
 
                   setValue("phone_number", val);
@@ -248,16 +251,13 @@ const AddressInfo = () => {
               <div className="flex gap-2 ml-4">
                 <button
                   onClick={() => startEdit(address)}
-                  className="cursor-pointer p-2 text-surface-light rounded-lg transition-all duration-150 shadow-sm hover:shadow-md "
-                  style={{
-                    backgroundColor: "var(--color-accent)",
-                  }}
+                  className="cursor-pointer p-2 text-primary-100 bg-accent hover:bg-accent-dark rounded-lg transition-all duration-150 shadow-sm hover:shadow-md"
                 >
                   <Pencil size={16} />
                 </button>
                 <button
-                  onClick={() => onDelete(address.id)}
-                  className="cursor-pointer p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all duration-150 shadow-sm hover:shadow-md "
+                  onClick={() => setConfirmDeleteId(address.id)}
+                  className="cursor-pointer p-2 bg-red-500 hover:bg-red-600 text-primary-100 rounded-lg transition-all duration-150 shadow-sm hover:shadow-md "
                 >
                   <Trash2 size={16} />
                 </button>
@@ -272,6 +272,18 @@ const AddressInfo = () => {
           </p>
         )}
       </div>
+
+      {/* Confirm Modal for delete address */}
+      <ConfirmModal
+        isOpen={confirmDeleteId !== null}
+        title="Delete Address?"
+        message="Are you sure you want to delete this address? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        danger
+        onClose={() => setConfirmDeleteId(null)}
+        onConfirm={confirmDelete}
+      />
     </section>
   );
 };
