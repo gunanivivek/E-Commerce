@@ -358,7 +358,7 @@ const Checkout: React.FC = () => {
                   <button
                     onClick={handlePlaceOrder}
                     disabled={!selectedAddressId || cartItems.length === 0}
-                    className={`w-full py-3 sm:py-4 px-4 sm:px-6 text-white font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-3 shadow-lg ${
+                    className={`w-full cursor-pointer py-3 sm:py-4 px-4 sm:px-6 text-white font-bold rounded-xl transition-all duration-200 flex items-center justify-center gap-3 shadow-lg ${
                       !selectedAddressId || cartItems.length === 0
                         ? "bg-gray-300 cursor-not-allowed"
                         : "bg-primary-400 hover:bg-primary-300"

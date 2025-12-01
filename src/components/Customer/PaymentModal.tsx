@@ -220,7 +220,7 @@ const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
 
             <button
               onClick={onClose}
-              className="w-10 h-10 bg-white/20 backdrop-blur-md hover:bg-white/30 rounded-xl flex items-center justify-center text-white transition-all flex-shrink-0 ml-auto"
+              className="w-10 h-10 cursor-pointer bg-white/20 backdrop-blur-md hover:bg-white/30 rounded-xl flex items-center justify-center text-white transition-all flex-shrink-0 ml-auto"
             >
               <X className="w-5 h-5" />
             </button>
@@ -340,7 +340,7 @@ const CardPaymentModal: React.FC<CardPaymentModalProps> = ({
                 className={`w-full py-4 sm:py-5 px-4 sm:px-6 mb-4 md:mb-0 rounded-2xl font-bold text-base sm:text-lg transition-all duration-200 flex items-center justify-center gap-3 shadow-xl ${
                   orderMutation.isPending || !stripe || !elements
                     ? "bg-gray-300 cursor-not-allowed text-gray-500"
-                    : "bg-primary-400 hover:from-primary-500 hover:to-primary-600 text-white hover:shadow-2xl"
+                    : "bg-primary-400 hover:from-primary-500 hover:to-primary-600 text-white hover:shadow-2xl cursor-pointer"
                 }`}
               >
                 {orderMutation.isPending ? (
