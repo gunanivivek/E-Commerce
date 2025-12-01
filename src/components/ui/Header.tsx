@@ -10,9 +10,9 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useAuthStore } from "../../store/authStore";
-import { toast } from "react-toastify";
 import { useCart } from "../../hooks/Customer/useCartHooks";
 import { useGetWishlist } from "../../hooks/Customer/useWishlistHooks";
+import { showToast } from "../toastManager";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -30,7 +30,7 @@ const Header = () => {
       navigate(`/search?query=${encodeURIComponent(trimmed)}`);
       setIsMobileSearchOpen(false);
     } else {
-      toast.info("Please enter something to search");
+      showToast("Enter something to search", "info");
     }
   };
 
